@@ -13,6 +13,13 @@
 - **MathJax Integration**: Perfect rendering of complex mathematical and chemical formulas.
 - **Dark/Light Themes**: A globally persistent, beautiful UI featuring an animated galaxy background.
 
+## ⚙️ How It Works
+1. **Selection**: Users begin by choosing a subject on the Home Page. The app seamlessly routes them to the quiz engine using React Router.
+2. **Configuration**: The `QuizSetup` component allows the user to specify which lessons or volumes to cover, set global timers (e.g. 30 mins) and per-question timers (e.g. 15s), and toggle Practice vs Test mode.
+3. **Data Loading**: Using Vite's asset bundling and PapaParse, the requested subject's CSV file is fetched locally, parsed, and passed into the `useQuizEngine` state manager.
+4. **Execution**: The `QuizActive` component sequentially displays questions. If MathJax formatting is detected (`$$` or `\\[`), it renders it dynamically. 
+5. **Evaluation**: Once completed, the `ResultsBoard` calculates accuracy metrics and provides a detailed Review Section showing the questions the user got wrong and highlighting the correct answers.
+
 ## 🛠 Tech Stack
 - **Framework**: React (Vite)
 - **Styling**: Tailwind CSS & Vanilla CSS (Glassmorphism design)
@@ -34,8 +41,5 @@ This is an open-source initiative! If you'd like to suggest features, fix bugs, 
 3. Commit your changes.
 4. Push to the branch and open a Pull Request!
 
-## 👨‍💻 Creator
-Developed by **S.K. Sreehari** 
-Connect with me or view my portfolio through the application links!
-
-*Co Creator :* **Saravanan S** 
+## 🌟 Open Source
+MARKSPRINT is proudly completely open-source. We welcome contributions from the community to help students succeed!
