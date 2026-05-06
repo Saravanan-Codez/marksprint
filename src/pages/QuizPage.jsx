@@ -1,9 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 
-import "../App.css";
-import "../styles/Quiz.css";
-
 import { useQuizEngine } from "../features/quiz/hooks/useQuizEngine";
 import QuizSetup from "../features/quiz/components/QuizSetup";
 import QuizActive from "../features/quiz/components/QuizActive";
