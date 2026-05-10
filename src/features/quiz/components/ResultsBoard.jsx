@@ -45,7 +45,7 @@ export default function ResultsBoard({ engine }) {
             
             <div className="flex justify-between items-center bg-[rgba(0,0,0,0.4)] p-6 rounded-2xl border border-[rgba(255,255,255,0.05)] shadow-inner">
               <span className="text-sm font-bold text-gray-400 tracking-widest uppercase">Correct Answers</span>
-              <span className="text-2xl md:text-3xl font-black text-green-400 tabular-nums drop-shadow-[0_0_10px_rgba(34,197,94,0.6)]">{correct}</span>
+              <span className="text-2xl md:text-3xl font-black text-green-300 tabular-nums drop-shadow-[0_0_15px_rgba(34,197,94,0.9)] font-black">{correct}</span>
             </div>
             
             <div className="flex justify-between items-center bg-[rgba(0,0,0,0.4)] p-6 rounded-2xl border border-[rgba(255,255,255,0.05)] shadow-inner">
@@ -93,16 +93,16 @@ export default function ResultsBoard({ engine }) {
               {item.questionObj.question_image && <img src={item.questionObj.question_image} alt="Question" className="max-w-full md:max-w-[400px] ml-12 mb-8 rounded-xl border border-[rgba(255,255,255,0.1)] shadow-[0_5px_15px_rgba(0,0,0,0.4)]" />}
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 ml-12">
-                <div className={`p-5 rounded-xl flex items-center gap-4 ${item.isCorrect ? 'bg-green-500/10 border border-green-500/20 text-green-100' : 'bg-red-500/10 border border-red-500/20 text-red-100'}`}>
-                  {item.isCorrect ? <CheckCircle2 size={24} className="text-green-400 shrink-0" /> : <XCircle size={24} className="text-red-400 shrink-0" />}
-                  <div>
-                    <span className="block text-[10px] uppercase tracking-widest opacity-80 mb-1 font-bold text-gray-400">Your Answer</span>
-                    <span className="text-base font-semibold text-white/90" dangerouslySetInnerHTML={{ __html: item.userAnswer || "Skipped / Timeout" }} />
-                  </div>
+              <div className={`p-5 rounded-xl flex items-center gap-4 ${item.isCorrect ? 'bg-green-600/40 border border-green-400 text-white shadow-[0_0_25px_rgba(34,197,94,0.7)] ring-1 ring-green-500/30' : 'bg-red-600/40 border border-red-400 text-white shadow-[0_0_25px_rgba(239,68,68,0.7)] ring-1 ring-red-500/30'}`}>
+                {item.isCorrect ? <CheckCircle2 size={24} className="text-green-300 shrink-0" /> : <XCircle size={24} className="text-red-300 shrink-0" />}
+                <div>
+                  <span className="block text-[10px] uppercase tracking-widest opacity-80 mb-1 font-bold text-gray-300">Your Answer</span>
+                  <span className="text-base font-semibold text-white" dangerouslySetInnerHTML={{ __html: item.userAnswer || "Skipped / Timeout" }} />
                 </div>
-                
-                {!item.isCorrect && (
-                  <div className="p-5 rounded-xl flex items-center gap-4 bg-green-500/10 border border-green-500/20 text-green-100">
+              </div>
+              
+              {!item.isCorrect && (
+                <div className="p-5 rounded-xl flex items-center gap-4 bg-green-600/40 border border-green-400 text-white shadow-[0_0_25px_rgba(34,197,94,0.7)] ring-1 ring-green-500/30">
                     <CheckCircle2 size={24} className="text-green-400 shrink-0" />
                     <div>
                       <span className="block text-[10px] uppercase tracking-widest opacity-80 mb-1 font-bold text-gray-400">Correct Answer</span>

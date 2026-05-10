@@ -40,7 +40,7 @@ export default function HomePage() {
       <motion.h1 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="text-4xl md:text-6xl font-extrabold tracking-tighter mb-8 md:mb-12 text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 drop-shadow-[0_0_20px_rgba(0,210,255,0.4)]"
+        className="text-4xl md:text-6xl font-extrabold tracking-tighter mb-8 md:mb-12 text-center text-cyan-400 drop-shadow-[0_0_15px_rgba(0,210,255,0.8)]"
       >
         MarkSprint
       </motion.h1>
@@ -108,7 +108,7 @@ export default function HomePage() {
 
         {/* Select Subject Button - Rectangular, Sharp Edges */}
         <button 
-          className="relative group px-12 py-4 w-64 h-16 md:w-72 md:h-20 bg-[rgba(255,255,255,0.05)] text-white text-sm md:text-base font-bold tracking-widest uppercase rounded-none border border-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.1)] transition-all duration-300 flex items-center justify-center gap-3 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.5)]" 
+          className="relative group px-12 py-4 w-64 h-16 md:w-72 md:h-20 bg-[rgba(255,255,255,0.05)] text-white text-sm md:text-base font-bold tracking-widest uppercase rounded-2xl border border-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.1)] transition-all duration-300 flex items-center justify-center gap-3 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.5)]" 
           onClick={handleSelect}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300"></div>
@@ -125,7 +125,7 @@ export default function HomePage() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="px-12 py-4 w-64 h-16 md:w-72 md:h-20 rounded-none bg-[rgba(0,210,255,0.1)] border border-cyan-500/30 shadow-[0_0_20px_rgba(0,210,255,0.2)] flex items-center justify-center"
+            className="px-12 py-4 w-64 h-16 md:w-72 md:h-20 rounded-2xl bg-[rgba(0,210,255,0.1)] border border-cyan-500/30 shadow-[0_0_20px_rgba(0,210,255,0.2)] flex items-center justify-center"
           >
             <div className="text-center flex items-center gap-4">
               <p className="text-xs font-semibold text-cyan-100 tracking-wide">Subject Locked:</p>
@@ -133,7 +133,7 @@ export default function HomePage() {
             </div>
           </motion.div>
         ) : (
-          <div className="px-12 py-4 w-64 h-16 md:w-72 md:h-20 rounded-none bg-[rgba(0,0,0,0.3)] border border-[rgba(255,255,255,0.05)] flex items-center justify-center">
+          <div className="px-12 py-4 w-64 h-16 md:w-72 md:h-20 rounded-2xl bg-[rgba(0,0,0,0.3)] border border-[rgba(255,255,255,0.05)] flex items-center justify-center">
             <p className="text-gray-500 tracking-widest uppercase text-xs font-bold text-center">Awaiting Selection</p>
           </div>
         )}
@@ -144,7 +144,7 @@ export default function HomePage() {
       <motion.button 
         whileHover={selected ? { scale: 1.02 } : {}}
         whileTap={selected ? { scale: 0.98 } : {}}
-        className={`px-12 py-4 w-64 h-16 md:w-72 md:h-20 text-base md:text-lg font-black uppercase tracking-[0.2em] rounded-none transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden ${selected ? 'text-white border-0 shadow-[0_0_20px_rgba(0,210,255,0.4)] cursor-pointer group' : 'bg-[rgba(255,255,255,0.02)] text-gray-600 border border-[rgba(255,255,255,0.05)] cursor-not-allowed'}`}
+        className={`px-12 py-4 w-64 h-16 md:w-72 md:h-20 text-base md:text-lg font-black uppercase tracking-[0.2em] rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden ${selected ? 'text-white border-0 shadow-[0_0_20px_rgba(0,210,255,0.4)] cursor-pointer group' : 'bg-[rgba(255,255,255,0.02)] text-gray-600 border border-[rgba(255,255,255,0.05)] cursor-not-allowed'}`}
         onClick={() => {
           if (!selected) return;
           navigate(`/quiz/${selected === "Computer" ? "cs" : selected.toLowerCase()}`);
@@ -163,14 +163,14 @@ export default function HomePage() {
 
       {/* Creator Section */}
       <div className="mt-16 md:mt-20 w-full flex flex-col items-center justify-center">
-        <div className="bg-[rgba(255, 255, 255, 0.03)] backdrop-blur-xl border border-[rgba(255, 255, 255, 0.05)] rounded-none p-6 md:p-8 max-w-sm w-full mx-4 shadow-[0_0_20px_rgba(0,210,255,0.1)]">
+        <div className="bg-[rgba(255,255,255,0.03)] backdrop-blur-xl border-none rounded-2xl p-6 md:p-8 max-w-sm w-full mx-4 shadow-[0_0_20px_rgba(0,210,255,0.1)]">
           <div style={{ textAlign: 'center' }}>
           <p className="text-sm md:text-base font-bold text-cyan-300 tracking-widest mb-4">CREATOR : S.K.SREEHARI </p>
           <a 
             href="/portfolio" 
             target="_blank" 
             rel="noreferrer"
-            className="inline-block px-6 py-3 bg-transparent border border-cyan-400 text-cyan-400 font-bold rounded-none transition-all duration-300 hover:bg-cyan-400/10 hover:shadow-[0_0_15px_rgba(42,168,216,0.3)]"
+            className="inline-block px-6 py-3 bg-cyan-400/10 text-cyan-400 font-bold rounded-none transition-all duration-300 hover:bg-cyan-400/20 hover:shadow-[0_0_15px_rgba(42,168,216,0.3)]"
           >
             View Portfolio Website
           </a>

@@ -29,7 +29,7 @@ export default function MainLayout() {
               </button>
             )}
             <div 
-              className="font-black text-lg md:text-xl tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-[#3a7bd5] cursor-pointer hover:scale-105 transition-transform" 
+              className="font-black text-lg md:text-xl tracking-widest text-[#00d2ff] drop-shadow-[0_0_8px_rgba(0,210,255,0.5)] cursor-pointer hover:scale-105 transition-transform" 
               onClick={() => navigate("/")}
             >
               MARKSPRINT
