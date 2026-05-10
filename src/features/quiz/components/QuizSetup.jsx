@@ -35,12 +35,12 @@ export default function QuizSetup({ engine, subject }) {
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
 
         <section className="text-center">
-          <h4 className="text-sm font-bold text-gray-400 mb-8 uppercase tracking-widest">Assessment Scope</h4>
-          <div className="grid grid-cols-3 gap-4 p-3 bg-[rgba(0,0,0,0.4)] rounded-none border border-[rgba(255,255,255,0.05)] shadow-inner mt-2">
+          <h4 className="text-lg md:text-xl font-black text-cyan-400 mb-10 uppercase tracking-[0.3em] drop-shadow-[0_0_10px_rgba(0,210,255,0.3)]">Assessment Scope</h4>
+          <div className="grid grid-cols-3 gap-4 p-3 bg-[rgba(0,0,0,0.4)] rounded-xl border border-[rgba(255,255,255,0.05)] shadow-inner mt-2">
             {["lesson", "volume", "full"].map(t => (
               <button 
                 key={t} 
-                className={`py-3.5 rounded-none font-bold text-sm md:text-base tracking-widest transition-all duration-300 ${quizType === t ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-[0_0_20px_rgba(0,210,255,0.4)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 hover:text-white hover:bg-[rgba(255,255,255,0.05)]'}`}
+                className={`py-3.5 rounded-lg font-bold text-sm md:text-base tracking-widest transition-all duration-300 ${quizType === t ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-[0_0_30px_rgba(0,210,255,0.8)] border border-cyan-400' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 hover:text-white hover:bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)]'}`}
                 onClick={() => setQuizType(t)}
               >
                 {t.toUpperCase()}
@@ -56,7 +56,7 @@ export default function QuizSetup({ engine, subject }) {
               {availableLessons.map(lesson => (
                 <button 
                   key={lesson}
-                  className={`w-full px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-300 border ${selectedLessons.includes(lesson) ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 shadow-[0_0_15px_rgba(0,210,255,0.3)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.05)] hover:border-gray-500 hover:text-white'}`}
+                  className={`w-full px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-300 border ${selectedLessons.includes(lesson) ? 'bg-cyan-500/30 text-cyan-100 border-cyan-400 shadow-[0_0_20px_rgba(0,210,255,0.6)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.05)] hover:border-gray-500 hover:text-white'}`}
                   onClick={() => setSelectedLessons(prev => prev.includes(lesson) ? prev.filter(l => l !== lesson) : [...prev, lesson])}
                 >
                   Lesson {lesson}
@@ -133,7 +133,7 @@ export default function QuizSetup({ engine, subject }) {
               {[0, 5, 10, 15].map(t => (
                 <button 
                   key={t} 
-                  className={`py-3 rounded-none font-bold text-sm md:text-base transition-all duration-300 border ${timerLimit === t ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 shadow-[0_0_15px_rgba(0,210,255,0.3)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.05)] hover:border-gray-500 hover:text-white'}`}
+                  className={`py-3 rounded-lg font-bold text-sm md:text-base transition-all duration-300 border ${timerLimit === t ? 'bg-cyan-500/30 text-cyan-100 border-cyan-400 shadow-[0_0_25px_rgba(0,210,255,0.6)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.1)] hover:border-gray-500 hover:text-white'}`}
                   onClick={() => setTimerLimit(t)}
                 >
                   {t === 0 ? "OFF" : `${t}s`}
@@ -148,7 +148,7 @@ export default function QuizSetup({ engine, subject }) {
               {[0, 5, 10, 30].map(t => (
                 <button 
                   key={t} 
-                  className={`py-3 rounded-none font-bold text-sm md:text-base transition-all duration-300 border ${globalTimerLimit === t ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 shadow-[0_0_15px_rgba(0,210,255,0.3)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.05)] hover:border-gray-500 hover:text-white'}`}
+                  className={`py-3 rounded-lg font-bold text-sm md:text-base transition-all duration-300 border ${globalTimerLimit === t ? 'bg-cyan-500/30 text-cyan-100 border-cyan-400 shadow-[0_0_25px_rgba(0,210,255,0.6)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.1)] hover:border-gray-500 hover:text-white'}`}
                   onClick={() => setGlobalTimerLimit(t)}
                 >
                   {t === 0 ? "OFF" : `${t}m`}
@@ -163,7 +163,7 @@ export default function QuizSetup({ engine, subject }) {
               {[0, 15, 20].map(n => (
                 <button 
                   key={n} 
-                  className={`py-3 rounded-none font-bold text-sm md:text-base transition-all duration-300 border ${questionCount === n ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 shadow-[0_0_15px_rgba(0,210,255,0.3)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.05)] hover:border-gray-500 hover:text-white'}`}
+                  className={`py-3 rounded-lg font-bold text-sm md:text-base transition-all duration-300 border ${questionCount === n ? 'bg-cyan-500/30 text-cyan-100 border-cyan-400 shadow-[0_0_25px_rgba(0,210,255,0.6)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.1)] hover:border-gray-500 hover:text-white'}`}
                   onClick={() => setQuestionCount(n)}
                 >
                   {n === 0 ? "ALL" : n}
@@ -175,18 +175,18 @@ export default function QuizSetup({ engine, subject }) {
 
         <div className="pt-8 flex flex-col gap-4">
           <button 
-            className="relative group w-full py-5 text-white text-xl font-black tracking-widest uppercase rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(168,85,247,0.3)] hover:shadow-[0_10px_50px_rgba(168,85,247,0.6)] transition-all duration-300 border border-[rgba(255,255,255,0.2)]" 
+            className="relative group w-full py-6 text-white text-2xl font-black tracking-[0.2em] uppercase rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.4)] hover:shadow-[0_0_60px_rgba(255,0,128,0.8)] transition-all duration-500 border-0" 
             onClick={startRevision}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 group-hover:scale-[1.03] transition-transform duration-500"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-500 via-orange-500 to-red-500 animate-gradient-x group-hover:scale-110 transition-transform duration-700"></div>
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
             <span className="relative z-10 drop-shadow-md">Start Revision</span>
           </button>
           <button 
-            className="relative group w-full py-5 text-white text-xl font-black tracking-widest uppercase rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,210,255,0.3)] hover:shadow-[0_10px_50px_rgba(0,210,255,0.6)] transition-all duration-300 border border-[rgba(255,255,255,0.2)]" 
+            className="relative group w-full py-6 text-white text-2xl font-black tracking-[0.2em] uppercase rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(0,210,255,0.4)] hover:shadow-[0_0_60px_rgba(0,210,255,0.8)] transition-all duration-500 border-0" 
             onClick={startQuiz}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 group-hover:scale-[1.03] transition-transform duration-500"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-blue-500 via-indigo-500 to-purple-600 animate-gradient-x group-hover:scale-110 transition-transform duration-700"></div>
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
             <span className="relative z-10 drop-shadow-md">Start Assessment</span>
           </button>

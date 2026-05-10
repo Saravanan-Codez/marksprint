@@ -62,8 +62,8 @@ export default function QuizActive({ engine }) {
           </button>
         </div>
         
-        {/* Timers Row */}
-        <div className="flex flex-wrap gap-4 justify-center md:justify-end">
+        {/* Timers Column */}
+        <div className="flex flex-col gap-3 items-center md:items-end">
           {globalTimerLimit > 0 && (
             <Timer 
               timeLeft={globalTimeLeft} 
@@ -94,12 +94,12 @@ export default function QuizActive({ engine }) {
             <span className="text-[11px] md:text-sm font-bold text-gray-400 tracking-widest uppercase">Progress</span>
             <span className="text-2xl md:text-3xl font-black text-white tabular-nums tracking-wider drop-shadow-md">{currentIdx + 1} <span className="text-gray-500 text-sm md:text-base font-semibold">/ {firstAttemptQuestions.length}</span></span>
           </div>
-          <div className="w-full h-4 md:h-5 bg-[rgba(0,0,0,0.6)] rounded-full overflow-hidden border border-[rgba(255,255,255,0.05)] shadow-inner">
+          <div className="w-full h-4 md:h-5 bg-[rgba(0,0,0,0.6)] rounded-full overflow-hidden border border-cyan-400/50 shadow-inner shadow-[0_0_15px_rgba(0,210,255,0.3)]">
             <div 
-              className="h-full bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full transition-all duration-500 ease-out relative shadow-[0_0_20px_rgba(0,210,255,0.8)]"
+              className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 rounded-full transition-all duration-500 ease-out relative shadow-[0_0_30px_rgba(0,210,255,1)]" 
               style={{ width: `${progressPercentage}%` }}
             >
-              <div className="absolute top-0 right-0 bottom-0 w-8 bg-white/50 blur-[3px]"></div>
+              <div className="absolute top-0 right-0 bottom-0 w-8 bg-white/60 blur-[2px]"></div>
             </div>
           </div>
         </div>

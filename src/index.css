@@ -70,9 +70,23 @@ canvas {
     transform: rotate(360deg);
   }
 }
-.animate-spin-slow {
-  animation: spin-slow 8s linear infinite;
-}
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+  }
+  
+  @keyframes gradient-x {
+    0%, 100% {
+      background-size: 200% 200%;
+      background-position: left center;
+    }
+    50% {
+      background-size: 200% 200%;
+      background-position: right center;
+    }
+  }
+  .animate-gradient-x {
+    animation: gradient-x 3s ease infinite;
+  }
 
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
