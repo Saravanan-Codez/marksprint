@@ -6,4 +6,22 @@
     <loc>https://marksprint-nu.vercel.app/</loc>
   </url>
 
+   <url>
+    <loc>https://marksprint-nu.vercel.app/quiz/physics</loc>
+  </url>
+
+   <url>
+    <loc>https://marksprint-nu.vercel.app/quiz/chemistry</loc>
+  </url>
+
+   <url>
+    <loc>https://marksprint-nu.vercel.app/quiz/maths</loc>
+  </url>
+
+   <url>
+    <loc>https://marksprint-nu.vercel.app/quiz/cs</loc>
+  </url>
+
+
+
 </urlset>
