@@ -1,11 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, AlertCircle } from 'lucide-react';
+import { Lock, AlertCircle, Smartphone } from 'lucide-react';
 import Galaxy from '../../../components/Galaxy';
 import ClickSpark from '../../../components/ClickSpark';
 
 const CORRECT_PASSWORD = '.Sreeh@r!462';
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+// Device detection function
+const isDesktopDevice = () => {
+  // Check window width (tablets and phones are typically < 1024px)
+  if (window.innerWidth < 1024) {
+    return false;
+  }
+
+  // Check user agent for mobile/tablet indicators
+  const userAgent = navigator.userAgent.toLowerCase();
+  const mobilePatterns = [
+    /android/,
+    /webos/,
+    /iphone/,
+    /ipad/,
+    /ipod/,
+    /blackberry/,
+    /iemobile/,
+    /opera mini/,
+    /mobile/,
+    /tablet/,
+    /kindle/,
+    /playbook/,
+  ];
+
+  return !mobilePatterns.some(pattern => pattern.test(userAgent));
+};
 
 export default function PasswordGate({ onUnlock }) {
   const [passwordInput, setPasswordInput] = useState(Array(CORRECT_PASSWORD.length).fill(''));
@@ -14,14 +41,27 @@ export default function PasswordGate({ onUnlock }) {
   const [lockoutTime, setLockoutTime] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [charValidation, setCharValidation] = useState(Array(CORRECT_PASSWORD.length).fill(null));
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Check if device is desktop/PC only
   useEffect(() => {
-    const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    if (isMobile) {
-      setErrorMessage('Content Manager is only available on desktop/PC browsers');
-      setIsLocked(true);
-    }
+    const checkDevice = () => {
+      const isDesktop = isDesktopDevice();
+      setIsMobileDevice(!isDesktop);
+      setIsLoading(false);
+    };
+
+    // Small delay to ensure window is fully loaded
+    checkDevice();
+
+    // Re-check on window resize
+    const handleResize = () => {
+      checkDevice();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Check for existing lockout in localStorage
@@ -160,6 +200,65 @@ export default function PasswordGate({ onUnlock }) {
     return `${minutes}m ${seconds}s`;
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <ClickSpark isDark={true}>
+        <div className="min-h-screen w-full relative flex flex-col items-center justify-center bg-[#0b1f2a] text-[#9fe3ff] p-4">
+          <Galaxy isDark={true} />
+          <div className="relative z-10">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00d2ff]"></div>
+          </div>
+        </div>
+      </ClickSpark>
+    );
+  }
+
+  // Mobile/Tablet device - show desktop-only message
+  if (isMobileDevice) {
+    return (
+      <ClickSpark isDark={true}>
+        <div className="min-h-screen w-full relative flex flex-col items-center justify-center bg-[#0b1f2a] text-[#9fe3ff] p-4 overflow-hidden">
+          <Galaxy isDark={true} />
+          
+          <div className="relative z-10 max-w-md w-full">
+            <div className="bg-[rgba(255,255,255,0.03)] backdrop-blur-xl border border-[rgba(255,255,255,0.05)] rounded-none p-12 shadow-[0_0_20px_rgba(0,210,255,0.1)] text-center">
+              <div className="flex justify-center mb-6">
+                <Smartphone size={56} className="text-[#ff6b6b]" />
+              </div>
+
+              <h1 className="text-2xl font-bold text-[#7fdfff] mb-4">
+                Desktop Only
+              </h1>
+              
+              <p className="text-[#9fe3ff] mb-6 leading-relaxed">
+                The Content Manager is only available on desktop and laptop computers.
+              </p>
+
+              <div className="bg-[rgba(255,107,107,0.1)] border border-[#ff6b6b] rounded-none p-4 mb-6">
+                <p className="text-[#ff9999] text-sm">
+                  Please access this page from a desktop or laptop browser to continue.
+                </p>
+              </div>
+
+              <button
+                onClick={() => window.location.href = '/'}
+                className="w-full px-6 py-3 bg-[#2aa8d8] hover:bg-[#00d2ff] text-[#0b1f2a] font-semibold rounded-none transition-all duration-300 transform hover:scale-105"
+              >
+                Return to Home
+              </button>
+
+              <p className="text-xs text-[#2aa8d8] mt-6">
+                If you believe this is an error, try opening this page on a desktop browser.
+              </p>
+            </div>
+          </div>
+        </div>
+      </ClickSpark>
+    );
+  }
+
+  // Desktop device - show password gate
   return (
     <ClickSpark isDark={true}>
       <div className="min-h-screen w-full relative flex flex-col items-center justify-center bg-[#0b1f2a] text-[#9fe3ff] p-4 overflow-hidden">
