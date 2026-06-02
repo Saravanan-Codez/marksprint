@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage.jsx';
 import QuizPage from './pages/QuizPage.jsx';
 const PortfolioUrl = '/PortfolioPage.html';
 import AboutPage from './pages/AboutPage.jsx';
+import ContentManagerPage from './pages/ContentManagerPage.jsx';
 import MainLayout from './layouts/MainLayout.jsx';
 import { ThemeProvider } from './context/ThemeProvider.jsx';
 import './index.css';
@@ -27,6 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path='/quiz/:subject' element={<QuizPage />} />
             <Route path='/portfolio' element={<PortfolioPage />} />
             <Route path='/about' element={<AboutPage />} />
+            <Route path='/content-manager' element={<ContentManagerPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ExternalLink, Code } from 'lucide-react';
+import { ExternalLink, Code, Lock } from 'lucide-react';
 import Galaxy from '../components/Galaxy';
 import ClickSpark from '../components/ClickSpark';
 
@@ -132,6 +132,12 @@ export default function AboutPage() {
                 className="px-8 py-3 border border-[#2aa8d8] text-[#2aa8d8] font-bold rounded-none transition-all duration-300 hover:bg-[#2aa8d8] hover:text-white hover:shadow-[0_0_15px_rgba(42,168,216,0.5)] w-full md:w-auto"
               >
                 Back to Home
+              </button>
+              <button 
+                onClick={() => navigate('/content-manager')} 
+                className="flex items-center justify-center gap-2 px-8 py-3 bg-[#ff6b6b] text-white font-bold rounded-none transition-all duration-300 hover:bg-[#ff5252] hover:shadow-[0_0_15px_rgba(255,107,107,0.5)] w-full md:w-auto"
+              >
+                <Lock size={20} /> Content Manager
               </button>
               <a 
                 href="https://github.com/sreehari462/marksprint" 
