@@ -20,6 +20,17 @@ const CSV_MAP = {
   tamil: tamilCsv
 };
 
+const SUBJECT_MAP = {
+  physics: 'Physics',
+  chemistry: 'Chemistry',
+  maths: 'Maths',
+  cs: 'Computer Science',
+  computer: 'Computer Science',
+  biology: 'Biology',
+  english: 'English',
+  tamil: 'Tamil'
+};
+
 export function useQuizEngine(subject) {
   // Quiz Configuration State
   const [quizMode, setQuizMode] = useState("setup"); // "setup", "active", "result", "revision"
@@ -56,11 +67,22 @@ export function useQuizEngine(subject) {
   const [currentRoundWrong, setCurrentRoundWrong] = useState([]);
   const [isInRepeatMode, setIsInRepeatMode] = useState(false);
 
-  // Load CSV Data
+  // Load CSV Data and merge with localStorage
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
+        // Get the proper subject name for matching
+        const properSubjectName = SUBJECT_MAP[subject?.toLowerCase()] || subject;
+        
+        // Load localStorage data first
+        const storedData = localStorage.getItem('contentManagerData');
+        let localQuestions = [];
+        if (storedData) {
+          const parsed = JSON.parse(storedData);
+          localQuestions = parsed.questions || [];
+        }
+
         const csvFile = CSV_MAP[subject?.toLowerCase()];
         if (!csvFile) {
           throw new Error(`CSV not mapped for ${subject}`);
@@ -74,11 +96,52 @@ export function useQuizEngine(subject) {
           dynamicTyping: false,
           skipEmptyLines: true,
           complete: (results) => {
-            const filtered = results.data.filter(q => (q.question && q.question.trim()) || q.question_image);
-            setAllQuestions(filtered);
-            const lessons = [...new Set(filtered.map(q => q.lesson))].filter(Boolean).sort((a, b) => parseInt(a) - parseInt(b));
+            let filtered = results.data.filter(q => (q.question && q.question.trim()) || q.question_image);
+            
+            // Merge with localStorage data
+            // First, add all CSV questions
+            let mergedQuestions = filtered.map(q => ({
+              ...q,
+              id: `csv-${subject}-${q.question}-${q.lesson}-${q.vol}`,
+              isFromCSV: true,
+              subject: properSubjectName
+            }));
+
+            // Then, add/override with localStorage questions for this subject
+            const localSubjectQuestions = localQuestions.filter(q => q.subject === properSubjectName);
+            localSubjectQuestions.forEach(localQ => {
+              // Check if this question exists in CSV (by question text and lesson/volume)
+              const csvIndex = mergedQuestions.findIndex(q => 
+                q.question === localQ.question && 
+                q.lesson === localQ.lesson && 
+                q.vol === localQ.volume
+              );
+              
+              if (csvIndex !== -1) {
+                // Override the CSV question with the edited version
+                mergedQuestions[csvIndex] = {
+                  ...localQ,
+                  subject: properSubjectName,
+                  volume: localQ.volume || localQ.vol,
+                  vol: localQ.volume || localQ.vol,
+                  isFromCSV: false
+                };
+              } else {
+                // Add new question from localStorage
+                mergedQuestions.push({
+                  ...localQ,
+                  subject: properSubjectName,
+                  volume: localQ.volume || localQ.vol,
+                  vol: localQ.volume || localQ.vol,
+                  isFromCSV: false
+                });
+              }
+            });
+
+            setAllQuestions(mergedQuestions);
+            const lessons = [...new Set(mergedQuestions.map(q => q.lesson))].filter(Boolean).sort((a, b) => parseInt(a) - parseInt(b));
             setAvailableLessons(lessons);
-            const volumes = [...new Set(filtered.map(q => q.vol))].filter(Boolean).sort();
+            const volumes = [...new Set(mergedQuestions.map(q => q.vol || q.volume))].filter(Boolean).sort();
             setAvailableVolumes(volumes);
             setLoading(false);
           },
@@ -104,7 +167,7 @@ export function useQuizEngine(subject) {
 
     let filtered = [...allQuestions];
     if (quizType === "volume" && selectedVolume !== "all") {
-      filtered = filtered.filter(q => q.vol === selectedVolume);
+      filtered = filtered.filter(q => (q.vol || q.volume) === selectedVolume);
     }
     if (quizType === "lesson" && selectedLessons.length > 0) {
       filtered = filtered.filter(q => selectedLessons.includes(q.lesson));
@@ -196,7 +259,7 @@ export function useQuizEngine(subject) {
     }
   }, [isLocked, quizQuestions, currentIdx, isInRepeatMode, repeatWrong, currentRoundWrong, isTestMode, timerLimit]);
 
-  // Finish quiz manually (e.g. timeout)
+  // Finish quiz manually (e.g timeout)
   const finishQuiz = useCallback(() => {
     setQuizMode("result");
   }, []);
@@ -210,7 +273,7 @@ export function useQuizEngine(subject) {
 
     let filtered = [...allQuestions];
     if (quizType === "volume" && selectedVolume !== "all") {
-      filtered = filtered.filter(q => q.vol === selectedVolume);
+      filtered = filtered.filter(q => (q.vol || q.volume) === selectedVolume);
     }
     if (quizType === "lesson" && selectedLessons.length > 0) {
       filtered = filtered.filter(q => selectedLessons.includes(q.lesson));
