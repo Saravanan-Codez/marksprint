@@ -21,14 +21,20 @@ export default function QuestionEditor({
     option_1_image: '',
     option_2_image: '',
     option_3_image: '',
-    option_4_image: ''
+    option_4_image: '',
+    volume: volume
   });
 
   useEffect(() => {
     if (question) {
       setFormData(question);
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        volume: volume
+      }));
     }
-  }, [question]);
+  }, [question, volume]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -66,7 +72,7 @@ export default function QuestionEditor({
       ...formData,
       subject,
       lesson,
-      volume
+      volume: formData.volume
     });
   };
 
@@ -186,6 +192,21 @@ export default function QuestionEditor({
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Volume Selection */}
+            <div>
+              <label className="block text-[#00d2ff] font-semibold mb-2">
+                Volume
+              </label>
+              <select
+                value={formData.volume || '1'}
+                onChange={(e) => handleInputChange('volume', e.target.value)}
+                className="w-full p-3 bg-[rgba(255,255,255,0.05)] border border-[#2aa8d8] rounded-none text-[#9fe3ff] focus:outline-none focus:border-[#00d2ff] focus:bg-[rgba(0,210,255,0.1)]"
+              >
+                <option value="1">Volume 1</option>
+                <option value="2">Volume 2</option>
+              </select>
             </div>
 
             {/* Correct Answer */}
