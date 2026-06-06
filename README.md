@@ -2,7 +2,7 @@
 
  HEAD
 **MARKSPRINT** is an interactive, open-source quiz engine tailored to help 12th-grade Tamil Nadu State Board students master one-mark questions and maximize their board exam scores.
-=======
+========
 currently subjects like 
 physics 
 chemistry
@@ -52,3 +52,4 @@ This is an open-source initiative! If you'd like to suggest features, fix bugs, 
 
 ## 🌟 Open Source
 MARKSPRINT is proudly completely open-source. We welcome contributions from the community to help students succeed!
+
