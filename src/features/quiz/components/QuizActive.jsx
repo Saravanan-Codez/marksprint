@@ -41,17 +41,18 @@ export default function QuizActive({ engine }) {
   const progressPercentage = ((currentIdx) / firstAttemptQuestions.length) * 100;
 
   return (
-    <div className="w-full max-w-5xl mx-auto flex flex-col h-full pt-8 md:pt-12 px-4 md:px-6 font-sans relative">
+    <div className="container py-4 position-relative text-white" style={{ maxWidth: '800px' }}>
       
       {/* Background glow for the active quiz */}
-      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-cyan-500/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+      <div className="position-absolute top-0 start-50 translate-middle-x rounded-circle pointer-events-none" style={{ width: '800px', height: '300px', background: 'rgba(200, 172, 214, 0.05)', filter: 'blur(100px)', zIndex: -1 }}></div>
 
-      <div className="flex flex-col gap-6 mb-10">
+      <div className="d-flex flex-column gap-3 mb-4">
         
         {/* Back to Setup Button */}
-        <div className="flex justify-end">
+        <div className="d-flex justify-content-end">
           <button 
-            className="px-4 py-2 bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.1)] text-gray-300 hover:text-white text-xs font-bold tracking-widest uppercase rounded-lg transition-all duration-300 shadow-[0_2px_10px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+            className="btn btn-outline-light border-theme-accent text-secondary hover-lavender-text font-bold text-uppercase"
+            style={{ borderRadius: '12px', fontSize: '0.75rem', letterSpacing: '0.12em' }}
             onClick={() => {
               if (window.confirm('Are you sure you want to go back to filters? Your progress will be lost.')) {
                 window.location.reload();
@@ -62,8 +63,8 @@ export default function QuizActive({ engine }) {
           </button>
         </div>
         
-        {/* Timers Column */}
-        <div className="flex flex-col gap-3 items-center md:items-end">
+        {/* Timers Row */}
+        <div className="d-flex flex-column align-items-center align-items-md-end gap-2 mb-2">
           {globalTimerLimit > 0 && (
             <Timer 
               timeLeft={globalTimeLeft} 
@@ -87,20 +88,34 @@ export default function QuizActive({ engine }) {
           )}
         </div>
 
-        {/* Progress Bar */}
-        <div className="flex flex-col w-full bg-[rgba(15,20,30,0.6)] backdrop-blur-2xl border border-[rgba(255,255,255,0.1)] rounded-3xl p-5 md:p-8 shadow-[0_0_30px_rgba(0,0,0,0.5)] relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
-          <div className="flex justify-between items-end mb-4">
-            <span className="text-[11px] md:text-sm font-bold text-gray-400 tracking-widest uppercase">Progress</span>
-            <span className="text-2xl md:text-3xl font-black text-white tabular-nums tracking-wider drop-shadow-md">{currentIdx + 1} <span className="text-gray-500 text-sm md:text-base font-semibold">/ {firstAttemptQuestions.length}</span></span>
+        {/* Progress Bar Container */}
+        <div 
+          className="p-4 rounded-5 border mb-2 position-relative overflow-hidden" 
+          style={{ 
+            backgroundColor: 'rgba(46, 42, 98, 0.45)', 
+            backdropFilter: 'blur(20px)', 
+            borderColor: 'rgba(255, 255, 255, 0.05)' 
+          }}
+        >
+          <div className="position-absolute top-0 start-0 end-0" style={{ height: '1.5px', background: 'linear-gradient(to right, transparent, rgba(200, 172, 214, 0.3), transparent)' }}></div>
+          <div className="d-flex justify-content-between align-items-end mb-3">
+            <span className="text-uppercase tracking-wider font-bold text-secondary" style={{ fontSize: '0.75rem' }}>Progress</span>
+            <span className="h3 font-black text-white m-0 tracking-wider">
+              {currentIdx + 1} <span className="text-secondary" style={{ fontSize: '0.9rem' }}>/ {firstAttemptQuestions.length}</span>
+            </span>
           </div>
-          <div className="w-full h-4 md:h-5 bg-[rgba(0,0,0,0.6)] rounded-full overflow-hidden border border-cyan-400/50 shadow-inner shadow-[0_0_15px_rgba(0,210,255,0.3)]">
+          <div className="progress" style={{ height: '16px', backgroundColor: 'var(--color-base-dark)', borderRadius: '12px', border: '1px solid rgba(67, 61, 143, 0.4)' }}>
             <div 
-              className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 rounded-full transition-all duration-500 ease-out relative shadow-[0_0_30px_rgba(0,210,255,1)]" 
-              style={{ width: `${progressPercentage}%` }}
-            >
-              <div className="absolute top-0 right-0 bottom-0 w-8 bg-white/60 blur-[2px]"></div>
-            </div>
+              className="progress-bar" 
+              role="progressbar" 
+              style={{ 
+                width: `${progressPercentage}%`, 
+                background: 'linear-gradient(90deg, var(--color-accent-dark), var(--color-lavender))',
+                boxShadow: '0 0 10px rgba(200, 172, 214, 0.4)',
+                borderRadius: '12px',
+                transition: 'width 0.5s ease'
+              }} 
+            />
           </div>
         </div>
       </div>

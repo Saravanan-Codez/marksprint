@@ -1,7 +1,8 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import crypto from 'crypto';
+import admin from 'firebase-admin';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -11,86 +12,101 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cookieParser());
 
-const CONTENT_MANAGER_PASSWORD = process.env.CONTENT_MANAGER_PASSWORD || null;
-
-// In-memory token store and attempt tracking
-const tokenStore = new Map();
-const attempts = new Map(); // ip -> {count, lockUntil}
-
-const MAX_ATTEMPTS = 3;
-const LOCKOUT_DURATION = 30 * 60 * 1000;
-const TOKEN_TTL = 60 * 60 * 1000; // 1 hour
-
-function isLocked(ip) {
-  const info = attempts.get(ip);
-  if (!info) return false;
-  if (info.lockUntil && Date.now() < info.lockUntil) return true;
-  return false;
+// Initialize Firebase Admin
+let firebaseAdmin = null;
+try {
+  const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || './firebase-service-account.json';
+  if (fs.existsSync(serviceAccountPath)) {
+    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      projectId: process.env.VITE_FIREBASE_PROJECT_ID
+    });
+    firebaseAdmin = admin;
+    console.log('Firebase Admin initialized successfully');
+  } else {
+    console.warn('Firebase service account file not found. Firebase auth disabled.');
+  }
+} catch (error) {
+  console.error('Failed to initialize Firebase Admin:', error.message);
+  console.warn('Firebase auth is disabled for this session.');
 }
 
-app.post('/api/auth/login', (req, res) => {
-  if (!CONTENT_MANAGER_PASSWORD) {
-    return res.status(503).json({ configured: false, message: 'Content manager not configured' });
+// Middleware to verify Firebase ID token
+async function verifyFirebaseToken(req, res, next) {
+  if (!firebaseAdmin) {
+    return res.status(503).json({ error: 'Firebase not configured' });
   }
 
-  const ip = req.ip;
-  if (isLocked(ip)) {
-    return res.status(423).json({ message: 'Too many attempts. Locked.' });
+  const token = req.headers.authorization?.split('Bearer ')[1];
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
   }
 
-  const { password } = req.body || {};
-  if (!password) return res.status(400).json({ message: 'Missing password' });
+  try {
+    const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+    req.user = decodedToken;
+    next();
+  } catch (error) {
+    console.error('Token verification failed:', error.message);
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
 
-  // constant-time comparison
-  const valid = crypto.timingSafeEqual(Buffer.from(String(password)), Buffer.from(String(CONTENT_MANAGER_PASSWORD)));
+app.get('/api/auth/status', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!firebaseAdmin) {
+      return res.status(503).json({ error: 'Firebase not configured' });
+    }
 
-  if (valid) {
-    // reset attempts
-    attempts.delete(ip);
-    const token = crypto.randomBytes(32).toString('hex');
-    const expires = Date.now() + TOKEN_TTL;
-    tokenStore.set(token, { expires });
-    res.cookie('cm_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: TOKEN_TTL
+    // Get user from Firestore
+    const db = firebaseAdmin.firestore();
+    const userDoc = await db.collection('users').doc(req.user.uid).get();
+    
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User profile not found' });
+    }
+
+    const userProfile = userDoc.data();
+    return res.json({
+      authenticated: true,
+      uid: req.user.uid,
+      email: req.user.email,
+      role: userProfile.role,
+      displayName: userProfile.displayName
     });
-    return res.json({ success: true });
+  } catch (error) {
+    console.error('Status check failed:', error.message);
+    return res.status(500).json({ error: 'Failed to get status' });
   }
-
-  // failed attempt
-  const prev = attempts.get(ip) || { count: 0 };
-  const count = prev.count + 1;
-  if (count >= MAX_ATTEMPTS) {
-    attempts.set(ip, { count, lockUntil: Date.now() + LOCKOUT_DURATION });
-    return res.status(423).json({ message: 'Too many attempts. Locked.' });
-  }
-  attempts.set(ip, { count });
-  return res.status(401).json({ message: 'Invalid password', remaining: MAX_ATTEMPTS - count });
 });
 
-app.post('/api/auth/logout', (req, res) => {
-  const token = req.cookies?.cm_token;
-  if (token) tokenStore.delete(token);
-  res.clearCookie('cm_token');
-  res.json({ success: true });
-});
+app.post('/api/auth/verify-teacher', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!firebaseAdmin) {
+      return res.status(503).json({ error: 'Firebase not configured' });
+    }
 
-app.get('/api/auth/status', (req, res) => {
-  if (!CONTENT_MANAGER_PASSWORD) {
-    return res.status(503).json({ configured: false, message: 'Content manager not configured' });
+    const db = firebaseAdmin.firestore();
+    const userDoc = await db.collection('users').doc(req.user.uid).get();
+    
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User profile not found' });
+    }
+
+    const userProfile = userDoc.data();
+    if (userProfile.role !== 'teacher' && userProfile.role !== 'admin') {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+
+    return res.json({
+      authorized: true,
+      role: userProfile.role
+    });
+  } catch (error) {
+    console.error('Teacher verification failed:', error.message);
+    return res.status(500).json({ error: 'Verification failed' });
   }
-  const token = req.cookies?.cm_token;
-  if (!token) return res.status(401).json({ authenticated: false });
-  const info = tokenStore.get(token);
-  if (!info) return res.status(401).json({ authenticated: false });
-  if (Date.now() > info.expires) {
-    tokenStore.delete(token);
-    res.clearCookie('cm_token');
-    return res.status(401).json({ authenticated: false });
-  }
-  return res.json({ authenticated: true });
 });
 
 app.listen(PORT, () => {
