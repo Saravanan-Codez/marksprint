@@ -1,0 +1,17 @@
+{
+  "name": "marksprint-server",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Express + Firebase Admin backend for Marksprint auth verification",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "firebase-admin": "^13.10.0"
+  }
+}

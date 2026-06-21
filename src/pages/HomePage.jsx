@@ -1,182 +1,268 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Check, MousePointerClick } from "lucide-react";
-import MagicRings from "../components/MagicRings";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, ArrowRight, Settings, MousePointer, Cloud, Star, Zap, BookOpen } from 'lucide-react';
+import Carousel from '../components/Carousel';
+import BorderGlow from '../components/BorderGlow';
 
-const subjects = ["Physics", "Chemistry", "Maths", "Computer", "Biology", "English", "Tamil"];
+const subjects = [
+  { key: 'biology', label: 'Biology', description: 'Life science and important diagrams.' },
+  { key: 'physics', label: 'Physics', description: 'Mechanics, optics and modern physics.' },
+  { key: 'chemistry', label: 'Chemistry', description: 'Physical, organic and inorganic concepts.' },
+  { key: 'maths', label: 'Maths', description: 'Algebra, calculus and problem solving.' },
+  { key: 'cs', label: 'Computer Science', description: 'Programming logic and data structures.' },
+  { key: 'english', label: 'English', description: 'Grammar, comprehension and vocabulary.' },
+  { key: 'tamil', label: 'Tamil', description: 'Language practice for the board exam.' }
+];
 
 export default function HomePage() {
-  const [index, setIndex] = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [showRing, setShowRing] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState(subjects[0].key);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [position, setPosition] = useState(1); // loop starting position is 1
   const navigate = useNavigate();
 
-  // Subject rotation every 5 seconds
-  useEffect(() => {
-    if (selected) return;
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % subjects.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [selected, index]);
+  const currentIdx = subjects.findIndex((s) => s.key === selectedSubject);
+  const selected = subjects[currentIdx] || subjects[0];
 
-  const next = () => setIndex((prev) => (prev + 1) % subjects.length);
-  const prev = () => setIndex((prev) => (prev - 1 + subjects.length) % subjects.length);
+  // Carousel items mapped with Lucide icons
+  const carouselItems = subjects.map(s => ({
+    id: s.key,
+    title: s.label,
+    description: s.description,
+    icon: <BookOpen className="carousel-icon" />
+  }));
 
-  const handleSelect = () => {
-    setSelected(subjects[index]);
-    setShowRing(true);
-    setTimeout(() => setShowRing(false), 2000);
+  const handlePrev = () => {
+    setIsConfirmed(false);
+    setPosition(prev => prev - 1);
   };
 
+  const handleNext = () => {
+    setIsConfirmed(false);
+    setPosition(prev => prev + 1);
+  };
+
+  useEffect(() => {
+    setIsConfirmed(false);
+  }, []);
+
   return (
-    <div className="w-full flex flex-col items-center flex-1 h-full pt-6 md:pt-12 pb-10 font-sans relative overflow-hidden">
+    <div className="position-relative w-100 d-flex flex-column align-items-center justify-content-center py-4" style={{ maxWidth: '900px', minHeight: '68vh' }}>
       
-      {/* Massive soft background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-[rgba(0,210,255,0.15)] to-[rgba(168,85,247,0.15)] rounded-full blur-[100px] pointer-events-none -z-10 animate-pulse"></div>
-
-      {/* Title with increased spacing */}
-      <motion.h1 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="text-4xl md:text-6xl font-extrabold tracking-tighter mb-8 md:mb-12 text-center text-cyan-400 drop-shadow-[0_0_15px_rgba(0,210,255,0.8)]"
-      >
-        MarkSprint
-      </motion.h1>
-
-      <br></br>
-      
-      {/* Description with increased spacing */}
-      <motion.p 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="text-center max-w-xl text-gray-300 font-medium text-sm md:text-base px-4 mb-12 md:mb-16 leading-relaxed"
-      >
-        A focused assessment platform designed for 12th-grade students to master core concepts through rapid iteration.
-      </motion.p>
-
-    <br></br>  
-
-      {/* The Masterpiece Wheel */}
-      <div className="flex flex-col items-center justify-center my-4 w-full relative z-10 mb-12 md:mb-16">
-        <div className="flex items-center justify-center gap-6 md:gap-16 w-full max-w-3xl px-4 mb-12 md:mb-16">
-          <button 
-            className="p-3 md:p-4 rounded-none bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.08)] hover:border-cyan-400/50 hover:shadow-[0_0_20px_rgba(0,210,255,0.3)] transition-all duration-300 text-gray-400 hover:text-white" 
-            onClick={prev}
-          >
-            <ChevronLeft size={24} strokeWidth={2} />
-          </button>
-          
-          <div className="relative w-48 h-48 md:w-56 md:h-56 flex flex-col items-center justify-center rounded-full group">
-            {/* Animated Gradient Border */}
-            <div className="absolute -inset-[2px] rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 animate-spin-slow opacity-70 group-hover:opacity-100 transition-opacity duration-500 blur-[2px]"></div>
-            
-            {/* Glass Interior */}
-            <div className="absolute inset-0 rounded-full bg-[rgba(10,15,30,0.8)] backdrop-blur-2xl border border-[rgba(255,255,255,0.1)] shadow-[0_0_80px_rgba(0,210,255,0.3)] flex items-center justify-center overflow-hidden">
-              <AnimatePresence mode="wait">
-                <motion.div 
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8, y: 15 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.8, y: -15 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                  className="text-2xl md:text-4xl font-black text-white tracking-tight text-center px-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"
-                >
-                  {subjects[index]}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-            
-            {showRing && (
-              <div className="absolute inset-0 z-20 pointer-events-none scale-[1.3] md:scale-[1.4] opacity-80">
-                <MagicRings />
-              </div>
-            )}
-          </div>
-          
-          <button 
-            className="p-3 md:p-4 rounded-none bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.08)] hover:border-cyan-400/50 hover:shadow-[0_0_20px_rgba(0,210,255,0.3)] transition-all duration-300 text-gray-400 hover:text-white" 
-            onClick={next}
-          >
-            <ChevronRight size={24} strokeWidth={2} />
-          </button>
-        </div>
-
-        <br></br>
-
-        {/* Select Subject Button - Rectangular, Sharp Edges */}
-        <button 
-          className="relative group px-12 py-4 w-64 h-16 md:w-72 md:h-20 bg-[rgba(255,255,255,0.05)] text-white text-sm md:text-base font-bold tracking-widest uppercase rounded-2xl border border-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.1)] transition-all duration-300 flex items-center justify-center gap-3 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.5)]" 
-          onClick={handleSelect}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300"></div>
-          {selected ? <Check size={24} className="relative z-10 text-cyan-400" /> : <MousePointerClick size={24} className="relative z-10 text-cyan-400" />}
-          <span className="relative z-10 text-center leading-tight">Select Subject</span>
-        </button>
-      </div>
-
-      <br></br>
-
-      {/* Status Display - Rectangular, Sharp Edges */}
-      <div className="h-auto flex flex-col items-center justify-center mt-8 md:mt-10 mb-8 md:mb-10">
-        {selected ? (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="px-12 py-4 w-64 h-16 md:w-72 md:h-20 rounded-2xl bg-[rgba(0,210,255,0.1)] border border-cyan-500/30 shadow-[0_0_20px_rgba(0,210,255,0.2)] flex items-center justify-center"
-          >
-            <div className="text-center flex items-center gap-4">
-              <p className="text-xs font-semibold text-cyan-100 tracking-wide">Subject Locked:</p>
-              <p className="text-white font-bold text-lg neon-text-blue">{selected}</p>
-            </div>
-          </motion.div>
-        ) : (
-          <div className="px-12 py-4 w-64 h-16 md:w-72 md:h-20 rounded-2xl bg-[rgba(0,0,0,0.3)] border border-[rgba(255,255,255,0.05)] flex items-center justify-center">
-            <p className="text-gray-500 tracking-widest uppercase text-xs font-bold text-center">Awaiting Selection</p>
-          </div>
-        )}
-      </div>
-
-      <br></br>
-      {/* Proceed to Setup Button - Rectangular, Sharp Edges */}
-      <motion.button 
-        whileHover={selected ? { scale: 1.02 } : {}}
-        whileTap={selected ? { scale: 0.98 } : {}}
-        className={`px-12 py-4 w-64 h-16 md:w-72 md:h-20 text-base md:text-lg font-black uppercase tracking-[0.2em] rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden ${selected ? 'text-white border-0 shadow-[0_0_20px_rgba(0,210,255,0.4)] cursor-pointer group' : 'bg-[rgba(255,255,255,0.02)] text-gray-600 border border-[rgba(255,255,255,0.05)] cursor-not-allowed'}`}
-        onClick={() => {
-          if (!selected) return;
-          navigate(`/quiz/${selected === "Computer" ? "cs" : selected.toLowerCase()}`);
+      {/* 🔮 Deduplicated Single HUD Stats Widget in the Top Right Corner (Lavender color theme) */}
+      <BorderGlow
+        className="position-absolute d-none d-lg-block"
+        edgeSensitivity={35}
+        glowColor="270 80 80"
+        backgroundColor="var(--color-surface-dark)"
+        borderRadius={16}
+        glowRadius={30}
+        glowIntensity={1.0}
+        colors={['#C8ACD6', '#433D8F', '#2E2A62']}
+        style={{ 
+          top: '0px', 
+          right: '0px', 
+          width: '210px', 
+          zIndex: 30
         }}
       >
-        {selected && (
-          <>
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 group-hover:scale-110 transition-transform duration-500"></div>
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-          </>
-        )}
-        <span className="relative z-10 drop-shadow-md text-center leading-tight">Proceed to Setup</span>
-      </motion.button>
-
-        <br></br>
-
-      {/* Creator Section */}
-      <div className="mt-16 md:mt-20 w-full flex flex-col items-center justify-center">
-        <div className="bg-[rgba(255,255,255,0.03)] backdrop-blur-xl border-none rounded-2xl p-6 md:p-8 max-w-sm w-full mx-4 shadow-[0_0_20px_rgba(0,210,255,0.1)]">
-          <div style={{ textAlign: 'center' }}>
-          <p className="text-sm md:text-base font-bold text-cyan-300 tracking-widest mb-4">CREATOR : S.K.SREEHARI </p>
-          <a 
-            href="/portfolio" 
-            target="_blank" 
-            rel="noreferrer"
-            className="inline-block px-6 py-3 bg-cyan-400/10 text-cyan-400 font-bold rounded-none transition-all duration-300 hover:bg-cyan-400/20 hover:shadow-[0_0_15px_rgba(42,168,216,0.3)]"
-          >
-            View Portfolio Website
-          </a>
+        <div className="d-flex flex-column gap-3 p-3">
+          <div>
+            <div className="d-flex justify-content-between align-items-center mb-1 text-theme-slate font-bold" style={{ fontSize: '9px', letterSpacing: '0.1em' }}>
+              <span className="d-flex align-items-center gap-1"><Zap size={10} className="text-theme-highlight" /> PROGRESS</span>
+              <span className="text-theme-highlight">110</span>
+            </div>
+            <div className="progress" style={{ height: '6px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <div className="progress-bar shadow" style={{ width: '70%', backgroundColor: 'var(--color-lavender)', boxShadow: '0 0 8px var(--color-lavender)' }} />
+            </div>
+          </div>
+          <div>
+            <div className="d-flex justify-content-between align-items-center mb-1 text-theme-slate font-bold" style={{ fontSize: '9px', letterSpacing: '0.1em' }}>
+              <span className="d-flex align-items-center gap-1"><Star size={10} className="text-theme-highlight" /> SKILLS</span>
+              <span className="text-theme-highlight">10</span>
+            </div>
+            <div className="progress" style={{ height: '6px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <div className="progress-bar shadow" style={{ width: '45%', backgroundColor: 'var(--color-accent-dark)' }} />
+            </div>
           </div>
         </div>
+      </BorderGlow>
+
+      {/* Main Content Workspace Stack */}
+      <div className="d-flex flex-column align-items-center w-100 gap-4">
+
+        {/* Grouped Carousel Row: Left Arrow, Central Carousel Orb, Right Arrow */}
+        <div className="d-flex align-items-center justify-content-center gap-5 w-100">
+          
+          {/* Left Navigation Arrow */}
+          <button
+            onClick={handlePrev}
+            className="btn rounded-circle d-flex align-items-center justify-content-center p-0 border hover-lavender-border"
+            style={{ 
+              width: '60px', 
+              height: '60px', 
+              background: 'rgba(10, 15, 29, 0.8)', 
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
+              zIndex: 10
+            }}
+            aria-label="Previous Subject"
+          >
+            <ArrowLeft size={22} strokeWidth={2.5} />
+          </button>
+
+          {/* Central Controlled Subject Carousel (Subject Orb) */}
+          <div className="position-relative d-flex align-items-center justify-content-center" style={{ width: '300px', height: '300px' }}>
+            
+            {/* Glowing outer circle bounds */}
+            <div 
+              className="position-absolute rounded-circle pointer-events-none" 
+              style={{ 
+                inset: '16px', 
+                border: isConfirmed ? '2px solid var(--color-lavender)' : '1px solid rgba(255, 255, 255, 0.1)', 
+                boxShadow: isConfirmed ? '0 0 35px rgba(200, 172, 214, 0.35)' : '0 0 15px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.5s ease'
+              }} 
+            />
+
+            <Carousel 
+              items={carouselItems}
+              baseWidth={300}
+              loop={true}
+              round={true}
+              position={position}
+              setPosition={setPosition}
+              onSelect={(id) => {
+                setSelectedSubject(id);
+                setIsConfirmed(false);
+              }}
+            />
+          </div>
+
+          {/* Right Navigation Arrow */}
+          <button
+            onClick={handleNext}
+            className="btn rounded-circle d-flex align-items-center justify-content-center p-0 border hover-lavender-border"
+            style={{ 
+              width: '60px', 
+              height: '60px', 
+              background: 'rgba(10, 15, 29, 0.8)', 
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
+              zIndex: 10
+            }}
+            aria-label="Next Subject"
+          >
+            <ArrowRight size={22} strokeWidth={2.5} />
+          </button>
+        </div>
+
+        {/* Subject description placed tightly underneath the carousel orb wrapper */}
+        <p className="m-0 mt-2 text-center text-theme-slate font-light" style={{ fontSize: '0.8rem', letterSpacing: '0.05em', maxWidth: '280px', lineHeight: '1.5' }}>
+          {selected.description}
+        </p>
+
+        {/* Action Buttons grouped comfortably below the description */}
+        <div className="d-flex flex-column align-items-center gap-4 w-100 mt-2">
+          
+          {/* SELECT SUBJECT Button */}
+          <button
+            onClick={() => setIsConfirmed(true)}
+            className={`btn d-flex align-items-center justify-content-between w-100 py-3 px-4 rounded-3 text-uppercase font-bold tracking-widest ${
+              isConfirmed 
+                ? 'btn-outline-light text-theme-highlight border-theme-highlight bg-white bg-opacity-5 shadow-highlight-glow' 
+                : 'btn-outline-light text-white border-theme-accent shadow-highlight-glow'
+            }`}
+            style={{ 
+              maxWidth: '350px',
+              transition: 'all 0.3s ease',
+              fontSize: '0.88rem',
+              borderColor: isConfirmed ? 'var(--color-lavender)' : 'var(--color-accent-dark)'
+            }}
+          >
+            <div style={{ width: '20px' }} /> {/* Balance spacer */}
+            <span>{isConfirmed ? 'Subject Confirmed' : 'Select Subject'}</span>
+            <div className="d-flex align-items-center gap-2 text-theme-highlight">
+              <Cloud size={16} />
+              <MousePointer size={14} className="animate-bounce-slow" />
+            </div>
+          </button>
+
+          {/* Status Indicators Banner */}
+          <div className="position-relative d-flex align-items-center justify-content-center py-2 px-5" style={{ width: '100%', maxWidth: '300px' }}>
+            <svg className="position-absolute w-100 h-100 text-theme-highlight opacity-25" viewBox="0 0 200 40" fill="none">
+              <path d="M 10 20 Q 50 35 100 20 Q 150 5 190 20" stroke="currentColor" strokeWidth="1" strokeDasharray="3 6" />
+              <path d="M 10 20 Q 50 5 100 20 Q 150 35 190 20" stroke="currentColor" strokeWidth="0.75" strokeDasharray="2 4" />
+            </svg>
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={isConfirmed ? 'confirmed' : 'waiting'}
+                initial={{ opacity: 0, y: 3 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -3 }}
+                transition={{ duration: 0.2 }}
+                className="text-white font-bold uppercase tracking-widest"
+                style={{ fontSize: '0.74rem' }}
+              >
+                {isConfirmed ? `Confirmed: ${selected.label}` : 'Awaiting Selection'}
+              </motion.span>
+            </AnimatePresence>
+          </div>
+
+          {/* PROCEED TO SETUP Button */}
+          <button
+            onClick={() => {
+              if (isConfirmed) {
+                navigate(`/quiz/${selected.key}`);
+              } else {
+                setIsConfirmed(true);
+              }
+            }}
+            className={`btn w-100 py-3 rounded-4 position-relative overflow-hidden text-uppercase font-bold tracking-wider d-flex align-items-center justify-content-center gap-2 ${
+              isConfirmed 
+                ? 'btn-outline-light text-white shadow-highlight-glow' 
+                : 'btn-outline-secondary text-secondary'
+            }`}
+            style={{ 
+              maxWidth: '260px',
+              fontSize: '0.78rem',
+              transition: 'all 0.5s ease',
+              borderColor: isConfirmed ? 'var(--color-lavender)' : 'rgba(255, 255, 255, 0.15)'
+            }}
+          >
+            {/* Sliding progress bar backdrop */}
+            <div 
+              className="position-absolute top-0 bottom-0 start-0 bg-white bg-opacity-10" 
+              style={{ width: isConfirmed ? '100%' : '0%', transition: 'all 500ms ease' }}
+            />
+            <span className="position-relative z-3">Proceed to Setup</span>
+            <Settings size={14} className={`position-relative z-3 ${isConfirmed ? 'animate-spin-slow text-theme-highlight' : 'text-secondary'}`} />
+          </button>
+
+        </div>
+
       </div>
+
+      {/* Custom CSS overrides inside style tag for layout glow effects */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .hover-lavender-border:hover {
+          border-color: var(--color-lavender) !important;
+          color: var(--color-lavender) !important;
+          box-shadow: 0 0 15px rgba(200, 172, 214, 0.45) !important;
+        }
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        .animate-bounce-slow {
+          animation: bounce-slow 2s infinite ease-in-out;
+        }
+      `}} />
+
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Save, X, Upload } from 'lucide-react';
-import Galaxy from '../../../components/Galaxy';
 
 export default function QuestionEditor({
   question,
@@ -77,8 +76,7 @@ export default function QuestionEditor({
   };
 
   return (
-    <div className="min-h-screen w-full relative flex flex-col bg-[#0b1f2a] text-[#9fe3ff] overflow-y-auto">
-      <Galaxy isDark={true} />
+    <div className="min-h-screen w-full flex flex-col overflow-y-auto" style={{ background: 'var(--color-base)', color: '#C8ACD6' }}>
 
       <div className="relative z-10 max-w-4xl w-full mx-auto p-6 my-8">
         <div className="bg-[rgba(255,255,255,0.03)] backdrop-blur-xl border border-[rgba(255,255,255,0.05)] rounded-none p-8 shadow-[0_0_20px_rgba(0,210,255,0.1)]">

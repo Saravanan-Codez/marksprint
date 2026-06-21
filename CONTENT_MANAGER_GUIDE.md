@@ -154,7 +154,7 @@ The Content Manager has a three-panel layout:
 
 #### Example 1: Adding Physics Questions
 1. Click "Content Manager" button on About page
-2. Enter password: `.Sreeh@r!462`
+2. Enter the administrator password configured through the `CONTENT_MANAGER_PASSWORD` environment variable
 3. Select "Physics" from left panel
 4. Create new lesson "1" in middle panel
 5. Select "Volume 1" from top dropdown

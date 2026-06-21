@@ -1,15 +1,8 @@
 # MARKSPRINT
 
- HEAD
 **MARKSPRINT** is an interactive, open-source quiz engine tailored to help 12th-grade Tamil Nadu State Board students master one-mark questions and maximize their board exam scores.
-=======
-currently subjects like 
-physics 
-chemistry
-maths
-computer has been added to practice 
-and biology is still in development .
-17d2ab2 (Fixed navbar responsiveness)
+
+Currently supported subjects include Physics, Chemistry, Maths, Computer Science, English, and Tamil. Biology content is available in the project and may continue to evolve.
 
 ![MarkSprint Preview](https://via.placeholder.com/800x400.png?text=MarkSprint+Preview)
 
@@ -38,7 +31,7 @@ and biology is still in development .
 
 ## 🏗 Architecture
 This project utilizes a modern **Feature-Sliced Architecture**:
-- `src/pages/`: Dedicated routing components (`HomePage`, `QuizPage`, `AboutPage`, `PortfolioPage`).
+- `src/pages/`: Dedicated routing components (`HomePage`, `QuizPage`, `AboutPage`, `ContentManagerPage`).
 - `src/features/quiz/`: Encapsulated domain logic, including the highly modular `useQuizEngine` hook.
 - `src/layouts/`: Persistent wrappers (`MainLayout`) to maintain canvas animations across routes.
 - `src/data/`: Tightly bundled CSV datastores for zero-latency fetching.

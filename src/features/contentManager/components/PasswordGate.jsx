@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, AlertCircle, Smartphone } from 'lucide-react';
-import Galaxy from '../../../components/Galaxy';
-import ClickSpark from '../../../components/ClickSpark';
 
 // The Content Manager authentication is handled by the server API.
 // The server must be configured with CONTENT_MANAGER_PASSWORD and will expose /api/auth/* endpoints.
