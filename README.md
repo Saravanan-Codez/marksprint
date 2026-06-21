@@ -45,3 +45,4 @@ This is an open-source initiative! If you'd like to suggest features, fix bugs, 
 
 ## 🌟 Open Source
 MARKSPRINT is proudly completely open-source. We welcome contributions from the community to help students succeed!
+
