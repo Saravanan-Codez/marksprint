@@ -1,6 +1,5 @@
 import React from 'react';
 import { Download } from 'lucide-react';
-import Galaxy from '../../../components/Galaxy';
 import { useContentManager } from '../hooks/useContentManager';
 import BreadcrumbNavigation from './BreadcrumbNavigation';
 import QuestionPanel from './QuestionPanel';
@@ -63,8 +62,7 @@ export default function ContentManager() {
   }
 
   return (
-    <div className="min-h-screen w-full relative flex flex-col bg-[#0b1f2a] text-[#9fe3ff] overflow-hidden">
-      <Galaxy isDark={true} />
+    <div className="min-h-screen w-full flex flex-col" style={{ background: 'var(--color-base)', color: '#C8ACD6' }}>
 
       <div className="relative z-10 flex flex-col w-full h-screen">
         {/* Breadcrumb Navigation */}
