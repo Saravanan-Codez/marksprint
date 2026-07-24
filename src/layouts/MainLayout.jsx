@@ -1,107 +1,39 @@
-import React, { useEffect, useRef } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { User as UserIcon } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import PillNav from '../components/PillNav';
-import LiquidEther from '../components/LiquidEther';
+import React from 'react';
+import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
+import { LogOut, UserRound, Sparkles, Menu, X } from 'lucide-react';
+import { useState } from 'react';
+import { useAuth } from '../context/useAuth';
 
-// Cosmic starfield backdrop using the theme colors
-function CosmicBackground() {
-  const canvasRef = useRef(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    const stars = Array.from({ length: 140 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      radius: 0.5 + Math.random() * 1.2,
-      alpha: Math.random(),
-      speed: 0.003 + Math.random() * 0.006,
-      glow: Math.random() > 0.85
-    }));
-
-    const render = () => {
-      ctx.fillStyle = '#17153B'; // Base background color
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Swirling faint nebulae glows (Indigo & Lavender)
-      const gradIndigo = ctx.createRadialGradient(
-        canvas.width * 0.25, canvas.height * 0.3, 50,
-        canvas.width * 0.25, canvas.height * 0.3, canvas.width * 0.6
-      );
-      gradIndigo.addColorStop(0, 'rgba(67, 61, 143, 0.08)');
-      gradIndigo.addColorStop(0.5, 'rgba(46, 42, 98, 0.04)');
-      gradIndigo.addColorStop(1, 'transparent');
-      ctx.fillStyle = gradIndigo;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const gradLavender = ctx.createRadialGradient(
-        canvas.width * 0.75, canvas.height * 0.7, 50,
-        canvas.width * 0.75, canvas.height * 0.7, canvas.width * 0.5
-      );
-      gradLavender.addColorStop(0, 'rgba(200, 172, 214, 0.06)');
-      gradLavender.addColorStop(1, 'transparent');
-      ctx.fillStyle = gradLavender;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      stars.forEach(star => {
-        ctx.save();
-        ctx.globalAlpha = star.alpha;
-        ctx.fillStyle = '#ffffff';
-        if (star.glow) {
-          ctx.shadowBlur = 6;
-          ctx.shadowColor = '#C8ACD6';
-        }
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        star.alpha += star.speed;
-        if (star.alpha > 1 || star.alpha < 0.15) {
-          star.speed = -star.speed;
-        }
-      });
-
-      animationFrameId = requestAnimationFrame(render);
-    };
-
-    render();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} className="position-fixed top-0 start-0 w-100 h-100" style={{ pointerEvents: 'none', zIndex: -2 }} />;
-}
+const SUBJECT_MAP = {
+  biology: 'Biology',
+  physics: 'Physics',
+  chemistry: 'Chemistry',
+  maths: 'Maths',
+  cs: 'Computer Science',
+  english: 'English',
+  tamil: 'Tamil'
+};
 
 export default function MainLayout() {
   const { user, userProfile, logOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+  const quizSubject = location.pathname.startsWith('/quiz/')
+    ? SUBJECT_MAP[location.pathname.replace('/quiz/', '')]
+    : null;
 
   const navItems = [
-    { label: 'Dashboard', href: '/' },
-    { label: 'About', href: '/about' }
+    { label: 'Dashboard', href: '/', icon: 'home' },
+    { label: 'About', href: '/about', icon: 'about' }
   ];
   if (userProfile?.role === 'teacher') {
-    navItems.push({ label: 'Content Manager', href: '/content-manager' });
+    navItems.push({ label: 'Content Manager', href: '/content-manager', icon: 'cm' });
   }
 
-  const activeHref = location.pathname.startsWith('/quiz/') ? '/' : location.pathname;
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+  const activeHref = quizSubject ? '/' : location.pathname;
 
   const handleLogout = async () => {
     try {
@@ -114,150 +46,201 @@ export default function MainLayout() {
 
   if (isAuthPage) {
     return (
-      <>
-        <CosmicBackground />
-        <LiquidEther
-          colors={['#C8ACD6', '#433D8F', '#2E2A62']}
-          mouseForce={20}
-          cursorSize={80}
-          isViscous={true}
-          viscous={30}
-          iterationsViscous={32}
-          iterationsPoisson={32}
-          resolution={0.5}
-          isBounce={false}
-          autoDemo={true}
-          autoSpeed={0.4}
-          autoIntensity={2.0}
-          takeoverDuration={0.25}
-          autoResumeDelay={2000}
-          autoRampDuration={0.6}
-          style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', pointerEvents: 'none', zIndex: -1 }}
-        />
+      <div className="min-h-screen w-full">
+      <div
+        className="position-fixed inset-0 z-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(900px 500px at 10% 0%, color-mix(in oklab, var(--primary) 18%, transparent) 0%, transparent 60%), radial-gradient(700px 500px at 100% 100%, color-mix(in oklab, var(--accent) 18%, transparent) 0%, transparent 60%), linear-gradient(135deg, var(--bg-50), var(--bg-100))'
+        }}
+      />
+      <div className="position-relative z-10">
         <Outlet />
-      </>
+      </div>
+      </div>
     );
   }
 
   return (
-    <div className="container-fluid vh-100 d-flex flex-column overflow-hidden position-relative p-0 bg-theme-base">
-      
-      {/* Cosmic Background */}
-      <CosmicBackground />
-      <LiquidEther
-        colors={['#C8ACD6', '#433D8F', '#2E2A62']}
-        mouseForce={20}
-        cursorSize={80}
-        isViscous={true}
-        viscous={30}
-        iterationsViscous={32}
-        iterationsPoisson={32}
-        resolution={0.5}
-        isBounce={false}
-        autoDemo={true}
-        autoSpeed={0.4}
-        autoIntensity={2.0}
-        takeoverDuration={0.25}
-        autoResumeDelay={2000}
-        autoRampDuration={0.6}
-        style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', pointerEvents: 'none', zIndex: -1 }}
-      />
-
-      {/* Decorative Planet (Lavender accent) */}
-      <svg className="position-absolute opacity-50" style={{ top: '22%', left: '12%', width: '40px', height: '40px', pointerEvents: 'none', zIndex: -1, color: 'var(--color-lavender)' }} viewBox="0 0 100 100" fill="none">
-        <ellipse cx="50" cy="50" rx="35" ry="12" stroke="currentColor" strokeWidth="3" transform="rotate(-25 50 50)" />
-        <circle cx="50" cy="50" r="16" fill="var(--color-accent-dark)" stroke="currentColor" strokeWidth="2" />
-      </svg>
-
-      {/* Decorative Planet Bottom Right */}
-      <svg className="position-absolute opacity-50" style={{ bottom: '15%', right: '10%', width: '64px', height: '64px', pointerEvents: 'none', zIndex: -1, color: 'var(--color-lavender)' }} viewBox="0 0 100 100" fill="none">
-        <ellipse cx="50" cy="50" rx="42" ry="14" stroke="currentColor" strokeWidth="3.5" transform="rotate(-15 50 50)" />
-        <circle cx="50" cy="50" r="20" fill="var(--color-surface-dark)" stroke="currentColor" strokeWidth="2" />
-      </svg>
-
-      {/* Main layout container (Fixed Viewport Centering) */}
-      <div className="d-flex flex-column flex-grow-1 overflow-auto position-relative" style={{ zIndex: 20 }}>
-        
-        {/* Header Redesign (Bootstrap classes, clean, no traffic lights/address bar) */}
-        <header className="w-100 px-4 py-3 px-md-5 py-md-4 bg-transparent border-bottom" style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
-          <div className="d-flex align-items-center justify-content-between">
-            
-            {/* Branding Logo: M in galaxy swirl */}
-            <div className="d-flex align-items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-              <div className="position-relative d-flex align-items-center justify-content-center rounded-3 bg-dark border" style={{ width: '56px', height: '56px', borderColor: 'var(--color-accent-dark)' }}>
-                <svg className="position-absolute w-100 h-100 animate-spin-slow" style={{ color: 'var(--color-lavender)', opacity: 0.7 }} viewBox="0 0 100 100" fill="none">
-                  <path d="M 50 50 Q 65 30 50 15 Q 35 30 50 50 Q 65 70 80 50 Q 65 30 50 50" stroke="currentColor" strokeWidth="2.5" />
-                  <path d="M 50 50 Q 35 70 50 85 Q 65 70 50 50 Q 35 30 20 50 Q 35 70 50 50" stroke="var(--color-accent-dark)" strokeWidth="2.5" />
-                </svg>
-                <span className="position-relative z-3 font-bold text-white text-xl" style={{ textShadow: '0 0 8px #ffffff' }}>M</span>
+    <div className="min-h-screen w-full flex flex-col">
+      <header
+        className="sticky top-0 z-50 border-b"
+        style={{
+          background: 'color-mix(in oklab, var(--surface) 85%, transparent)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          borderColor: 'var(--ink-100)'
+        }}
+      >
+        <div className="mx-auto px-4 px-md-5 px-lg-6" style={{ maxWidth: '1240px' }}>
+          <div className="d-flex align-items-center justify-content-between" style={{ height: '68px' }}>
+            {/* Brand */}
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="d-flex align-items-center gap-3 p-0 border-0 bg-transparent cursor-pointer"
+              style={{ lineHeight: 1 }}
+            >
+              <div
+                className="d-flex align-items-center justify-content-center rounded-4 position-relative"
+                style={{
+                  width: '40px', height: '40px',
+                  background: 'linear-gradient(135deg, var(--primary-500), var(--accent))',
+                  color: 'white',
+                  boxShadow: '0 4px 12px -2px color-mix(in oklab, var(--primary) 40%, transparent)'
+                }}
+              >
+                <Sparkles size={20} strokeWidth={2.3} />
               </div>
-              <div>
-                <div className="font-bold text-theme-highlight" style={{ fontSize: '1.25rem', letterSpacing: '0.15em', textShadow: '0 0 8px rgba(200, 172, 214, 0.25)' }}>
-                  MARKSPRINT
-                </div>
-                <p className="m-0 text-white font-medium uppercase" style={{ fontSize: '0.6rem', letterSpacing: '0.25em' }}>ASSESSMENT PLATFORM</p>
+              <div className="text-start d-none d-md-block">
+                <div className="font-extrabold tracking-tight" style={{ fontSize: '1.05rem', color: 'var(--ink-900)' }}>MarkSprint</div>
+                <div className="font-medium" style={{ fontSize: '0.7rem', color: 'var(--ink-400)', letterSpacing: '0.08em' }}>ASSESSMENT · REVIEW</div>
               </div>
-            </div>
+            </button>
 
-            {/* Centered Pill Navigation Menu */}
-            <PillNav
-              items={navItems}
-              activeHref={activeHref}
-              baseColor="#C8ACD6"
-              pillColor="#2E2A62"
-              pillTextColor="#ffffff"
-              hoveredPillTextColor="#17153B"
-              initialLoadAnimation={true}
-            />
+            {/* Center Nav */}
+            <nav className="d-none d-md-flex align-items-center gap-1 rounded-4 p-1" style={{ background: 'var(--surface-3)' }}>
+              {navItems.map((item) => {
+                const active = activeHref === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className="px-4 py-2 rounded-3 text-decoration-none font-semibold transition-all"
+                    style={{
+                      fontSize: '0.85rem',
+                      background: active ? 'var(--surface)' : 'transparent',
+                      color: active ? 'var(--ink-900)' : 'var(--ink-500)',
+                      boxShadow: active ? 'var(--shadow-xs)' : 'none',
+                      transform: active ? 'none' : 'none'
+                    }}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
 
-            {/* User Controls */}
-            <div className="d-flex align-items-center gap-3">
+            {/* Right: User controls */}
+            <div className="d-flex align-items-center gap-2">
+              {quizSubject && (
+                <span className="chip chip-accent d-none d-md-inline-flex">{quizSubject}</span>
+              )}
               {user ? (
                 <>
-                  <button
-                    onClick={handleLogout}
-                    className="btn btn-outline-light border-theme-accent hover:bg-theme-highlight hover:text-theme-base font-bold text-uppercase py-2 px-4"
-                    style={{ fontSize: '0.72rem', letterSpacing: '0.12em', borderRadius: '12px' }}
+                  <div
+                    className="d-flex align-items-center gap-2 rounded-4 px-2 py-1"
+                    style={{ background: 'var(--surface-3)' }}
                   >
-                    Logout
-                  </button>
-                  
-                  {/* Glowing Moon Phase Icon */}
-                  <div className="position-relative rounded-circle overflow-hidden bg-dark d-flex align-items-center justify-content-center shadow" style={{ width: '44px', height: '44px', border: '1px solid var(--color-accent-dark)' }}>
-                    <svg className="w-100 h-100 text-secondary" viewBox="0 0 100 100" fill="currentColor">
-                      <circle cx="50" cy="50" r="45" fill="#e2e8f0" />
-                      <circle cx="35" cy="30" r="6" fill="#cbd5e1" className="opacity-80" />
-                      <circle cx="65" cy="40" r="8" fill="#cbd5e1" className="opacity-80" />
-                      <circle cx="45" cy="65" r="10" fill="#cbd5e1" className="opacity-80" />
-                    </svg>
-                    <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'linear-gradient(45deg, rgba(0,0,0,0.4), transparent)' }} />
+                    <div
+                      className="d-flex align-items-center justify-content-center rounded-circle"
+                      style={{
+                        width: '32px', height: '32px',
+                        background: 'var(--primary-100)',
+                        color: 'var(--primary-600)'
+                      }}
+                    >
+                      <UserRound size={16} />
+                    </div>
+                    <div className="text-start d-none d-md-block">
+                      <div className="font-bold" style={{ fontSize: '0.8rem', color: 'var(--ink-900)' }}>
+                        {userProfile?.displayName || user.email?.split('@')[0] || 'User'}
+                      </div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--ink-400)' }}>{userProfile?.role || 'Student'}</div>
+                    </div>
                   </div>
+                  <button type="button" onClick={handleLogout} className="btn btn-ghost btn-sm" title="Logout">
+                    <LogOut size={16} />
+                  </button>
                 </>
               ) : (
-                <button
-                  onClick={() => navigate('/login')}
-                  className="btn btn-theme-highlight bg-theme-highlight text-theme-base font-bold tracking-wider py-2 px-4"
-                  style={{ borderRadius: '12px' }}
-                >
-                  SIGN IN
+                <button type="button" onClick={() => navigate('/login')} className="btn btn-primary btn-sm">
+                  Sign In
                 </button>
               )}
+
+              {/* Mobile menu button */}
+              <button
+                type="button"
+                onClick={() => setMobileOpen(v => !v)}
+                className="btn btn-ghost btn-sm d-md-none"
+                aria-label="Toggle menu"
+              >
+                {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+              </button>
             </div>
-
           </div>
-        </header>
+        </div>
 
-        {/* Centered Main Workspace (Centered child blocks) */}
-        <main className="flex-grow-1 d-flex align-items-center justify-content-center px-3">
+        {/* Mobile Nav Dropdown */}
+        {mobileOpen && (
+          <div
+            className="d-md-none border-top anim-fade-in"
+            style={{ borderColor: 'var(--ink-100)', background: 'var(--surface-2)' }}
+          >
+            <div className="mx-auto px-4 py-3 d-flex flex-column gap-1" style={{ maxWidth: '1240px' }}>
+              {navItems.map((item) => {
+                const active = activeHref === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="px-3 py-2 rounded-3 text-decoration-none font-semibold"
+                    style={{
+                      fontSize: '0.9rem',
+                      background: active ? 'var(--primary-50)' : 'transparent',
+                      color: active ? 'var(--primary-600)' : 'var(--ink-700)'
+                    }}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* Main content area */}
+      <main className="flex-grow-1">
+        <div className="mx-auto px-3 px-md-4 px-lg-5 py-5 py-md-6" style={{ maxWidth: '1240px' }}>
           <Outlet />
-        </main>
+        </div>
+      </main>
 
-        {/* Footer */}
-        <footer className="w-100 py-3 bg-dark bg-opacity-10 text-center text-theme-slate" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.03)' }}>
-          <p className="m-0" style={{ fontSize: '0.7rem' }}>© {new Date().getFullYear()} MARKSPRINT — A cosmic game-like quiz experience.</p>
-        </footer>
-
-      </div>
+      <footer
+        className="border-top py-5 mt-4"
+        style={{ borderColor: 'var(--ink-100)', background: 'var(--surface-2)' }}
+      >
+        <div className="mx-auto px-4 px-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3" style={{ maxWidth: '1240px' }}>
+          <div className="d-flex align-items-center gap-2">
+            <div
+              className="d-flex align-items-center justify-content-center rounded-3"
+              style={{
+                width: '28px', height: '28px',
+                background: 'linear-gradient(135deg, var(--primary-500), var(--accent))',
+                color: 'white'
+              }}
+            >
+              <Sparkles size={14} />
+            </div>
+            <div className="font-bold" style={{ fontSize: '0.88rem', color: 'var(--ink-700)' }}>
+              © {new Date().getFullYear()} MarkSprint
+            </div>
+          </div>
+          <div className="d-flex align-items-center gap-4 flex-wrap justify-content-center">
+            <Link to="/about" className="text-decoration-none font-medium" style={{ fontSize: '0.82rem', color: 'var(--ink-500)' }}>About</Link>
+            {userProfile?.role === 'teacher' && (
+              <Link to="/content-manager" className="text-decoration-none font-medium" style={{ fontSize: '0.82rem', color: 'var(--ink-500)' }}>Content Manager</Link>
+            )}
+            <a href="https://github.com/sreehari462/marksprint" target="_blank" rel="noreferrer" className="text-decoration-none font-medium" style={{ fontSize: '0.82rem', color: 'var(--ink-500)' }}>GitHub</a>
+          </div>
+          <div style={{ fontSize: '0.78rem', color: 'var(--ink-400)' }}>
+            Built for TN 12th-grade students · Designed for clarity
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

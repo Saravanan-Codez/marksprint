@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 
 import './Carousel.css';
@@ -92,6 +93,7 @@ export default function Carousel({
   const [isAnimating, setIsAnimating] = useState(false);
 
   const containerRef = useRef(null);
+  const x = useMotionValue(0);
 
   useEffect(() => {
     if (pauseOnHover && containerRef.current) {
@@ -122,7 +124,7 @@ export default function Carousel({
     const startingPosition = loop ? 1 : 0;
     setPosition(startingPosition);
     x.set(-startingPosition * trackItemOffset);
-  }, [items.length, loop, trackItemOffset, setPosition]);
+  }, [items.length, loop, trackItemOffset, setPosition, x]);
 
   useEffect(() => {
     if (!loop && position > itemsForRender.length - 1) {
@@ -130,7 +132,6 @@ export default function Carousel({
     }
   }, [itemsForRender.length, loop, position, setPosition]);
 
-  const x = useMotionValue(0);
   const effectiveTransition = isJumping ? { duration: 0 } : SPRING_OPTIONS;
 
   const handleAnimationStart = () => {

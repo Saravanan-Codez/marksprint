@@ -25,28 +25,55 @@ export default function Timer({ timeLeft, setTimeLeft, isActive, onTimeout, labe
   const seconds = timeLeft % 60;
   const displayTime = minutes > 0 ? `${minutes}:${seconds.toString().padStart(2, '0')}` : `${seconds}s`;
 
-  const wrapperClass = timeLeft <= warningThreshold ? 'timer-warning' : 'timer-normal';
+  const isWarning = timeLeft <= warningThreshold;
+  const progressPercent = Math.max(0, Math.min(100, (timeLeft / (warningThreshold * 3)) * 100));
 
   return (
-    <div className={`d-flex flex-column align-items-center justify-content-center p-2 px-4 rounded-3 border w-100 w-md-auto position-relative overflow-hidden ${wrapperClass}`}>
-      <div className="position-absolute top-0 start-0 end-0" style={{ height: '1.5px', background: timeLeft <= warningThreshold ? 'linear-gradient(90deg, transparent, #dc3545, transparent)' : 'linear-gradient(90deg, transparent, var(--color-lavender), transparent)' }}></div>
-      <span className="text-uppercase tracking-wider text-secondary mb-0.5" style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>{label}</span>
-      <span className={`h5 font-black tracking-wider m-0 ${timeLeft <= warningThreshold ? 'text-danger animate-pulse' : 'text-theme-highlight'}`}>
-        {displayTime}
-      </span>
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        .timer-warning {
-          background-color: rgba(220, 53, 69, 0.2) !important;
-          border-color: #dc3545 !important;
-          box-shadow: 0 0 15px rgba(220, 53, 69, 0.4) !important;
-        }
-        .timer-normal {
-          background-color: rgba(46, 42, 98, 0.6) !important;
-          border-color: rgba(200, 172, 214, 0.3) !important;
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
-        }
-      `}} />
+    <div
+      className={`chip ${isWarning ? 'chip-danger' : 'chip-primary'} position-relative overflow-hidden`}
+      style={{
+        padding: '0.5rem 0.9rem',
+        fontSize: '0.8rem',
+        gap: '0.5rem',
+        minWidth: '90px'
+      }}
+    >
+      <div
+        className="position-absolute bottom-0 start-0"
+        style={{
+          height: '2.5px',
+          width: `${progressPercent}%`,
+          background: isWarning ? 'var(--danger)' : 'var(--primary-600)',
+          borderRadius: 'var(--radius-full)',
+          transition: 'width 1s linear, background-color 0.25s ease'
+        }}
+      />
+      <div className="d-flex align-items-center gap-2 w-100 position-relative z-1">
+        <span
+          style={{
+            fontSize: '0.62rem',
+            fontWeight: '700',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            opacity: 0.85
+          }}
+        >
+          {label}
+        </span>
+        <span
+          style={{
+            fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
+            fontSize: '1.35rem',
+            fontWeight: '800',
+            lineHeight: 1,
+            marginLeft: 'auto',
+            color: isWarning ? 'var(--danger)' : 'var(--primary-600)',
+            animation: isWarning ? 'pulse-soft 1.2s ease-in-out infinite' : 'none'
+          }}
+        >
+          {displayTime}
+        </span>
+      </div>
     </div>
   );
 }

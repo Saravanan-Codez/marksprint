@@ -1,268 +1,341 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Settings, MousePointer, Cloud, Star, Zap, BookOpen } from 'lucide-react';
-import Carousel from '../components/Carousel';
-import BorderGlow from '../components/BorderGlow';
+import {
+  ArrowRight, BookOpen, FlaskConical, Dna, Atom, Calculator, Code2,
+  Languages, Sparkles, Trophy, Gauge, BookMarked, Target, Clock, Zap,
+  Brain, Award
+} from 'lucide-react';
 
-const subjects = [
-  { key: 'biology', label: 'Biology', description: 'Life science and important diagrams.' },
-  { key: 'physics', label: 'Physics', description: 'Mechanics, optics and modern physics.' },
-  { key: 'chemistry', label: 'Chemistry', description: 'Physical, organic and inorganic concepts.' },
-  { key: 'maths', label: 'Maths', description: 'Algebra, calculus and problem solving.' },
-  { key: 'cs', label: 'Computer Science', description: 'Programming logic and data structures.' },
-  { key: 'english', label: 'English', description: 'Grammar, comprehension and vocabulary.' },
-  { key: 'tamil', label: 'Tamil', description: 'Language practice for the board exam.' }
+const SUBJECT_ICON = {
+  biology:     { icon: Dna,         color: '#10B981', bg: '#D1FAE5', label: 'Biology' },
+  physics:     { icon: Atom,        color: '#4F46E5', bg: '#E0E7FF', label: 'Physics' },
+  chemistry:   { icon: FlaskConical,color: '#F59E0B', bg: '#FEF3C7', label: 'Chemistry' },
+  maths:       { icon: Calculator,  color: '#8B5CF6', bg: '#EDE9FE', label: 'Maths' },
+  cs:          { icon: Code2,       color: '#0EA5E9', bg: '#E0F2FE', label: 'Computer Science' },
+  english:     { icon: Languages,   color: '#EC4899', bg: '#FCE7F3', label: 'English' },
+  tamil:       { icon: BookOpen,    color: '#EF4444', bg: '#FEE2E2', label: 'Tamil' }
+};
+
+const SUBJECTS = [
+  { key: 'biology',   desc: 'Cell biology, human systems, diagrams.' },
+  { key: 'physics',   desc: 'Mechanics, optics, modern physics.' },
+  { key: 'chemistry', desc: 'Organic, inorganic and physical chemistry.' },
+  { key: 'maths',     desc: 'Algebra, calculus and problem solving.' },
+  { key: 'cs',        desc: 'Programming logic and data structures.' },
+  { key: 'english',   desc: 'Grammar, comprehension and writing.' },
+  { key: 'tamil',     desc: 'Language and literature practice.' }
 ];
 
 export default function HomePage() {
-  const [selectedSubject, setSelectedSubject] = useState(subjects[0].key);
-  const [isConfirmed, setIsConfirmed] = useState(false);
-  const [position, setPosition] = useState(1); // loop starting position is 1
   const navigate = useNavigate();
-
-  const currentIdx = subjects.findIndex((s) => s.key === selectedSubject);
-  const selected = subjects[currentIdx] || subjects[0];
-
-  // Carousel items mapped with Lucide icons
-  const carouselItems = subjects.map(s => ({
-    id: s.key,
-    title: s.label,
-    description: s.description,
-    icon: <BookOpen className="carousel-icon" />
-  }));
-
-  const handlePrev = () => {
-    setIsConfirmed(false);
-    setPosition(prev => prev - 1);
-  };
-
-  const handleNext = () => {
-    setIsConfirmed(false);
-    setPosition(prev => prev + 1);
-  };
-
-  useEffect(() => {
-    setIsConfirmed(false);
-  }, []);
+  const [hovered, setHovered] = useState(null);
+  const [selected, setSelected] = useState(null);
 
   return (
-    <div className="position-relative w-100 d-flex flex-column align-items-center justify-content-center py-4" style={{ maxWidth: '900px', minHeight: '68vh' }}>
-      
-      {/* 🔮 Deduplicated Single HUD Stats Widget in the Top Right Corner (Lavender color theme) */}
-      <BorderGlow
-        className="position-absolute d-none d-lg-block"
-        edgeSensitivity={35}
-        glowColor="270 80 80"
-        backgroundColor="var(--color-surface-dark)"
-        borderRadius={16}
-        glowRadius={30}
-        glowIntensity={1.0}
-        colors={['#C8ACD6', '#433D8F', '#2E2A62']}
-        style={{ 
-          top: '0px', 
-          right: '0px', 
-          width: '210px', 
-          zIndex: 30
+    <div className="d-flex flex-column gap-6 gap-lg-8 anim-fade-up">
+
+      {/* =========================================
+          HERO SECTION
+          ========================================= */}
+      <section
+        className="surface p-5 p-md-6 p-lg-7 position-relative overflow-hidden"
+        style={{
+          background:
+            'linear-gradient(135deg, var(--surface) 0%, color-mix(in oklab, var(--primary-50) 60%, var(--surface)) 100%)'
         }}
       >
-        <div className="d-flex flex-column gap-3 p-3">
-          <div>
-            <div className="d-flex justify-content-between align-items-center mb-1 text-theme-slate font-bold" style={{ fontSize: '9px', letterSpacing: '0.1em' }}>
-              <span className="d-flex align-items-center gap-1"><Zap size={10} className="text-theme-highlight" /> PROGRESS</span>
-              <span className="text-theme-highlight">110</span>
+        <div
+          className="position-absolute rounded-circle anim-float"
+          style={{
+            width: '320px', height: '320px',
+            right: '-80px', top: '-80px',
+            background: 'radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 65%)',
+            pointerEvents: 'none'
+          }}
+        />
+        <div
+          className="position-absolute rounded-circle anim-float"
+          style={{
+            width: '260px', height: '260px',
+            left: '-60px', bottom: '-70px',
+            background: 'radial-gradient(circle at 60% 40%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 65%)',
+            pointerEvents: 'none',
+            animationDelay: '1.2s'
+          }}
+        />
+
+        <div className="row g-5 align-items-center position-relative">
+          <div className="col-lg-7">
+            <div className="d-flex align-items-center gap-2 mb-4">
+              <span className="chip chip-primary d-inline-flex align-items-center gap-1.5 anim-fade-in">
+                <Sparkles size={13} />
+                New · Practice Mode v2
+              </span>
             </div>
-            <div className="progress" style={{ height: '6px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-              <div className="progress-bar shadow" style={{ width: '70%', backgroundColor: 'var(--color-lavender)', boxShadow: '0 0 8px var(--color-lavender)' }} />
-            </div>
-          </div>
-          <div>
-            <div className="d-flex justify-content-between align-items-center mb-1 text-theme-slate font-bold" style={{ fontSize: '9px', letterSpacing: '0.1em' }}>
-              <span className="d-flex align-items-center gap-1"><Star size={10} className="text-theme-highlight" /> SKILLS</span>
-              <span className="text-theme-highlight">10</span>
-            </div>
-            <div className="progress" style={{ height: '6px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-              <div className="progress-bar shadow" style={{ width: '45%', backgroundColor: 'var(--color-accent-dark)' }} />
-            </div>
-          </div>
-        </div>
-      </BorderGlow>
-
-      {/* Main Content Workspace Stack */}
-      <div className="d-flex flex-column align-items-center w-100 gap-4">
-
-        {/* Grouped Carousel Row: Left Arrow, Central Carousel Orb, Right Arrow */}
-        <div className="d-flex align-items-center justify-content-center gap-5 w-100">
-          
-          {/* Left Navigation Arrow */}
-          <button
-            onClick={handlePrev}
-            className="btn rounded-circle d-flex align-items-center justify-content-center p-0 border hover-lavender-border"
-            style={{ 
-              width: '60px', 
-              height: '60px', 
-              background: 'rgba(10, 15, 29, 0.8)', 
-              borderColor: 'rgba(255, 255, 255, 0.1)',
-              color: 'white',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
-              zIndex: 10
-            }}
-            aria-label="Previous Subject"
-          >
-            <ArrowLeft size={22} strokeWidth={2.5} />
-          </button>
-
-          {/* Central Controlled Subject Carousel (Subject Orb) */}
-          <div className="position-relative d-flex align-items-center justify-content-center" style={{ width: '300px', height: '300px' }}>
-            
-            {/* Glowing outer circle bounds */}
-            <div 
-              className="position-absolute rounded-circle pointer-events-none" 
-              style={{ 
-                inset: '16px', 
-                border: isConfirmed ? '2px solid var(--color-lavender)' : '1px solid rgba(255, 255, 255, 0.1)', 
-                boxShadow: isConfirmed ? '0 0 35px rgba(200, 172, 214, 0.35)' : '0 0 15px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.5s ease'
-              }} 
-            />
-
-            <Carousel 
-              items={carouselItems}
-              baseWidth={300}
-              loop={true}
-              round={true}
-              position={position}
-              setPosition={setPosition}
-              onSelect={(id) => {
-                setSelectedSubject(id);
-                setIsConfirmed(false);
-              }}
-            />
-          </div>
-
-          {/* Right Navigation Arrow */}
-          <button
-            onClick={handleNext}
-            className="btn rounded-circle d-flex align-items-center justify-content-center p-0 border hover-lavender-border"
-            style={{ 
-              width: '60px', 
-              height: '60px', 
-              background: 'rgba(10, 15, 29, 0.8)', 
-              borderColor: 'rgba(255, 255, 255, 0.1)',
-              color: 'white',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
-              zIndex: 10
-            }}
-            aria-label="Next Subject"
-          >
-            <ArrowRight size={22} strokeWidth={2.5} />
-          </button>
-        </div>
-
-        {/* Subject description placed tightly underneath the carousel orb wrapper */}
-        <p className="m-0 mt-2 text-center text-theme-slate font-light" style={{ fontSize: '0.8rem', letterSpacing: '0.05em', maxWidth: '280px', lineHeight: '1.5' }}>
-          {selected.description}
-        </p>
-
-        {/* Action Buttons grouped comfortably below the description */}
-        <div className="d-flex flex-column align-items-center gap-4 w-100 mt-2">
-          
-          {/* SELECT SUBJECT Button */}
-          <button
-            onClick={() => setIsConfirmed(true)}
-            className={`btn d-flex align-items-center justify-content-between w-100 py-3 px-4 rounded-3 text-uppercase font-bold tracking-widest ${
-              isConfirmed 
-                ? 'btn-outline-light text-theme-highlight border-theme-highlight bg-white bg-opacity-5 shadow-highlight-glow' 
-                : 'btn-outline-light text-white border-theme-accent shadow-highlight-glow'
-            }`}
-            style={{ 
-              maxWidth: '350px',
-              transition: 'all 0.3s ease',
-              fontSize: '0.88rem',
-              borderColor: isConfirmed ? 'var(--color-lavender)' : 'var(--color-accent-dark)'
-            }}
-          >
-            <div style={{ width: '20px' }} /> {/* Balance spacer */}
-            <span>{isConfirmed ? 'Subject Confirmed' : 'Select Subject'}</span>
-            <div className="d-flex align-items-center gap-2 text-theme-highlight">
-              <Cloud size={16} />
-              <MousePointer size={14} className="animate-bounce-slow" />
-            </div>
-          </button>
-
-          {/* Status Indicators Banner */}
-          <div className="position-relative d-flex align-items-center justify-content-center py-2 px-5" style={{ width: '100%', maxWidth: '300px' }}>
-            <svg className="position-absolute w-100 h-100 text-theme-highlight opacity-25" viewBox="0 0 200 40" fill="none">
-              <path d="M 10 20 Q 50 35 100 20 Q 150 5 190 20" stroke="currentColor" strokeWidth="1" strokeDasharray="3 6" />
-              <path d="M 10 20 Q 50 5 100 20 Q 150 35 190 20" stroke="currentColor" strokeWidth="0.75" strokeDasharray="2 4" />
-            </svg>
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={isConfirmed ? 'confirmed' : 'waiting'}
-                initial={{ opacity: 0, y: 3 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -3 }}
-                transition={{ duration: 0.2 }}
-                className="text-white font-bold uppercase tracking-widest"
-                style={{ fontSize: '0.74rem' }}
+            <h1 className="text-display mb-3" style={{ maxWidth: '18ch' }}>
+              Sprint through every <span style={{ color: 'var(--primary)' }}>subject</span>.
+            </h1>
+            <p className="text-lead mb-5" style={{ maxWidth: '52ch' }}>
+              A calm, focused quiz platform for TN 12th graders. Configure realistic tests,
+              review every wrong answer, and close knowledge gaps faster than textbook drudgery.
+            </p>
+            <div className="d-flex flex-wrap align-items-center gap-3">
+              <button
+                onClick={() => document.getElementById('subjects-grid')?.scrollIntoView({ behavior: 'smooth' })}
+                className="btn btn-primary btn-lg"
               >
-                {isConfirmed ? `Confirmed: ${selected.label}` : 'Awaiting Selection'}
-              </motion.span>
-            </AnimatePresence>
+                Choose a Subject
+                <ArrowRight size={18} />
+              </button>
+              <button
+                onClick={() => navigate('/about')}
+                className="btn btn-outline btn-lg"
+              >
+                Learn more
+              </button>
+            </div>
+
+            {/* Quick stats row */}
+            <div className="d-flex flex-wrap gap-4 mt-6 pt-5" style={{ gap: '2rem', marginTop: '2.5rem' }}>
+              {[
+                { icon: Target,  k: '7', v: 'Subjects' },
+                { icon: Clock,   k: '4', v: 'Timer Presets' },
+                { icon: Zap,     k: '∞', v: 'Attempts' },
+                { icon: Award,   k: '2', v: 'Sprint Modes' }
+              ].map((s, i) => {
+                const Icon = s.icon;
+                return (
+                  <div key={s.v} className="d-flex align-items-center gap-3 anim-fade-up" style={{ animationDelay: `${i * 60}ms` }}>
+                    <div
+                      className="d-flex align-items-center justify-content-center rounded-4"
+                      style={{
+                        width: '42px', height: '42px',
+                        background: 'var(--surface)',
+                        border: '1px solid var(--ink-100)',
+                        color: 'var(--primary-600)'
+                      }}
+                    >
+                      <Icon size={18} />
+                    </div>
+                    <div>
+                      <div className="font-black" style={{ fontSize: '1.1rem', color: 'var(--ink-900)', lineHeight: 1.1 }}>{s.k}</div>
+                      <div style={{ fontSize: '0.76rem', color: 'var(--ink-400)' }}>{s.v}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {/* PROCEED TO SETUP Button */}
-          <button
-            onClick={() => {
-              if (isConfirmed) {
-                navigate(`/quiz/${selected.key}`);
-              } else {
-                setIsConfirmed(true);
-              }
-            }}
-            className={`btn w-100 py-3 rounded-4 position-relative overflow-hidden text-uppercase font-bold tracking-wider d-flex align-items-center justify-content-center gap-2 ${
-              isConfirmed 
-                ? 'btn-outline-light text-white shadow-highlight-glow' 
-                : 'btn-outline-secondary text-secondary'
-            }`}
-            style={{ 
-              maxWidth: '260px',
-              fontSize: '0.78rem',
-              transition: 'all 0.5s ease',
-              borderColor: isConfirmed ? 'var(--color-lavender)' : 'rgba(255, 255, 255, 0.15)'
-            }}
-          >
-            {/* Sliding progress bar backdrop */}
-            <div 
-              className="position-absolute top-0 bottom-0 start-0 bg-white bg-opacity-10" 
-              style={{ width: isConfirmed ? '100%' : '0%', transition: 'all 500ms ease' }}
-            />
-            <span className="position-relative z-3">Proceed to Setup</span>
-            <Settings size={14} className={`position-relative z-3 ${isConfirmed ? 'animate-spin-slow text-theme-highlight' : 'text-secondary'}`} />
-          </button>
+          <div className="col-lg-5 d-none d-lg-block">
+            {/* Illustrated feature card */}
+            <div className="surface p-5" style={{ boxShadow: 'var(--shadow-lg)' }}>
+              <div className="d-flex align-items-center justify-content-between mb-4">
+                <div className="d-flex align-items-center gap-2">
+                  <span className="chip chip-accent"><Trophy size={13} /> Live demo</span>
+                </div>
+                <div className="d-flex align-items-center gap-1.5">
+                  <span style={{ width: 9, height: 9, borderRadius: 99, background: 'var(--success)', opacity: 0.9 }} />
+                  <span style={{ fontSize: '0.76rem', color: 'var(--ink-400)', fontWeight: 500 }}>34/50 answered</span>
+                </div>
+              </div>
 
+              <div className="mb-4">
+                <div className="d-flex align-items-center justify-content-between mb-2">
+                  <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--ink-500)' }}>Physics · Thermodynamics</span>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)' }}>68%</span>
+                </div>
+                <div className="progress" style={{ height: 10 }}>
+                  <div className="progress-bar" style={{ width: '68%' }} />
+                </div>
+              </div>
+
+              {/* Fake question preview */}
+              <div
+                className="rounded-5 p-4 mb-3"
+                style={{ background: 'var(--surface-2)', border: '1px solid var(--ink-100)' }}
+              >
+                <p className="font-semibold mb-3" style={{ color: 'var(--ink-800)', fontSize: '0.92rem' }}>
+                  Which law relates the entropy of a system to the heat transfer at a constant temperature?
+                </p>
+                <div className="d-flex flex-column gap-2">
+                  {[
+                    { t: "Newton's Second Law", c: false },
+                    { t: 'Zeroth Law of Thermodynamics', c: false },
+                    { t: 'Second Law of Thermodynamics', c: true },
+                    { t: 'Ideal Gas Law', c: false }
+                  ].map((opt, i) => (
+                    <div
+                      key={i}
+                      className="px-3 py-2 rounded-3 d-flex align-items-center gap-2"
+                      style={{
+                        background: opt.c ? 'color-mix(in oklab, var(--success) 10%, var(--surface))' : 'var(--surface)',
+                        border: `1px solid ${opt.c ? 'color-mix(in oklab, var(--success) 40%, var(--ink-100))' : 'var(--ink-100)'}`,
+                        color: opt.c ? 'var(--success)' : 'var(--ink-600)',
+                        fontSize: '0.84rem',
+                        fontWeight: opt.c ? 700 : 500
+                      }}
+                    >
+                      <span style={{ width: 20, fontWeight: 800, opacity: 0.6 }}>{String.fromCharCode(65 + i)}.</span>
+                      {opt.t}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Summary */}
+              <div className="d-flex gap-2">
+                <div className="flex-grow-1 p-3 rounded-4" style={{ background: 'var(--success-100)' }}>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--success)', letterSpacing: 0.08 }}>CORRECT</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--ink-900)' }}>34</div>
+                </div>
+                <div className="flex-grow-1 p-3 rounded-4" style={{ background: 'var(--danger-100)' }}>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--danger)', letterSpacing: 0.08 }}>WRONG</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--ink-900)' }}>16</div>
+                </div>
+                <div className="flex-grow-1 p-3 rounded-4" style={{ background: 'var(--primary-100)' }}>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--primary-600)', letterSpacing: 0.08 }}>AVG</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--ink-900)' }}>68%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================
+          SUBJECT GRID
+          ========================================= */}
+      <section id="subjects-grid">
+        <div className="d-flex align-items-end justify-content-between mb-4 mb-md-5 flex-wrap gap-3">
+          <div>
+            <div className="chip chip-primary mb-2" style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '0.7rem' }}>
+              <BookMarked size={12} /> Subjects
+            </div>
+            <h2 className="text-h1">Pick a subject to sprint</h2>
+            <p className="mt-2 text-lead" style={{ maxWidth: '56ch' }}>
+              All 7 core Grade 12 TN state-board subjects available immediately. Click a card
+              to jump into the setup screen.
+            </p>
+          </div>
         </div>
 
-      </div>
+        <div className="row g-4">
+          {SUBJECTS.map((s, idx) => {
+            const meta = SUBJECT_ICON[s.key];
+            const Icon = meta.icon;
+            const isSelected = selected === s.key;
+            return (
+              <div key={s.key} className="col-12 col-sm-6 col-lg-4 anim-fade-up" style={{ animationDelay: `${idx * 50}ms` }}>
+                <button
+                  type="button"
+                  className="surface surface-hover p-4 p-md-5 w-100 text-start border-0 h-100 position-relative d-flex flex-column"
+                  style={{
+                    outline: isSelected ? `2px solid var(--primary)` : 'none',
+                    outlineOffset: isSelected ? '2px' : 0,
+                    cursor: 'pointer',
+                    transform: hovered === s.key ? 'translateY(-4px)' : undefined
+                  }}
+                  onMouseEnter={() => setHovered(s.key)}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() => { setSelected(s.key); setTimeout(() => navigate(`/quiz/${s.key}`), 80); }}
+                >
+                  {/* Top row */}
+                  <div className="d-flex align-items-start justify-content-between mb-4">
+                    <div
+                      className="d-flex align-items-center justify-content-center rounded-4"
+                      style={{
+                        width: '52px', height: '52px',
+                        background: meta.bg,
+                        color: meta.color
+                      }}
+                    >
+                      <Icon size={26} strokeWidth={2.1} />
+                    </div>
+                    <div
+                      className="rounded-circle d-flex align-items-center justify-content-center transition-all"
+                      style={{
+                        width: '32px', height: '32px',
+                        background: hovered === s.key ? 'var(--primary)' : 'var(--surface-3)',
+                        color: hovered === s.key ? 'white' : 'var(--ink-500)'
+                      }}
+                    >
+                      <ArrowRight size={16} strokeWidth={2.3} />
+                    </div>
+                  </div>
 
-      {/* Custom CSS overrides inside style tag for layout glow effects */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .hover-lavender-border:hover {
-          border-color: var(--color-lavender) !important;
-          color: var(--color-lavender) !important;
-          box-shadow: 0 0 15px rgba(200, 172, 214, 0.45) !important;
-        }
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
-        }
-        .animate-bounce-slow {
-          animation: bounce-slow 2s infinite ease-in-out;
-        }
-      `}} />
+                  <h3 className="text-h3 mb-2" style={{ color: 'var(--ink-900)' }}>{meta.label}</h3>
+                  <p style={{ fontSize: '0.88rem', lineHeight: 1.6 }}>{s.desc}</p>
 
+                  <div className="mt-auto pt-4 d-flex align-items-center gap-3">
+                    <div className="d-flex align-items-center gap-1.5" style={{ color: 'var(--ink-400)' }}>
+                      <Gauge size={14} />
+                      <span style={{ fontSize: '0.76rem', fontWeight: 500 }}>4 timer presets</span>
+                    </div>
+                    <div className="d-flex align-items-center gap-1.5 ml-auto" style={{ color: 'var(--ink-400)' }}>
+                      <Brain size={14} />
+                      <span style={{ fontSize: '0.76rem', fontWeight: 500 }}>Review mode</span>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* =========================================
+          FEATURE HIGHLIGHTS
+          ========================================= */}
+      <section
+        className="row g-4 mt-2"
+      >
+        {[
+          {
+            icon: Clock, tint: 'primary', title: 'Realistic Exam Timers',
+            body: 'Per-question and global timers mimic real board-exam pressure so you get used to working under time constraints.'
+          },
+          {
+            icon: BookMarked, tint: 'accent', title: 'Bookmark + Resume',
+            body: 'Save tricky questions for later, or exit mid-sprint and resume exactly where you left off — progress is auto-saved.'
+          },
+          {
+            icon: Brain, tint: 'success', title: 'Active Recall Loops',
+            body: 'Wrong answers are re-inserted into the queue until you answer correctly. Fast, focused mastery per concept.'
+          },
+          {
+            icon: Trophy, tint: 'warning', title: 'Persistent Statistics',
+            body: 'Best score, rolling average, and attempt counts tracked per subject — watch your improvement compound over sessions.'
+          }
+        ].map((f, idx) => {
+          const Icon = f.icon;
+          const tintMap = {
+            primary: { bg: 'var(--primary-100)', fg: 'var(--primary-600)' },
+            accent:  { bg: 'var(--accent-100)',  fg: 'var(--accent-600)' },
+            success: { bg: 'var(--success-100)', fg: 'var(--success)' },
+            warning: { bg: 'var(--warning-100)', fg: '#B45309' }
+          };
+          const tint = tintMap[f.tint];
+          return (
+            <div key={f.title} className="col-12 col-md-6 col-xl-3 anim-fade-up" style={{ animationDelay: `${idx * 60}ms` }}>
+              <div className="surface surface-hover h-100 p-4 p-md-5">
+                <div
+                  className="d-flex align-items-center justify-content-center rounded-4 mb-4"
+                  style={{
+                    width: '48px', height: '48px',
+                    background: tint.bg,
+                    color: tint.fg
+                  }}
+                >
+                  <Icon size={22} strokeWidth={2.1} />
+                </div>
+                <h3 className="text-h3 mb-2" style={{ color: 'var(--ink-900)' }}>{f.title}</h3>
+                <p style={{ fontSize: '0.88rem', lineHeight: 1.6 }}>{f.body}</p>
+              </div>
+            </div>
+          );
+        })}
+      </section>
     </div>
   );
 }
