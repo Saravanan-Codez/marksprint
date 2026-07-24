@@ -16,47 +16,74 @@ export default function QuizSetup({ engine, subject }) {
   } = engine;
 
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col pt-6 md:pt-14 px-6 pb-20 font-sans relative">
+    <div className="container py-4 position-relative text-white" style={{ maxWidth: '800px' }}>
       
-      {/* Background Glow */}
-      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none -z-10"></div>
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+      {/* Background Glows */}
+      <div className="position-absolute top-0 end-0 rounded-circle pointer-events-none" style={{ width: '400px', height: '400px', background: 'rgba(200, 172, 214, 0.05)', filter: 'blur(100px)', zIndex: -1 }} />
+      <div className="position-absolute bottom-0 start-0 rounded-circle pointer-events-none" style={{ width: '400px', height: '400px', background: 'rgba(67, 61, 143, 0.08)', filter: 'blur(100px)', zIndex: -1 }} />
 
-      <div className="flex flex-col mb-12 text-center">
-        <h2 className="text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 drop-shadow-[0_0_15px_rgba(0,210,255,0.3)]">
-          {subject?.toUpperCase()}
+      <div className="text-center mb-5">
+        <h2 className="display-4 font-bold text-white uppercase tracking-tight">
+          {subject}
         </h2>
-        <p className="text-base text-gray-300 mt-5 font-medium">Configure your assessment parameters before starting the sprint.</p>
+        <p className="text-theme-slate font-light mt-2" style={{ fontSize: '0.95rem' }}>Configure your assessment parameters before starting the sprint.</p>
       </div>
       
-      <div className="w-full bg-[rgba(15,20,30,0.6)] backdrop-blur-xl border border-[rgba(255,255,255,0.1)] rounded-3xl p-10 md:p-16 shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col gap-10 relative overflow-hidden">
+      <div 
+        className="p-4 p-md-5 rounded-5 border shadow-lg position-relative overflow-hidden d-flex flex-column gap-4" 
+        style={{ 
+          backgroundColor: 'rgba(46, 42, 98, 0.45)', 
+          backdropFilter: 'blur(20px)', 
+          borderColor: 'rgba(255, 255, 255, 0.05)' 
+        }}
+      >
         
-        {/* Subtle internal top glow */}
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+        {/* Subtle internal top glow line */}
+        <div className="position-absolute top-0 start-0 end-0" style={{ height: '1.5px', background: 'linear-gradient(to right, transparent, rgba(200, 172, 214, 0.3), transparent)' }}></div>
 
+        {/* Assessment Scope Selection */}
         <section className="text-center">
-          <h4 className="text-lg md:text-xl font-black text-cyan-400 mb-10 uppercase tracking-[0.3em] drop-shadow-[0_0_10px_rgba(0,210,255,0.3)]">Assessment Scope</h4>
-          <div className="grid grid-cols-3 gap-4 p-3 bg-[rgba(0,0,0,0.4)] rounded-xl border border-[rgba(255,255,255,0.05)] shadow-inner mt-2">
+          <h4 className="text-uppercase tracking-wider font-bold text-theme-highlight mb-3" style={{ fontSize: '0.75rem', letterSpacing: '0.25em' }}>Assessment Scope</h4>
+          <div className="row g-2 p-2 rounded-4 border mt-2" style={{ backgroundColor: 'rgba(23, 21, 59, 0.5)', borderColor: 'rgba(255, 255, 255, 0.04)' }}>
             {["lesson", "volume", "full"].map(t => (
-              <button 
-                key={t} 
-                className={`py-3.5 rounded-lg font-bold text-sm md:text-base tracking-widest transition-all duration-300 ${quizType === t ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-[0_0_30px_rgba(0,210,255,0.8)] border border-cyan-400' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 hover:text-white hover:bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)]'}`}
-                onClick={() => setQuizType(t)}
-              >
-                {t.toUpperCase()}
-              </button>
+              <div key={t} className="col-4">
+                <button 
+                  className={`btn w-100 py-2.5 rounded-3 font-bold text-sm tracking-wider transition-all border-0 ${
+                    quizType === t 
+                      ? 'bg-theme-highlight text-theme-base shadow-highlight-glow' 
+                      : 'btn-link text-decoration-none text-secondary hover-white'
+                  }`}
+                  onClick={() => setQuizType(t)}
+                >
+                  {t.toUpperCase()}
+                </button>
+              </div>
             ))}
           </div>
         </section>
 
+        {/* Scope Detail: Lesson list */}
         {quizType === "lesson" && (
-          <section className="animate-in fade-in slide-in-from-top-2 duration-300 text-center">
-            <h4 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-widest">Select Lessons</h4>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 max-h-[400px] overflow-y-auto p-6 bg-[rgba(0,0,0,0.3)] rounded-xl border border-[rgba(255,255,255,0.05)] custom-scrollbar justify-items-center">
+          <section className="text-center animate-fade-in">
+            <h4 className="text-uppercase tracking-wider font-bold text-secondary mb-3" style={{ fontSize: '0.7rem', letterSpacing: '0.15em' }}>Select Lessons</h4>
+            <div 
+              className="d-flex flex-wrap gap-2 justify-content-center p-3 rounded-4 border" 
+              style={{ 
+                maxHeight: '220px', 
+                overflowY: 'auto', 
+                backgroundColor: 'rgba(23, 21, 59, 0.4)', 
+                borderColor: 'rgba(255, 255, 255, 0.04)' 
+              }}
+            >
               {availableLessons.map(lesson => (
                 <button 
                   key={lesson}
-                  className={`w-full px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-300 border ${selectedLessons.includes(lesson) ? 'bg-cyan-500/30 text-cyan-100 border-cyan-400 shadow-[0_0_20px_rgba(0,210,255,0.6)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.05)] hover:border-gray-500 hover:text-white'}`}
+                  className={`btn font-semibold text-sm transition-all border ${
+                    selectedLessons.includes(lesson) 
+                      ? 'bg-theme-accent text-theme-highlight border-theme-highlight' 
+                      : 'btn-outline-light text-secondary border-transparent hover-white'
+                  }`}
+                  style={{ minWidth: '95px', borderRadius: '12px', padding: '8px 12px' }}
                   onClick={() => setSelectedLessons(prev => prev.includes(lesson) ? prev.filter(l => l !== lesson) : [...prev, lesson])}
                 >
                   Lesson {lesson}
@@ -66,21 +93,38 @@ export default function QuizSetup({ engine, subject }) {
           </section>
         )}
 
+        {/* Scope Detail: Volume list */}
         {quizType === "volume" && (
-          <section className="animate-in fade-in slide-in-from-top-2 duration-300">
-            <h4 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-widest">Select Volume</h4>
-            <div className="flex flex-wrap gap-3">
+          <section className="text-center animate-fade-in">
+            <h4 className="text-uppercase tracking-wider font-bold text-secondary mb-3" style={{ fontSize: '0.7rem', letterSpacing: '0.15em' }}>Select Volume</h4>
+            <div 
+              className="d-flex flex-wrap gap-2 justify-content-center p-3 rounded-4 border" 
+              style={{ 
+                backgroundColor: 'rgba(23, 21, 59, 0.4)', 
+                borderColor: 'rgba(255, 255, 255, 0.04)' 
+              }}
+            >
               {availableVolumes.map(vol => (
                 <button 
                   key={vol}
-                  className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-300 border ${selectedVolume === vol ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 shadow-[0_0_15px_rgba(0,210,255,0.3)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.05)] hover:border-gray-500 hover:text-white'}`}
+                  className={`btn font-semibold text-sm transition-all border ${
+                    selectedVolume === vol 
+                      ? 'bg-theme-accent text-theme-highlight border-theme-highlight' 
+                      : 'btn-outline-light text-secondary border-transparent hover-white'
+                  }`}
+                  style={{ minWidth: '100px', borderRadius: '12px', padding: '8px 12px' }}
                   onClick={() => setSelectedVolume(vol)}
                 >
                   Volume {vol}
                 </button>
               ))}
               <button 
-                className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-300 border ${selectedVolume === "all" ? 'bg-purple-500/20 text-purple-300 border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.05)] hover:border-gray-500 hover:text-white'}`}
+                className={`btn font-semibold text-sm transition-all border ${
+                  selectedVolume === "all" 
+                    ? 'bg-theme-accent text-theme-highlight border-theme-highlight' 
+                    : 'btn-outline-light text-secondary border-transparent hover-white'
+                }`}
+                style={{ minWidth: '110px', borderRadius: '12px', padding: '8px 12px' }}
                 onClick={() => setSelectedVolume("all")}
               >
                 All Volumes
@@ -89,109 +133,185 @@ export default function QuizSetup({ engine, subject }) {
           </section>
         )}
 
-        <section className="flex flex-col w-full bg-[rgba(0,0,0,0.3)] rounded-2xl border border-[rgba(255,255,255,0.05)] overflow-hidden shadow-inner mt-4">
-          <div className="flex justify-between items-center px-6 py-6 md:py-8 bg-transparent hover:bg-[rgba(255,255,255,0.03)] transition-colors">
-            <span className="text-base text-gray-200 font-semibold tracking-wide">Practice Mode <span className="text-sm text-gray-400 ml-3 font-normal hidden md:inline">Instant feedback on answers</span></span>
-            <button role="switch" aria-checked={!isTestMode} onClick={() => setIsTestMode(prev => !prev)} className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 focus:outline-none ${!isTestMode ? 'bg-cyan-500 shadow-[0_0_15px_rgba(0,210,255,0.6)]' : 'bg-[rgba(255,255,255,0.1)]'}`}>
-              <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${!isTestMode ? 'translate-x-6' : 'translate-x-1'}`} />
-            </button>
+        {/* Settings Toggle Options */}
+        <section className="d-flex flex-column rounded-4 border mt-2 overflow-hidden animate-fade-in" style={{ backgroundColor: 'rgba(23, 21, 59, 0.4)', borderColor: 'rgba(255, 255, 255, 0.04)' }}>
+          <div className="d-flex justify-content-between align-items-center p-3 px-4 hover-row">
+            <span className="font-semibold text-white flex-grow-1">
+              Practice Mode 
+              <small className="d-block text-secondary font-light" style={{ fontSize: '0.75rem' }}>Instant feedback on answers</small>
+            </span>
+            <div className="form-check form-switch m-0 p-0">
+              <input 
+                type="checkbox" 
+                className="form-check-input" 
+                role="switch" 
+                checked={!isTestMode} 
+                onChange={() => setIsTestMode(prev => !prev)} 
+                style={{ cursor: 'pointer', transform: 'scale(1.3)', marginRight: '8px' }}
+              />
+            </div>
           </div>
-          <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.1)] to-transparent"></div>
+          <div style={{ height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.04)' }} />
           
           {!isTestMode && (
             <>
-              <div className="flex justify-between items-center px-6 py-6 md:py-8 bg-transparent hover:bg-[rgba(255,255,255,0.03)] transition-colors">
-                <span className="text-base text-gray-200 font-semibold tracking-wide">Repeat Wrong Answers <span className="text-sm text-gray-400 ml-3 font-normal hidden md:inline">Require correct answers before finishing</span></span>
-                <button role="switch" aria-checked={repeatWrong} onClick={() => setRepeatWrong(prev => !prev)} className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 focus:outline-none ${repeatWrong ? 'bg-cyan-500 shadow-[0_0_15px_rgba(0,210,255,0.6)]' : 'bg-[rgba(255,255,255,0.1)]'}`}>
-                  <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${repeatWrong ? 'translate-x-6' : 'translate-x-1'}`} />
-                </button>
+              <div className="d-flex justify-content-between align-items-center p-3 px-4 hover-row">
+                <span className="font-semibold text-white flex-grow-1">
+                  Repeat Wrong Answers 
+                  <small className="d-block text-secondary font-light" style={{ fontSize: '0.75rem' }}>Require correct answers before finishing</small>
+                </span>
+                <div className="form-check form-switch m-0 p-0">
+                  <input 
+                    type="checkbox" 
+                    className="form-check-input" 
+                    role="switch" 
+                    checked={repeatWrong} 
+                    onChange={() => setRepeatWrong(prev => !prev)} 
+                    style={{ cursor: 'pointer', transform: 'scale(1.3)', marginRight: '8px' }}
+                  />
+                </div>
               </div>
-              <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.1)] to-transparent"></div>
+              <div style={{ height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.04)' }} />
             </>
           )}
           
-          <div className="flex justify-between items-center px-6 py-6 md:py-8 bg-transparent hover:bg-[rgba(255,255,255,0.03)] transition-colors">
-            <span className="text-base text-gray-200 font-semibold tracking-wide">Shuffle Questions</span>
-            <button role="switch" aria-checked={shuffleQ} onClick={() => setShuffleQ(prev => !prev)} className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 focus:outline-none ${shuffleQ ? 'bg-cyan-500 shadow-[0_0_15px_rgba(0,210,255,0.6)]' : 'bg-[rgba(255,255,255,0.1)]'}`}>
-              <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${shuffleQ ? 'translate-x-6' : 'translate-x-1'}`} />
-            </button>
+          <div className="d-flex justify-content-between align-items-center p-3 px-4 hover-row">
+            <span className="font-semibold text-white">Shuffle Questions</span>
+            <div className="form-check form-switch m-0 p-0">
+              <input 
+                type="checkbox" 
+                className="form-check-input" 
+                role="switch" 
+                checked={shuffleQ} 
+                onChange={() => setShuffleQ(prev => !prev)} 
+                style={{ cursor: 'pointer', transform: 'scale(1.3)', marginRight: '8px' }}
+              />
+            </div>
           </div>
-          <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.1)] to-transparent"></div>
+          <div style={{ height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.04)' }} />
           
-          <div className="flex justify-between items-center px-6 py-6 md:py-8 bg-transparent hover:bg-[rgba(255,255,255,0.03)] transition-colors">
-            <span className="text-base text-gray-200 font-semibold tracking-wide">Shuffle Options</span>
-            <button role="switch" aria-checked={shuffleOpt} onClick={() => setShuffleOpt(prev => !prev)} className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 focus:outline-none ${shuffleOpt ? 'bg-cyan-500 shadow-[0_0_15px_rgba(0,210,255,0.6)]' : 'bg-[rgba(255,255,255,0.1)]'}`}>
-              <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${shuffleOpt ? 'translate-x-6' : 'translate-x-1'}`} />
-            </button>
+          <div className="d-flex justify-content-between align-items-center p-3 px-4 hover-row">
+            <span className="font-semibold text-white">Shuffle Options</span>
+            <div className="form-check form-switch m-0 p-0">
+              <input 
+                type="checkbox" 
+                className="form-check-input" 
+                role="switch" 
+                checked={shuffleOpt} 
+                onChange={() => setShuffleOpt(prev => !prev)} 
+                style={{ cursor: 'pointer', transform: 'scale(1.3)', marginRight: '8px' }}
+              />
+            </div>
           </div>
         </section>
 
-        <div className="flex flex-col gap-10 mt-4">
-          <section>
-            <h4 className="text-[11px] font-bold text-gray-400 tracking-widest mb-4 uppercase">Question Timer</h4>
-            <div className="grid grid-cols-4 gap-3">
+        {/* Configurations Parameters */}
+        <div className="row g-4 mt-2">
+          
+          <div className="col-12 col-md-6 col-lg-4">
+            <h4 className="text-uppercase tracking-wider font-bold text-secondary mb-2" style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}>Question Timer</h4>
+            <div className="row g-2">
               {[0, 5, 10, 15].map(t => (
-                <button 
-                  key={t} 
-                  className={`py-3 rounded-lg font-bold text-sm md:text-base transition-all duration-300 border ${timerLimit === t ? 'bg-cyan-500/30 text-cyan-100 border-cyan-400 shadow-[0_0_25px_rgba(0,210,255,0.6)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.1)] hover:border-gray-500 hover:text-white'}`}
-                  onClick={() => setTimerLimit(t)}
-                >
-                  {t === 0 ? "OFF" : `${t}s`}
-                </button>
+                <div key={t} className="col-3">
+                  <button 
+                    className={`btn w-100 py-3 font-semibold text-xs transition-all border ${
+                      timerLimit === t 
+                        ? 'bg-theme-accent text-theme-highlight border-theme-highlight' 
+                        : 'btn-outline-light text-secondary border-transparent hover-white'
+                    }`}
+                    style={{ borderRadius: '12px' }}
+                    onClick={() => setTimerLimit(t)}
+                  >
+                    {t === 0 ? "OFF" : `${t}s`}
+                  </button>
+                </div>
               ))}
             </div>
-          </section>
+          </div>
 
-          <section>
-            <h4 className="text-[11px] font-bold text-gray-400 tracking-widest mb-4 uppercase">Global Timer</h4>
-            <div className="grid grid-cols-4 gap-3">
+          <div className="col-12 col-md-6 col-lg-4">
+            <h4 className="text-uppercase tracking-wider font-bold text-secondary mb-2" style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}>Global Timer</h4>
+            <div className="row g-2">
               {[0, 5, 10, 30].map(t => (
-                <button 
-                  key={t} 
-                  className={`py-3 rounded-lg font-bold text-sm md:text-base transition-all duration-300 border ${globalTimerLimit === t ? 'bg-cyan-500/30 text-cyan-100 border-cyan-400 shadow-[0_0_25px_rgba(0,210,255,0.6)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.1)] hover:border-gray-500 hover:text-white'}`}
-                  onClick={() => setGlobalTimerLimit(t)}
-                >
-                  {t === 0 ? "OFF" : `${t}m`}
-                </button>
+                <div key={t} className="col-3">
+                  <button 
+                    className={`btn w-100 py-3 font-semibold text-xs transition-all border ${
+                      globalTimerLimit === t 
+                        ? 'bg-theme-accent text-theme-highlight border-theme-highlight' 
+                        : 'btn-outline-light text-secondary border-transparent hover-white'
+                    }`}
+                    style={{ borderRadius: '12px' }}
+                    onClick={() => setGlobalTimerLimit(t)}
+                  >
+                    {t === 0 ? "OFF" : `${t}m`}
+                  </button>
+                </div>
               ))}
             </div>
-          </section>
+          </div>
 
-          <section>
-            <h4 className="text-[11px] font-bold text-gray-400 tracking-widest mb-4 uppercase">Questions</h4>
-            <div className="grid grid-cols-3 gap-3">
+          <div className="col-12 col-lg-4">
+            <h4 className="text-uppercase tracking-wider font-bold text-secondary mb-2" style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}>Questions Count</h4>
+            <div className="row g-2">
               {[0, 15, 20].map(n => (
-                <button 
-                  key={n} 
-                  className={`py-3 rounded-lg font-bold text-sm md:text-base transition-all duration-300 border ${questionCount === n ? 'bg-cyan-500/30 text-cyan-100 border-cyan-400 shadow-[0_0_25px_rgba(0,210,255,0.6)]' : 'bg-[rgba(255,255,255,0.02)] text-gray-400 border-[rgba(255,255,255,0.1)] hover:border-gray-500 hover:text-white'}`}
-                  onClick={() => setQuestionCount(n)}
-                >
-                  {n === 0 ? "ALL" : n}
-                </button>
+                <div key={n} className="col-4">
+                  <button 
+                    className={`btn w-100 py-3 font-semibold text-xs transition-all border ${
+                      questionCount === n 
+                        ? 'bg-theme-accent text-theme-highlight border-theme-highlight' 
+                        : 'btn-outline-light text-secondary border-transparent hover-white'
+                    }`}
+                    style={{ borderRadius: '12px' }}
+                    onClick={() => setQuestionCount(n)}
+                  >
+                    {n === 0 ? "ALL" : n}
+                  </button>
+                </div>
               ))}
             </div>
-          </section>
+          </div>
+
         </div>
 
-        <div className="pt-8 flex flex-col gap-4">
+        {/* Start Sprint Actions */}
+        <div className="pt-3 d-flex flex-column gap-3">
           <button 
-            className="relative group w-full py-6 text-white text-2xl font-black tracking-[0.2em] uppercase rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.4)] hover:shadow-[0_0_60px_rgba(255,0,128,0.8)] transition-all duration-500 border-0" 
+            className="btn btn-outline-light border-theme-accent text-white py-3 font-bold tracking-widest text-uppercase hover-lavender-text" 
+            style={{ borderRadius: '16px', fontSize: '1rem', border: '1px solid rgba(200, 172, 214, 0.2)' }}
             onClick={startRevision}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-500 via-orange-500 to-red-500 animate-gradient-x group-hover:scale-110 transition-transform duration-700"></div>
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
-            <span className="relative z-10 drop-shadow-md">Start Revision</span>
+            Start Revision
           </button>
           <button 
-            className="relative group w-full py-6 text-white text-2xl font-black tracking-[0.2em] uppercase rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(0,210,255,0.4)] hover:shadow-[0_0_60px_rgba(0,210,255,0.8)] transition-all duration-500 border-0" 
+            className="btn btn-theme-highlight text-theme-base py-3 font-extrabold tracking-widest text-uppercase shadow-highlight-glow" 
+            style={{ borderRadius: '16px', fontSize: '1rem' }}
             onClick={startQuiz}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-blue-500 via-indigo-500 to-purple-600 animate-gradient-x group-hover:scale-110 transition-transform duration-700"></div>
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
-            <span className="relative z-10 drop-shadow-md">Start Assessment</span>
+            Start Assessment
           </button>
         </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .hover-row:hover {
+          background-color: rgba(255, 255, 255, 0.01) !important;
+        }
+        .hover-white:hover {
+          color: white !important;
+          border-color: rgba(255, 255, 255, 0.2) !important;
+        }
+        .hover-lavender-text:hover {
+          color: var(--color-lavender) !important;
+          border-color: var(--color-lavender) !important;
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(5px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}} />
     </div>
   );
 }

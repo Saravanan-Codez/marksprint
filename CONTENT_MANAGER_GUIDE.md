@@ -9,7 +9,7 @@ The Content Manager is a secure, feature-rich question management system for Mar
 ### 1. Security & Access Control
 
 #### Password Protection
-- **Password**: `.Sreeh@r!462` (12 characters with mixed case, symbols, and numbers)
+- **Password:** Configured by the site administrator via environment variables. Do NOT commit passwords or secrets to the repository.
 - **Character-by-character input**: Each character has its own box for precise input
 - **Real-time validation**: 
   - Green boxes = Correct character in correct position
@@ -154,7 +154,7 @@ The Content Manager has a three-panel layout:
 
 #### Example 1: Adding Physics Questions
 1. Click "Content Manager" button on About page
-2. Enter password: `.Sreeh@r!462`
+2. Enter the administrator password configured through the `CONTENT_MANAGER_PASSWORD` environment variable
 3. Select "Physics" from left panel
 4. Create new lesson "1" in middle panel
 5. Select "Volume 1" from top dropdown
