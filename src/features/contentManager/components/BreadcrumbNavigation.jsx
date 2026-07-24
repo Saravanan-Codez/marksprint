@@ -10,8 +10,7 @@ export default function BreadcrumbNavigation({
   onSelectLesson,
   onAddSubject,
   onAddLesson,
-  onDeleteSubject,
-  onDeleteLesson
+  onDeleteSubject
 }) {
   const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
   const [showLessonDropdown, setShowLessonDropdown] = useState(false);

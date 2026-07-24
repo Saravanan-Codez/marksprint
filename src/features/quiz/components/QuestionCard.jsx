@@ -1,21 +1,25 @@
-import React from 'react';
+import React, { memo } from 'react';
 import DOMPurify from 'dompurify';
-import { CheckCircle2, XCircle } from "lucide-react";
-import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle2, XCircle, Bookmark, BookmarkCheck } from "lucide-react";
+import { AnimatePresence, motion } from 'framer-motion';
 
-export default function QuestionCard({ 
-  currentQ, 
-  currentIdx, 
-  handleAnswer, 
-  isLocked, 
-  userAnswer, 
-  isTestMode 
+const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+function QuestionCardImpl({
+  currentQ,
+  currentIdx,
+  handleAnswer,
+  isLocked,
+  userAnswer,
+  isTestMode,
+  isBookmarked = false,
+  onToggleBookmark
 }) {
   if (!currentQ) return null;
 
   return (
     <AnimatePresence mode="wait">
-      <motion.div 
+      <motion.div
         key={currentIdx}
         initial={{ x: 30, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -23,115 +27,175 @@ export default function QuestionCard({
         transition={{ duration: 0.3, ease: "easeOut" }}
         className="w-100 d-flex flex-column align-items-center pb-5 position-relative"
       >
-        <div 
-          className="w-100 p-4 p-md-5 rounded-5 border mb-4 position-relative overflow-hidden text-center" 
-          style={{ 
-            backgroundColor: 'rgba(46, 42, 98, 0.45)', 
-            backdropFilter: 'blur(20px)', 
-            borderColor: 'rgba(255, 255, 255, 0.05)' 
-          }}
-        >
-          <div className="position-absolute top-0 start-0 end-0" style={{ height: '1.5px', background: 'linear-gradient(to right, transparent, rgba(200, 172, 214, 0.3), transparent)' }}></div>
-          <h2 className="h4 leading-relaxed text-white font-semibold mb-0" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentQ.question || "") }} />
-          {currentQ.question_image && <img src={currentQ.question_image} alt="Question" className="img-fluid mx-auto mt-4 rounded-4 border border-secondary shadow-lg" style={{ maxHeight: '280px', objectFit: 'contain' }} />}
+        <div className="surface w-100 p-4 p-md-5 mb-4 position-relative text-center">
+          {onToggleBookmark && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onToggleBookmark(currentQ); }}
+              className="position-absolute top-3 end-3 border-0 p-2 rounded-2 transition-all"
+              style={{
+                background: isBookmarked ? 'var(--warning-100)' : 'var(--surface-4)',
+                color: isBookmarked ? 'var(--warning)' : 'var(--ink-400)',
+                zIndex: 5,
+                borderRadius: 'var(--radius-full)',
+                width: '38px',
+                height: '38px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this question'}
+              title={isBookmarked ? 'Bookmarked' : 'Bookmark for later'}
+            >
+              {isBookmarked
+                ? <BookmarkCheck size={18} fill={isBookmarked ? 'var(--warning)' : 'none'} />
+                : <Bookmark size={18} />
+              }
+            </button>
+          )}
+          <h2 className="text-h3 leading-relaxed mb-0" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentQ.question || "") }} />
+          {currentQ.question_image && <img src={currentQ.question_image} alt="Question" className="img-fluid mx-auto mt-4 rounded-3 border" style={{ maxHeight: '280px', objectFit: 'contain', borderColor: 'var(--ink-100)' }} />}
         </div>
-        
+
         {isLocked && (
-          <div className="position-absolute top-0 end-0 p-3 opacity-75 d-flex align-items-center gap-2 text-theme-highlight">
-            <div className="spinner-border spinner-border-sm" role="status" style={{ color: 'var(--color-lavender)' }}></div>
-            <span className="text-uppercase font-bold" style={{ fontSize: '0.65rem', letterSpacing: '0.12em' }}>Processing</span>
+          <div className="position-absolute top-0 end-0 p-3 opacity-75 d-flex align-items-center gap-2">
+            <div className="spinner-border spinner-border-sm" role="status" style={{ color: 'var(--primary)' }}></div>
+            <span className="text-uppercase font-bold text-muted" style={{ fontSize: '0.65rem', letterSpacing: '0.12em', fontWeight: '700' }}>Processing</span>
           </div>
         )}
 
         <div className="row g-3 w-100">
           {currentQ.displayOptions.map((opt, i) => {
-            let statusClass = "btn-option-default";
+            let statusClass = "option-default";
             let showCorrectIcon = false;
             let showWrongIcon = false;
 
             if (isLocked) {
               if (isTestMode) {
                 if (opt.text === userAnswer) {
-                  statusClass = "btn-option-checked";
+                  statusClass = "option-checked";
                 } else {
-                  statusClass = "btn-option-inactive";
+                  statusClass = "option-inactive";
                 }
               } else {
                 if (opt.text === currentQ.answer) {
-                  statusClass = "btn-option-correct";
+                  statusClass = "option-correct";
                   showCorrectIcon = true;
                 } else if (opt.text === userAnswer) {
-                  statusClass = "btn-option-wrong";
+                  statusClass = "option-wrong";
                   showWrongIcon = true;
                 } else {
-                  statusClass = "btn-option-inactive";
+                  statusClass = "option-inactive";
                 }
               }
             }
-            
+
             return (
               <div key={`${currentIdx}-${i}`} className="col-12 col-md-6">
-                <button 
-                  className={`btn d-flex align-items-center justify-content-between w-100 p-4 rounded-4 border transition-all text-start ${statusClass}`}
-                  style={{ 
-                    minHeight: '85px', 
+                <button
+                  className={`option-btn d-flex align-items-center justify-content-between w-100 p-3 rounded-3 border text-start ${statusClass}`}
+                  style={{
+                    minHeight: '72px',
                     cursor: isLocked ? 'default' : 'pointer'
                   }}
                   onClick={() => handleAnswer(opt.text)}
                   disabled={isLocked}
                 >
-                  <div className="flex-grow-1">
-                    {opt.text && <span className="text-left block text-base leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(opt.text) }} />}
-                    {opt.img && <img src={opt.img} alt={`Option ${i+1}`} className="img-fluid rounded-3 my-2" style={{ maxHeight: '120px', objectFit: 'contain' }} />}
+                  <div className="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
+                    <span
+                      className="flex-shrink-0 d-inline-flex align-items-center justify-content-center"
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: 'var(--radius-sm)',
+                        background: 'var(--surface-3)',
+                        color: 'var(--ink-700)',
+                        fontWeight: '700',
+                        fontSize: '0.82rem',
+                        border: '1px solid var(--ink-100)'
+                      }}
+                    >
+                      {LETTERS[i] || (i + 1)}
+                    </span>
+                    <div className="flex-grow-1 min-w-0">
+                      {opt.text && <span className="block text-base leading-relaxed font-medium" style={{ display: 'block', color: 'inherit' }} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(opt.text) }} />}
+                      {opt.img && <img src={opt.img} alt={`Option ${i + 1}`} className="img-fluid rounded-2 my-2" style={{ maxHeight: '120px', objectFit: 'contain' }} />}
+                    </div>
                   </div>
-                  
-                  {showCorrectIcon && <CheckCircle2 className="flex-shrink-0 ms-3 text-success" size={24} style={{ filter: 'drop-shadow(0 0 5px rgba(25, 135, 84, 0.6))' }} />}
-                  {showWrongIcon && <XCircle className="flex-shrink-0 ms-3 text-danger" size={24} style={{ filter: 'drop-shadow(0 0 5px rgba(220, 53, 69, 0.6))' }} />}
+
+                  {showCorrectIcon && <CheckCircle2 className="flex-shrink-0 ms-3" size={22} style={{ color: 'var(--success)' }} />}
+                  {showWrongIcon && <XCircle className="flex-shrink-0 ms-3" size={22} style={{ color: 'var(--danger)' }} />}
                 </button>
               </div>
             );
           })}
         </div>
 
-        <style dangerouslySetInnerHTML={{ __html: `
-          .btn-option-default {
-            background-color: rgba(46, 42, 98, 0.3) !important;
-            border-color: rgba(255, 255, 255, 0.05) !important;
-            color: #cbd5e1 !important;
+        <style dangerouslySetInnerHTML={{
+          __html: `
+          .option-btn {
+            font-family: var(--font-sans);
+            border: 1px solid;
+            transition: transform .2s cubic-bezier(.2,.7,.2,1), background-color .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
           }
-          .btn-option-default:hover {
-            background-color: rgba(46, 42, 98, 0.6) !important;
-            border-color: var(--color-lavender) !important;
-            color: #ffffff !important;
-            box-shadow: 0 0 15px rgba(200, 172, 214, 0.15) !important;
+          .option-btn:active:not(:disabled) { transform: translateY(1px); }
+          .option-btn:focus-visible { outline: none; box-shadow: var(--ring); }
+
+          .option-default {
+            background: var(--surface) !important;
+            border-color: var(--ink-200) !important;
+            color: var(--ink-800) !important;
+            box-shadow: var(--shadow-xs) !important;
+          }
+          .option-default:hover:not(:disabled) {
+            background: var(--surface-2) !important;
+            border-color: var(--primary) !important;
+            color: var(--ink-900) !important;
             transform: translateY(-2px);
+            box-shadow: var(--shadow-md) !important;
           }
-          .btn-option-checked {
-            background-color: rgba(67, 61, 143, 0.6) !important;
-            border-color: var(--color-lavender) !important;
-            color: #ffffff !important;
-            box-shadow: 0 0 20px rgba(200, 172, 214, 0.25) !important;
+
+          .option-checked {
+            background: var(--primary-50) !important;
+            border-color: var(--primary) !important;
+            color: var(--ink-900) !important;
+            box-shadow: var(--shadow-sm) !important;
           }
-          .btn-option-correct {
-            background-color: rgba(25, 135, 84, 0.2) !important;
-            border-color: #198754 !important;
-            color: #ffffff !important;
-            box-shadow: 0 0 20px rgba(25, 135, 84, 0.35) !important;
+
+          .option-correct {
+            background: var(--success-100) !important;
+            border-color: var(--success) !important;
+            color: var(--ink-900) !important;
+            box-shadow: var(--shadow-sm) !important;
           }
-          .btn-option-wrong {
-            background-color: rgba(220, 53, 69, 0.2) !important;
-            border-color: #dc3545 !important;
-            color: #ffffff !important;
-            box-shadow: 0 0 20px rgba(220, 53, 69, 0.35) !important;
+
+          .option-wrong {
+            background: var(--danger-100) !important;
+            border-color: var(--danger) !important;
+            color: var(--ink-900) !important;
+            box-shadow: var(--shadow-sm) !important;
           }
-          .btn-option-inactive {
-            background-color: rgba(23, 21, 59, 0.5) !important;
-            border-color: rgba(255, 255, 255, 0.02) !important;
-            color: #6c757d !important;
-            opacity: 0.75;
+
+          .option-inactive {
+            background: var(--surface-2) !important;
+            border-color: var(--ink-100) !important;
+            color: var(--ink-400) !important;
+            opacity: 0.8;
           }
-        `}} />
+        `
+        }} />
       </motion.div>
     </AnimatePresence>
   );
 }
+
+export default memo(QuestionCardImpl, (prev, next) => {
+  if (prev.currentIdx !== next.currentIdx) return false;
+  if (prev.isLocked !== next.isLocked) return false;
+  if (prev.userAnswer !== next.userAnswer) return false;
+  if (prev.isBookmarked !== next.isBookmarked) return false;
+  if (prev.currentQ?.answer !== next.currentQ?.answer) return false;
+  if (prev.currentQ?.question !== next.currentQ?.question) return false;
+  if ((prev.currentQ?.displayOptions || []).length !== (next.currentQ?.displayOptions || []).length) return false;
+  return true;
+});
