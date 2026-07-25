@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -14,31 +14,30 @@ import { auth, db, isFirebaseConfigured } from '../config/firebase';
 
 const AuthContext = createContext();
 
+export const FIREBASE_NOT_CONFIGURED_ERROR = 'Firebase is not configured. Please check your .env file and ensure all VITE_FIREBASE_* variables are set.';
+
+export { AuthContext };
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   // Set persistence to local if Firebase is available
   useEffect(() => {
     if (!isFirebaseConfigured) {
       setLoading(false);
       return;
     }
-
     setPersistence(auth, browserLocalPersistence).catch((err) => {
       console.error('Error setting persistence:', err);
     });
   }, []);
-
   // Listen to auth state
   useEffect(() => {
     if (!isFirebaseConfigured) {
       setLoading(false);
       return () => {};
     }
-
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
       setLoading(true);
       try {
@@ -73,18 +72,15 @@ export function AuthProvider({ children }) {
         setLoading(false);
       }
     });
-
     return () => unsubscribe();
   }, []);
-
   const assertFirebaseEnabled = () => {
     if (!isFirebaseConfigured) {
-      const error = new Error('Firebase is not configured. Login features are disabled in this build.');
+      const error = new Error('Firebase is not configured. Please check your .env file and ensure all VITE_FIREBASE_* variables are set.');
       setError(error.message);
       throw error;
     }
   };
-
   // Sign up with email
   const signUp = async (email, password, displayName = 'Student') => {
     assertFirebaseEnabled();
@@ -92,7 +88,6 @@ export function AuthProvider({ children }) {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       const newUser = result.user;
-
       // Create user profile in Firestore
       const userRef = doc(db, 'users', newUser.uid);
       const profileData = {
@@ -111,7 +106,6 @@ export function AuthProvider({ children }) {
       throw err;
     }
   };
-
   // Sign in with email
   const signIn = async (email, password) => {
     assertFirebaseEnabled();
@@ -124,7 +118,6 @@ export function AuthProvider({ children }) {
       throw err;
     }
   };
-
   // Sign in with Google
   const signInWithGoogle = async () => {
     assertFirebaseEnabled();
@@ -133,11 +126,9 @@ export function AuthProvider({ children }) {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const newUser = result.user;
-
       // Check or create user profile
       const userRef = doc(db, 'users', newUser.uid);
       const userDoc = await getDoc(userRef);
-
       if (!userDoc.exists()) {
         const profileData = {
           uid: newUser.uid,
@@ -156,7 +147,6 @@ export function AuthProvider({ children }) {
       throw err;
     }
   };
-
   // Sign out
   const logOut = async () => {
     assertFirebaseEnabled();
@@ -170,7 +160,6 @@ export function AuthProvider({ children }) {
       throw err;
     }
   };
-
   const value = {
     user,
     userProfile,
@@ -181,14 +170,5 @@ export function AuthProvider({ children }) {
     signInWithGoogle,
     logOut,
   };
-
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 }

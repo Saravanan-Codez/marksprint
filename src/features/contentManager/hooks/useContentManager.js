@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Papa from 'papaparse';
 import CryptoJS from 'crypto-js';
 
@@ -65,7 +65,7 @@ export function useContentManager() {
                 const bytes = CryptoJS.AES.decrypt(storedData, storageKey);
                 const decrypted = bytes.toString(CryptoJS.enc.Utf8);
                 parsed = JSON.parse(decrypted);
-              } catch (e) {
+              } catch {
                 console.warn('Failed to decrypt contentManagerData with provided storage key. Falling back to plaintext parsing.');
                 parsed = JSON.parse(storedData);
               }
@@ -125,7 +125,7 @@ export function useContentManager() {
                 error: () => resolve([])
               });
             });
-          } catch (e) {
+          } catch {
             return [];
           }
         });
@@ -192,13 +192,16 @@ export function useContentManager() {
   }, [selectedSubject, allQuestions]);
 
   // Get current questions based on selection
-  const currentQuestions = selectedSubject && selectedLesson
-    ? allQuestions.filter(
+  const currentQuestions = useMemo(() => {
+    if (selectedSubject && selectedLesson) {
+      return allQuestions.filter(
         q => q.subject === selectedSubject && 
              q.lesson === selectedLesson && 
              q.volume === selectedVolume
-      )
-    : [];
+      );
+    }
+    return [];
+  }, [selectedSubject, selectedLesson, selectedVolume, allQuestions]);
 
   // Add question
   const handleAddQuestion = useCallback((questionData) => {
@@ -218,7 +221,7 @@ export function useContentManager() {
     persistData(availableSubjects, newQuestions);
     setShowEditor(false);
     setEditingQuestion(null);
-  }, [selectedSubject, selectedLesson, selectedVolume, allQuestions, availableSubjects]);
+  }, [selectedSubject, selectedLesson, selectedVolume, allQuestions, availableSubjects, persistData]);
 
   // Edit question
   const handleEditQuestion = useCallback((question) => {
@@ -237,7 +240,7 @@ export function useContentManager() {
     persistData(availableSubjects, newQuestions);
     setShowEditor(false);
     setEditingQuestion(null);
-  }, [allQuestions, availableSubjects]);
+  }, [allQuestions, availableSubjects, persistData]);
 
   // Delete question
   const handleDeleteQuestion = useCallback((questionId) => {
@@ -246,7 +249,7 @@ export function useContentManager() {
       setAllQuestions(newQuestions);
       persistData(availableSubjects, newQuestions);
     }
-  }, [allQuestions, availableSubjects]);
+  }, [allQuestions, availableSubjects, persistData]);
 
   // Add subject
   const handleAddSubject = useCallback((subjectName) => {
@@ -255,7 +258,7 @@ export function useContentManager() {
       setAvailableSubjects(newSubjects);
       persistData(newSubjects, allQuestions);
     }
-  }, [availableSubjects, allQuestions]);
+  }, [availableSubjects, allQuestions, persistData]);
 
   // Delete subject
   const handleDeleteSubject = useCallback((subjectName) => {
@@ -270,7 +273,7 @@ export function useContentManager() {
       }
       persistData(newSubjects, newQuestions);
     }
-  }, [availableSubjects, allQuestions, selectedSubject]);
+  }, [availableSubjects, allQuestions, selectedSubject, persistData]);
 
   // Import CSV
   const handleImportCSV = useCallback((importedQuestions) => {
@@ -289,7 +292,7 @@ export function useContentManager() {
     ];
     setAllQuestions(newQuestions);
     persistData(availableSubjects, newQuestions);
-  }, [allQuestions, availableSubjects, selectedSubject, selectedLesson, selectedVolume]);
+  }, [allQuestions, availableSubjects, selectedSubject, selectedLesson, selectedVolume, persistData]);
 
   // Export CSV
   const handleExportCSV = useCallback(() => {

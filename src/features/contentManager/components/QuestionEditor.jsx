@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Save, X, Upload } from 'lucide-react';
 
 export default function QuestionEditor({
@@ -9,31 +9,20 @@ export default function QuestionEditor({
   onSave,
   onCancel
 }) {
-  const [formData, setFormData] = useState({
-    question: '',
-    option_1: '',
-    option_2: '',
-    option_3: '',
-    option_4: '',
-    answer: '',
-    question_image: '',
-    option_1_image: '',
-    option_2_image: '',
-    option_3_image: '',
-    option_4_image: '',
-    volume: volume
-  });
-
-  useEffect(() => {
-    if (question) {
-      setFormData(question);
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        volume: volume
-      }));
-    }
-  }, [question, volume]);
+  const [formData, setFormData] = useState(() => ({
+    question: question?.question || '',
+    option_1: question?.option_1 || '',
+    option_2: question?.option_2 || '',
+    option_3: question?.option_3 || '',
+    option_4: question?.option_4 || '',
+    answer: question?.answer || '',
+    question_image: question?.question_image || '',
+    option_1_image: question?.option_1_image || '',
+    option_2_image: question?.option_2_image || '',
+    option_3_image: question?.option_3_image || '',
+    option_4_image: question?.option_4_image || '',
+    volume: question?.volume || volume
+  }));
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
