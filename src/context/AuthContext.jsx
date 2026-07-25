@@ -8,13 +8,41 @@ import {
   setPersistence,
   browserLocalPersistence,
   onAuthStateChanged,
+  updateProfile,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '../config/firebase';
 
 const AuthContext = createContext();
 
-export const FIREBASE_NOT_CONFIGURED_ERROR = 'Firebase is not configured. Please check your .env file and ensure all VITE_FIREBASE_* variables are set.';
+function formatAuthError(err) {
+  if (!err) return 'An unexpected authentication error occurred.';
+  const message = err.code || err.message || '';
+  
+  if (message.includes('auth/invalid-credential') || message.includes('auth/wrong-password') || message.includes('auth/user-not-found')) {
+    return 'Invalid email or password. Please check your credentials and try again.';
+  }
+  if (message.includes('auth/email-already-in-use')) {
+    return 'An account with this email address already exists. Please log in instead.';
+  }
+  if (message.includes('auth/weak-password')) {
+    return 'Password is too weak. Please use at least 6 characters.';
+  }
+  if (message.includes('auth/invalid-email')) {
+    return 'Please enter a valid email address.';
+  }
+  if (message.includes('auth/network-request-failed')) {
+    return 'Network error. Please check your internet connection and try again.';
+  }
+  if (message.includes('auth/popup-closed-by-user')) {
+    return 'Google sign-in popup was closed before completing.';
+  }
+  if (message.includes('auth/too-many-requests')) {
+    return 'Too many failed login attempts. Please wait a moment before trying again.';
+  }
+
+  return err.message || 'Authentication failed. Please try again.';
+}
 
 export { AuthContext };
 export function AuthProvider({ children }) {
@@ -22,19 +50,21 @@ export function AuthProvider({ children }) {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   // Set persistence to local if Firebase is available
   useEffect(() => {
-    if (!isFirebaseConfigured) {
+    if (!isFirebaseConfigured || !auth) {
       setLoading(false);
       return;
     }
     setPersistence(auth, browserLocalPersistence).catch((err) => {
-      console.error('Error setting persistence:', err);
+      console.warn('Error setting persistence:', err);
     });
   }, []);
+
   // Listen to auth state
   useEffect(() => {
-    if (!isFirebaseConfigured) {
+    if (!isFirebaseConfigured || !auth) {
       setLoading(false);
       return () => {};
     }
@@ -43,23 +73,35 @@ export function AuthProvider({ children }) {
       try {
         if (authUser) {
           setUser(authUser);
-          // Fetch user profile from Firestore
-          const userRef = doc(db, 'users', authUser.uid);
-          const userDoc = await getDoc(userRef);
-          if (userDoc.exists()) {
-            setUserProfile(userDoc.data());
-          } else {
-            // If profile doesn't exist, create a default student profile
-            const defaultProfile = {
-              uid: authUser.uid,
-              email: authUser.email,
-              displayName: authUser.displayName || 'User',
-              role: 'student',
-              createdAt: serverTimestamp(),
-              providers: authUser.providerData.map((p) => p.providerId),
-            };
-            await setDoc(userRef, defaultProfile);
-            setUserProfile(defaultProfile);
+          const fallbackProfile = {
+            uid: authUser.uid,
+            email: authUser.email,
+            displayName: authUser.displayName || authUser.email?.split('@')[0] || 'Student',
+            role: 'student',
+            providers: authUser.providerData.map((p) => p.providerId),
+          };
+
+          // Fetch user profile from Firestore silently without breaking Auth
+          try {
+            if (db) {
+              const userRef = doc(db, 'users', authUser.uid);
+              const userDoc = await getDoc(userRef);
+              if (userDoc.exists()) {
+                setUserProfile(userDoc.data());
+              } else {
+                const defaultProfile = {
+                  ...fallbackProfile,
+                  createdAt: serverTimestamp(),
+                };
+                await setDoc(userRef, defaultProfile).catch(() => {});
+                setUserProfile(defaultProfile);
+              }
+            } else {
+              setUserProfile(fallbackProfile);
+            }
+          } catch (fsErr) {
+            console.warn('Firestore profile fetch warning:', fsErr);
+            setUserProfile(fallbackProfile);
           }
         } else {
           setUser(null);
@@ -67,20 +109,22 @@ export function AuthProvider({ children }) {
         }
       } catch (err) {
         console.error('Error fetching user profile:', err);
-        setError(err.message);
+        setError(formatAuthError(err));
       } finally {
         setLoading(false);
       }
     });
     return () => unsubscribe();
   }, []);
+
   const assertFirebaseEnabled = () => {
-    if (!isFirebaseConfigured) {
+    if (!isFirebaseConfigured || !auth) {
       const error = new Error('Firebase is not configured. Please check your .env file and ensure all VITE_FIREBASE_* variables are set.');
       setError(error.message);
       throw error;
     }
   };
+
   // Sign up with email
   const signUp = async (email, password, displayName = 'Student') => {
     assertFirebaseEnabled();
@@ -88,24 +132,31 @@ export function AuthProvider({ children }) {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       const newUser = result.user;
-      // Create user profile in Firestore
-      const userRef = doc(db, 'users', newUser.uid);
+      
+      // Update Firebase Auth Display Name
+      await updateProfile(newUser, { displayName: displayName || 'Student' }).catch(() => {});
+
       const profileData = {
         uid: newUser.uid,
         email: newUser.email,
-        displayName,
+        displayName: displayName || 'Student',
         role: 'student',
-        createdAt: serverTimestamp(),
         providers: newUser.providerData.map((p) => p.providerId),
       };
-      await setDoc(userRef, profileData);
+
+      if (db) {
+        const userRef = doc(db, 'users', newUser.uid);
+        await setDoc(userRef, { ...profileData, createdAt: serverTimestamp() }).catch(() => {});
+      }
       setUserProfile(profileData);
       return result.user;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      const formatted = formatAuthError(err);
+      setError(formatted);
+      throw new Error(formatted);
     }
   };
+
   // Sign in with email
   const signIn = async (email, password) => {
     assertFirebaseEnabled();
@@ -114,61 +165,123 @@ export function AuthProvider({ children }) {
       const result = await signInWithEmailAndPassword(auth, email, password);
       return result.user;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      const formatted = formatAuthError(err);
+      setError(formatted);
+      throw new Error(formatted);
     }
   };
+
+  const [googleAccessToken, setGoogleAccessToken] = useState(() => {
+    try {
+      return sessionStorage.getItem('marksprint_gdrive_token') || null;
+    } catch {
+      return null;
+    }
+  });
+
   // Sign in with Google
   const signInWithGoogle = async () => {
     assertFirebaseEnabled();
     setError(null);
     try {
       const provider = new GoogleAuthProvider();
+      // Request permission to store test results files in user's Google Drive account
+      provider.addScope('https://www.googleapis.com/auth/drive.file');
+
       const result = await signInWithPopup(auth, provider);
-      const newUser = result.user;
-      // Check or create user profile
-      const userRef = doc(db, 'users', newUser.uid);
-      const userDoc = await getDoc(userRef);
-      if (!userDoc.exists()) {
-        const profileData = {
-          uid: newUser.uid,
-          email: newUser.email,
-          displayName: newUser.displayName,
-          role: 'student',
-          createdAt: serverTimestamp(),
-          providers: newUser.providerData.map((p) => p.providerId),
-        };
-        await setDoc(userRef, profileData);
-        setUserProfile(profileData);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential?.accessToken || null;
+
+      if (token) {
+        setGoogleAccessToken(token);
+        try {
+          sessionStorage.setItem('marksprint_gdrive_token', token);
+        } catch (e) {
+          console.warn('SessionStorage token write notice:', e);
+        }
       }
+
+      const newUser = result.user;
+      const profileData = {
+        uid: newUser.uid,
+        email: newUser.email,
+        displayName: newUser.displayName || 'Student',
+        role: 'student',
+        providers: newUser.providerData.map((p) => p.providerId),
+      };
+
+      if (db) {
+        try {
+          const userRef = doc(db, 'users', newUser.uid);
+          const userDoc = await getDoc(userRef);
+          if (!userDoc.exists()) {
+            await setDoc(userRef, { ...profileData, createdAt: serverTimestamp() }).catch(() => {});
+          } else {
+            setUserProfile(userDoc.data());
+            return result.user;
+          }
+        } catch (fsErr) {
+          console.warn('Firestore Google sign in profile warning:', fsErr);
+        }
+      }
+      setUserProfile(profileData);
       return result.user;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      const formatted = formatAuthError(err);
+      setError(formatted);
+      throw new Error(formatted);
     }
   };
+
+  // Quick Guest Demo Mode Login
+  const loginAsGuest = () => {
+    const guestUser = {
+      uid: 'guest_student_demo',
+      email: 'guest@marksprint.falkonlabs',
+      displayName: 'Guest Student',
+      isAnonymous: true,
+    };
+    const guestProfile = {
+      uid: 'guest_student_demo',
+      email: 'guest@marksprint.falkonlabs',
+      displayName: 'Guest Student',
+      role: 'student',
+      providers: ['guest'],
+    };
+    setUser(guestUser);
+    setUserProfile(guestProfile);
+    setLoading(false);
+    return guestUser;
+  };
+
   // Sign out
   const logOut = async () => {
-    assertFirebaseEnabled();
     setError(null);
     try {
-      await signOut(auth);
+      if (auth && isFirebaseConfigured && user?.uid !== 'guest_student_demo') {
+        await signOut(auth);
+      }
       setUser(null);
       setUserProfile(null);
     } catch (err) {
-      setError(err.message);
-      throw err;
+      console.warn('Error signing out:', err);
+      setUser(null);
+      setUserProfile(null);
     }
   };
+
   const value = {
     user,
     userProfile,
+    googleAccessToken,
     loading,
     error,
     signUp,
     signIn,
     signInWithGoogle,
+    loginAsGuest,
     logOut,
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
