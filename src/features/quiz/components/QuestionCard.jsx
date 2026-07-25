@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import DOMPurify from 'dompurify';
 import { CheckCircle2, XCircle, Bookmark, BookmarkCheck } from "lucide-react";
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 

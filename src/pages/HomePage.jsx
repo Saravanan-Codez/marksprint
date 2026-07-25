@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight, BookOpen, FlaskConical, Dna, Atom, Calculator, Code2,
-  Languages, Sparkles, Trophy, Gauge, BookMarked, Target, Clock, Zap,
-  Brain, Award
+  Languages, Sparkles, Trophy, BookMarked, Target, Clock, Zap,
+  Brain, Award, Gauge
 } from 'lucide-react';
 
 const SUBJECT_ICON = {
@@ -30,176 +30,133 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [hovered, setHovered] = useState(null);
   const [selected, setSelected] = useState(null);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrollY(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const parallaxOffsetY = Math.min(scrollY * 0.15, 60);
 
   return (
-    <div className="d-flex flex-column gap-6 gap-lg-8 anim-fade-up">
+    <div className="d-flex flex-column gap-6 gap-lg-8 anim-fade-up" style={{ position: 'relative', zIndex: 2 }}>
 
       {/* =========================================
           HERO SECTION
           ========================================= */}
       <section
-        className="surface p-5 p-md-6 p-lg-7 position-relative overflow-hidden"
+        className="glass-card surface p-5 p-md-6 p-lg-7 position-relative overflow-hidden parallax-container"
         style={{
           background:
-            'linear-gradient(135deg, var(--surface) 0%, color-mix(in oklab, var(--primary-50) 60%, var(--surface)) 100%)'
+            'color-mix(in oklab, var(--surface) 85%, transparent)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)'
         }}
       >
         <div
-          className="position-absolute rounded-circle anim-float"
+          className="parallax-layer"
+          style={{
+            transform: `translateY(${parallaxOffsetY}px)`,
+            willChange: 'transform'
+          }}
+        >
+        <div
+          className="position-absolute anim-float"
           style={{
             width: '320px', height: '320px',
             right: '-80px', top: '-80px',
-            background: 'radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 65%)',
-            pointerEvents: 'none'
+            background: 'radial-gradient(square at 30% 30%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 65%)',
+            pointerEvents: 'none',
+            borderRadius: '0px'
           }}
         />
         <div
-          className="position-absolute rounded-circle anim-float"
+          className="position-absolute anim-float"
           style={{
             width: '260px', height: '260px',
             left: '-60px', bottom: '-70px',
-            background: 'radial-gradient(circle at 60% 40%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 65%)',
+            background: 'radial-gradient(square at 60% 40%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 65%)',
             pointerEvents: 'none',
-            animationDelay: '1.2s'
+            animationDelay: '1.2s',
+            borderRadius: '0px'
           }}
         />
 
-        <div className="row g-5 align-items-center position-relative">
-          <div className="col-lg-7">
-            <div className="d-flex align-items-center gap-2 mb-4">
-              <span className="chip chip-primary d-inline-flex align-items-center gap-1.5 anim-fade-in">
-                <Sparkles size={13} />
-                New · Practice Mode v2
+        <div className="position-relative z-2 py-3">
+          <div className="max-w-3xl">
+            <div className="d-flex align-items-center gap-2 mb-3">
+              <span className="badge-falkon">
+                <Sparkles size={13} /> Falkon Labs Open Source
               </span>
             </div>
-            <h1 className="text-display mb-3" style={{ maxWidth: '18ch' }}>
-              Sprint through every <span style={{ color: 'var(--primary)' }}>subject</span>.
+            <h1 className="text-display mb-3 font-bold text-white" style={{ fontSize: '2.6rem', letterSpacing: '-0.02em' }}>
+              Sprint through every <span style={{ color: '#38BDF8' }}>subject</span>.
             </h1>
-            <p className="text-lead mb-5" style={{ maxWidth: '52ch' }}>
-              A calm, focused quiz platform for TN 12th graders. Configure realistic tests,
-              review every wrong answer, and close knowledge gaps faster than textbook drudgery.
+            <p className="text-lead mb-4" style={{ maxWidth: '64ch', color: '#94A3B8', fontSize: '1.08rem', lineHeight: '1.6' }}>
+              A calm, focused open-source quiz platform engineered by Falkon Labs for Tamil Nadu 12th graders. Configure realistic timed sprints, review incorrect answers, and master board-exam subjects.
             </p>
-            <div className="d-flex flex-wrap align-items-center gap-3">
+            <div className="d-flex flex-wrap align-items-center gap-3 mb-5">
               <button
                 onClick={() => document.getElementById('subjects-grid')?.scrollIntoView({ behavior: 'smooth' })}
-                className="btn btn-primary btn-lg"
+                className="btn btn-cosmic-primary px-4 py-3 font-bold d-inline-flex align-items-center gap-2"
+                style={{ borderRadius: '0px', fontSize: '0.96rem' }}
               >
                 Choose a Subject
                 <ArrowRight size={18} />
               </button>
               <button
                 onClick={() => navigate('/about')}
-                className="btn btn-outline btn-lg"
+                className="btn btn-cosmic-outline px-4 py-3 font-bold"
+                style={{ borderRadius: '0px', fontSize: '0.96rem' }}
               >
-                Learn more
+                Learn More
               </button>
             </div>
 
             {/* Quick stats row */}
-            <div className="d-flex flex-wrap gap-4 mt-6 pt-5" style={{ gap: '2rem', marginTop: '2.5rem' }}>
+            <div className="d-flex flex-wrap gap-4 pt-3 border-top" style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}>
               {[
-                { icon: Target,  k: '7', v: 'Subjects' },
+                { icon: Target,  k: '7', v: 'Core Subjects' },
                 { icon: Clock,   k: '4', v: 'Timer Presets' },
-                { icon: Zap,     k: '∞', v: 'Attempts' },
+                { icon: Zap,     k: '∞', v: 'Sprint Attempts' },
                 { icon: Award,   k: '2', v: 'Sprint Modes' }
               ].map((s, i) => {
                 const Icon = s.icon;
                 return (
                   <div key={s.v} className="d-flex align-items-center gap-3 anim-fade-up" style={{ animationDelay: `${i * 60}ms` }}>
                     <div
-                      className="d-flex align-items-center justify-content-center rounded-4"
+                      className="d-flex align-items-center justify-content-center"
                       style={{
                         width: '42px', height: '42px',
-                        background: 'var(--surface)',
-                        border: '1px solid var(--ink-100)',
-                        color: 'var(--primary-600)'
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        color: '#38BDF8',
+                        borderRadius: '0px'
                       }}
                     >
                       <Icon size={18} />
                     </div>
                     <div>
-                      <div className="font-black" style={{ fontSize: '1.1rem', color: 'var(--ink-900)', lineHeight: 1.1 }}>{s.k}</div>
-                      <div style={{ fontSize: '0.76rem', color: 'var(--ink-400)' }}>{s.v}</div>
+                      <div className="font-extrabold text-white" style={{ fontSize: '1.15rem', lineHeight: 1.1 }}>{s.k}</div>
+                      <div style={{ fontSize: '0.76rem', color: '#94A3B8' }}>{s.v}</div>
                     </div>
                   </div>
                 );
               })}
             </div>
           </div>
-
-          <div className="col-lg-5 d-none d-lg-block">
-            {/* Illustrated feature card */}
-            <div className="surface p-5" style={{ boxShadow: 'var(--shadow-lg)' }}>
-              <div className="d-flex align-items-center justify-content-between mb-4">
-                <div className="d-flex align-items-center gap-2">
-                  <span className="chip chip-accent"><Trophy size={13} /> Live demo</span>
-                </div>
-                <div className="d-flex align-items-center gap-1.5">
-                  <span style={{ width: 9, height: 9, borderRadius: 99, background: 'var(--success)', opacity: 0.9 }} />
-                  <span style={{ fontSize: '0.76rem', color: 'var(--ink-400)', fontWeight: 500 }}>34/50 answered</span>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <div className="d-flex align-items-center justify-content-between mb-2">
-                  <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--ink-500)' }}>Physics · Thermodynamics</span>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)' }}>68%</span>
-                </div>
-                <div className="progress" style={{ height: 10 }}>
-                  <div className="progress-bar" style={{ width: '68%' }} />
-                </div>
-              </div>
-
-              {/* Fake question preview */}
-              <div
-                className="rounded-5 p-4 mb-3"
-                style={{ background: 'var(--surface-2)', border: '1px solid var(--ink-100)' }}
-              >
-                <p className="font-semibold mb-3" style={{ color: 'var(--ink-800)', fontSize: '0.92rem' }}>
-                  Which law relates the entropy of a system to the heat transfer at a constant temperature?
-                </p>
-                <div className="d-flex flex-column gap-2">
-                  {[
-                    { t: "Newton's Second Law", c: false },
-                    { t: 'Zeroth Law of Thermodynamics', c: false },
-                    { t: 'Second Law of Thermodynamics', c: true },
-                    { t: 'Ideal Gas Law', c: false }
-                  ].map((opt, i) => (
-                    <div
-                      key={i}
-                      className="px-3 py-2 rounded-3 d-flex align-items-center gap-2"
-                      style={{
-                        background: opt.c ? 'color-mix(in oklab, var(--success) 10%, var(--surface))' : 'var(--surface)',
-                        border: `1px solid ${opt.c ? 'color-mix(in oklab, var(--success) 40%, var(--ink-100))' : 'var(--ink-100)'}`,
-                        color: opt.c ? 'var(--success)' : 'var(--ink-600)',
-                        fontSize: '0.84rem',
-                        fontWeight: opt.c ? 700 : 500
-                      }}
-                    >
-                      <span style={{ width: 20, fontWeight: 800, opacity: 0.6 }}>{String.fromCharCode(65 + i)}.</span>
-                      {opt.t}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Summary */}
-              <div className="d-flex gap-2">
-                <div className="flex-grow-1 p-3 rounded-4" style={{ background: 'var(--success-100)' }}>
-                  <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--success)', letterSpacing: 0.08 }}>CORRECT</div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--ink-900)' }}>34</div>
-                </div>
-                <div className="flex-grow-1 p-3 rounded-4" style={{ background: 'var(--danger-100)' }}>
-                  <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--danger)', letterSpacing: 0.08 }}>WRONG</div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--ink-900)' }}>16</div>
-                </div>
-                <div className="flex-grow-1 p-3 rounded-4" style={{ background: 'var(--primary-100)' }}>
-                  <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--primary-600)', letterSpacing: 0.08 }}>AVG</div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--ink-900)' }}>68%</div>
-                </div>
-              </div>
-            </div>
-          </div>
+        </div>
         </div>
       </section>
 
@@ -229,12 +186,12 @@ export default function HomePage() {
               <div key={s.key} className="col-12 col-sm-6 col-lg-4 anim-fade-up" style={{ animationDelay: `${idx * 50}ms` }}>
                 <button
                   type="button"
-                  className="surface surface-hover p-4 p-md-5 w-100 text-start border-0 h-100 position-relative d-flex flex-column"
+                  className="glass-card-cosmic glass-card-cosmic-hover edge-glow-desktop p-4 p-md-5 w-100 text-start h-100 position-relative d-flex flex-column"
                   style={{
-                    outline: isSelected ? `2px solid var(--primary)` : 'none',
+                    outline: isSelected ? `2px solid #00F0FF` : 'none',
                     outlineOffset: isSelected ? '2px' : 0,
                     cursor: 'pointer',
-                    transform: hovered === s.key ? 'translateY(-4px)' : undefined
+                    borderRadius: '2px'
                   }}
                   onMouseEnter={() => setHovered(s.key)}
                   onMouseLeave={() => setHovered(null)}
@@ -243,21 +200,23 @@ export default function HomePage() {
                   {/* Top row */}
                   <div className="d-flex align-items-start justify-content-between mb-4">
                     <div
-                      className="d-flex align-items-center justify-content-center rounded-4"
+                      className="d-flex align-items-center justify-content-center"
                       style={{
                         width: '52px', height: '52px',
                         background: meta.bg,
-                        color: meta.color
+                        color: meta.color,
+                        borderRadius: '2px'
                       }}
                     >
                       <Icon size={26} strokeWidth={2.1} />
                     </div>
                     <div
-                      className="rounded-circle d-flex align-items-center justify-content-center transition-all"
+                      className="d-flex align-items-center justify-content-center transition-all"
                       style={{
                         width: '32px', height: '32px',
-                        background: hovered === s.key ? 'var(--primary)' : 'var(--surface-3)',
-                        color: hovered === s.key ? 'white' : 'var(--ink-500)'
+                        background: hovered === s.key ? 'var(--primary)' : 'rgba(255,255,255,0.06)',
+                        color: hovered === s.key ? 'white' : '#94A3B8',
+                        borderRadius: '2px'
                       }}
                     >
                       <ArrowRight size={16} strokeWidth={2.3} />

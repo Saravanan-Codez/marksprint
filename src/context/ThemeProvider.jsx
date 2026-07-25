@@ -1,6 +1,5 @@
-import React, { createContext, useState } from 'react';
-
-const ThemeContext = createContext();
+import React, { useState } from 'react';
+import { ThemeContext } from './ThemeContext';
 
 export function ThemeProvider({ children }) {
   const [dark, setDark] = useState(true); // Default to true
@@ -10,8 +9,10 @@ export function ThemeProvider({ children }) {
   };
 
   return (
-    <ThemeContext.Provider value={{ dark, toggleTheme }}>
+    <ThemeContext.Provider value={{ dark, isDark: dark, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
 }
+
+
