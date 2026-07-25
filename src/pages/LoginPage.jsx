@@ -14,26 +14,30 @@ export default function LoginPage() {
   const [displayName, setDisplayName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [agreeTerms, setAgreeTerms] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { signIn, signUp, signInWithGoogle, loginAsGuest } = useAuth();
 
   const handleSignIn = async (e) => {
     e.preventDefault();
     setError('');
-    if (!email || !password) {
-      setError('Please fill in all fields.');
+    const cleanEmail = email.trim();
+    const cleanPassword = password.trim();
+
+    if (!cleanEmail || !cleanPassword) {
+      setError('Please fill in both email and password.');
       return;
     }
 
     try {
       setLoading(true);
-      await signIn(email, password);
+      await signIn(cleanEmail, cleanPassword);
       navigate('/');
     } catch (err) {
+      console.error('Sign in error:', err);
       setError(err.message || 'Failed to sign in');
     } finally {
       setLoading(false);
@@ -43,32 +47,31 @@ export default function LoginPage() {
   const handleSignUp = async (e) => {
     e.preventDefault();
     setError('');
-    
-    if (!email || !password || !displayName || !confirmPassword) {
-      setError('Please fill in all fields.');
+    const cleanName = displayName.trim();
+    const cleanEmail = email.trim();
+    const cleanPassword = password.trim();
+
+    if (!cleanName || !cleanEmail || !cleanPassword || !confirmPassword) {
+      setError('Please fill in all required fields.');
       return;
     }
     
-    if (password !== confirmPassword) {
+    if (cleanPassword !== confirmPassword.trim()) {
       setError('Passwords do not match.');
       return;
     }
 
-    if (password.length < 6) {
+    if (cleanPassword.length < 6) {
       setError('Password must be at least 6 characters.');
-      return;
-    }
-
-    if (!agreeTerms) {
-      setError('You must agree to the Terms and Conditions.');
       return;
     }
 
     try {
       setLoading(true);
-      await signUp(email, password, displayName);
+      await signUp(cleanEmail, cleanPassword, cleanName);
       navigate('/');
     } catch (err) {
+      console.error('Sign up error:', err);
       setError(err.message || 'Failed to create account');
     } finally {
       setLoading(false);
@@ -392,6 +395,18 @@ export default function LoginPage() {
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
             </svg>
             {authMode === 'login' ? 'Sign in with Google' : 'Sign up with Google'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              loginAsGuest();
+              navigate('/');
+            }}
+            className="btn btn-cosmic-outline w-100 d-flex align-items-center justify-content-center gap-2 font-semibold"
+            style={{ borderRadius: '0px', height: '42px', fontSize: '0.85rem', color: '#94A3B8', borderColor: 'rgba(255,255,255,0.1)' }}
+          >
+            Continue as Guest (Demo Mode)
           </button>
         </div>
 
