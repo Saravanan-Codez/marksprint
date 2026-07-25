@@ -70,7 +70,9 @@ export default function QuizActive({ engine }) {
     setQuizMode('setup');
   }, [saveProgressNow, quizQuestions, currentIdx, firstAttemptQuestions, firstAttemptCorrect, firstAttemptAnswers, isInRepeatMode, currentRoundWrong, timerLimit, timeLeft, globalTimerLimit, globalTimeLeft, setQuizMode, toast]);
 
-  const progressPercentage = ((currentIdx) / firstAttemptQuestions.length) * 100;
+  const progressPercentage = firstAttemptQuestions.length > 0
+    ? Math.min(100, Math.round(((currentIdx + 1) / firstAttemptQuestions.length) * 100))
+    : 0;
 
   return (
     <div className="container py-4 position-relative" style={{ maxWidth: '800px' }}>

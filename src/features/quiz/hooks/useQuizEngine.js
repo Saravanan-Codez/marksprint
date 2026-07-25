@@ -98,6 +98,7 @@ export function useQuizEngine(subject) {
   const [availableLessons, setAvailableLessons] = useState([]);
   const [availableVolumes, setAvailableVolumes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
 
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -105,6 +106,7 @@ export function useQuizEngine(subject) {
   const [isLocked, setIsLocked] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0); // per question
   const [globalTimeLeft, setGlobalTimeLeft] = useState(0); // per quiz
+  const [questionStartTime, setQuestionStartTime] = useState(() => Date.now());
   
   // First Attempt Tracking (for final results & review)
   const [firstAttemptQuestions, setFirstAttemptQuestions] = useState([]);
@@ -201,6 +203,7 @@ export function useQuizEngine(subject) {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const properSubjectName = SUBJECT_MAP[subject?.toLowerCase()] || subject;
         
@@ -232,10 +235,17 @@ export function useQuizEngine(subject) {
 
         const csvFile = CSV_MAP[subject?.toLowerCase()];
         if (!csvFile) {
-          throw new Error(`CSV not mapped for ${subject}`);
+          throw new Error(`Subject dataset '${subject}' is not found.`);
         }
-        const response = await fetch(csvFile);
-        if (!response.ok) throw new Error(`Failed to load ${csvFile}`);
+
+        let response;
+        try {
+          response = await fetch(csvFile, { cache: 'force-cache' });
+        } catch {
+          throw new Error(`Unable to reach the question dataset for ${subject}. Please check your connection and try again.`);
+        }
+
+        if (!response.ok) throw new Error(`Failed to fetch dataset for ${subject} (HTTP ${response.status})`);
         
         const text = await response.text();
         Papa.parse(text, {
@@ -279,6 +289,10 @@ export function useQuizEngine(subject) {
               }
             });
 
+            if (!Array.isArray(mergedQuestions) || mergedQuestions.length === 0) {
+              throw new Error(`No questions were found for ${subject}.`);
+            }
+
             setAllQuestions(mergedQuestions);
             const lessons = [...new Set(mergedQuestions.map(q => q.lesson))].filter(Boolean).sort((a, b) => parseInt(a) - parseInt(b));
             setAvailableLessons(lessons);
@@ -288,11 +302,13 @@ export function useQuizEngine(subject) {
           },
           error: (error) => {
             console.error("CSV parsing error:", error);
+            setLoadError(`Failed to parse ${subject} questions dataset.`);
             setLoading(false);
           }
         });
       } catch (error) {
         console.error("Error loading questions:", error);
+        setLoadError(error.message || `Failed to load ${subject} dataset.`);
         setLoading(false);
       }
     };
@@ -331,7 +347,7 @@ export function useQuizEngine(subject) {
   // Start Quiz
   const startQuiz = useCallback((opts = {}) => {
     if (allQuestions.length === 0) {
-      toast.error("No questions available for this subject");
+      toast.error("No questions are currently available for this subject. Please try again in a moment.");
       return;
     }
 
@@ -356,7 +372,7 @@ export function useQuizEngine(subject) {
 
     const filtered = buildQuestionPool();
     if (filtered.length === 0) {
-      toast.error("No questions match the current filter (lesson/volume/count).");
+      toast.error("No questions match the current filter. Please widen the selection and try again.");
       return;
     }
 
@@ -369,6 +385,7 @@ export function useQuizEngine(subject) {
     setIsLocked(false);
     setIsInRepeatMode(false);
     setCurrentRoundWrong([]);
+    setQuestionStartTime(Date.now());
     setQuizMode("active");
     if (timerLimit > 0) setTimeLeft(parseInt(timerLimit));
     if (globalTimerLimit > 0) setGlobalTimeLeft(parseInt(globalTimerLimit) * 60);
@@ -382,13 +399,17 @@ export function useQuizEngine(subject) {
     setUserAnswer(optionText);
     setIsLocked(true);
 
-    const isCorrect = optionText === currentQ.answer;
+    const secondsSpent = Math.max(1, Math.round((Date.now() - questionStartTime) / 1000));
+    const optClean = (optionText || '').toString().trim();
+    const ansClean = (currentQ.answer || '').toString().trim();
+    const isCorrect = optClean === ansClean || (optClean !== '' && ansClean !== '' && optClean.toLowerCase() === ansClean.toLowerCase());
 
     if (!isInRepeatMode) {
       setFirstAttemptAnswers(prev => [...prev, { 
         questionObj: currentQ, 
         userAnswer: optionText, 
-        isCorrect 
+        isCorrect,
+        secondsSpent
       }]);
       if (isCorrect) setFirstAttemptCorrect(prev => prev + 1);
     }
@@ -405,6 +426,7 @@ export function useQuizEngine(subject) {
         setCurrentIdx(nextIdx);
         setUserAnswer(null);
         setIsLocked(false);
+        setQuestionStartTime(Date.now());
         if (timerLimit > 0) setTimeLeft(parseInt(timerLimit));
         // Autosave progress after each answer
         saveProgressNow({
@@ -450,7 +472,7 @@ export function useQuizEngine(subject) {
     } else {
       setTimeout(moveToNext, 1500);
     }
-  }, [isLocked, quizQuestions, currentIdx, isInRepeatMode, repeatWrong, currentRoundWrong, isTestMode, timerLimit, saveProgressNow, firstAttemptQuestions, firstAttemptCorrect, firstAttemptAnswers, globalTimeLeft, subject, recordQuizStats, clearSavedProgress, shuffleQ]);
+  }, [isLocked, quizQuestions, currentIdx, isInRepeatMode, repeatWrong, currentRoundWrong, isTestMode, timerLimit, saveProgressNow, firstAttemptQuestions, firstAttemptCorrect, firstAttemptAnswers, globalTimeLeft, subject, recordQuizStats, clearSavedProgress, shuffleQ, questionStartTime]);
 
   // Finish quiz manually (e.g timeout)
   const finishQuiz = useCallback(() => {
@@ -529,7 +551,7 @@ export function useQuizEngine(subject) {
     isTestMode, setIsTestMode,
     
     // Data state
-    availableLessons, availableVolumes, loading, allQuestions,
+    availableLessons, availableVolumes, loading, loadError, allQuestions,
     
     // Active Quiz State
     quizQuestions, currentIdx, userAnswer, isLocked,

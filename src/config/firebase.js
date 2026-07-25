@@ -1,7 +1,3 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -9,30 +5,111 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 let app = null;
 let auth = null;
 let db = null;
 let isFirebaseConfigured = false;
+let firebaseAppPromise = null;
+let firebaseAuthPromise = null;
+let firebaseFirestorePromise = null;
 
-if (
-  firebaseConfig.apiKey &&
-  firebaseConfig.authDomain &&
-  firebaseConfig.projectId &&
-  firebaseConfig.appId
-) {
-  try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    isFirebaseConfigured = true;
-  } catch (error) {
-    console.warn('Firebase initialization failed:', error);
-  }
-} else {
-  console.warn('Firebase config is incomplete. Auth and Firestore are disabled. Please check your .env file and ensure all VITE_FIREBASE_* variables are set.');
+function validateConfig() {
+  return (
+    firebaseConfig.apiKey &&
+    firebaseConfig.authDomain &&
+    firebaseConfig.projectId &&
+    firebaseConfig.appId
+  );
 }
 
-export { auth, db, isFirebaseConfigured };
-export default app;
+async function initializeFirebaseApp() {
+  if (firebaseAppPromise) {
+    return firebaseAppPromise;
+  }
+
+  firebaseAppPromise = (async () => {
+    if (!validateConfig()) {
+      console.warn(
+        'Firebase config is incomplete. Auth and Firestore are disabled. Please check your .env file and ensure all VITE_FIREBASE_* variables are set.'
+      );
+      return null;
+    }
+
+    const { initializeApp } = await import('firebase/app');
+    const appInstance = initializeApp(firebaseConfig);
+
+    if (import.meta.env.VITE_RECAPTCHA_SITE_KEY && typeof window !== 'undefined') {
+      try {
+        const { initializeAppCheck, ReCaptchaEnterpriseProvider } = await import('firebase/app-check');
+        initializeAppCheck(appInstance, {
+          provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
+          isTokenAutoRefreshEnabled: true,
+        });
+      } catch (appCheckErr) {
+        console.warn('reCAPTCHA Enterprise App Check notice:', appCheckErr);
+      }
+    }
+
+    app = appInstance;
+    return app;
+  })();
+
+  return firebaseAppPromise;
+}
+
+async function loadFirebaseAuth() {
+  if (firebaseAuthPromise) {
+    return firebaseAuthPromise;
+  }
+
+  firebaseAuthPromise = (async () => {
+    const appInstance = await initializeFirebaseApp();
+    if (!appInstance) {
+      auth = null;
+      isFirebaseConfigured = false;
+      return { auth: null, isFirebaseConfigured: false };
+    }
+
+    const { getAuth } = await import('firebase/auth');
+    auth = getAuth(appInstance);
+    isFirebaseConfigured = true;
+    return { auth, isFirebaseConfigured };
+  })();
+
+  return firebaseAuthPromise;
+}
+
+async function loadFirestore() {
+  if (firebaseFirestorePromise) {
+    return firebaseFirestorePromise;
+  }
+
+  firebaseFirestorePromise = (async () => {
+    const appInstance = await initializeFirebaseApp();
+    if (!appInstance) {
+      db = null;
+      return null;
+    }
+
+    const { getFirestore } = await import('firebase/firestore');
+    db = getFirestore(appInstance);
+    return db;
+  })();
+
+  return firebaseFirestorePromise;
+}
+
+async function loadFirebase() {
+  const authResult = await loadFirebaseAuth();
+  const firestore = await loadFirestore();
+  return {
+    auth: authResult.auth,
+    db: firestore,
+    isFirebaseConfigured: authResult.isFirebaseConfigured,
+  };
+}
+
+export { loadFirebase, loadFirebaseAuth, loadFirestore };

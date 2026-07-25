@@ -14,26 +14,30 @@ export default function LoginPage() {
   const [displayName, setDisplayName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [agreeTerms, setAgreeTerms] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { signIn, signUp, signInWithGoogle, loginAsGuest } = useAuth();
 
   const handleSignIn = async (e) => {
     e.preventDefault();
     setError('');
-    if (!email || !password) {
-      setError('Please fill in all fields.');
+    const cleanEmail = email.trim();
+    const cleanPassword = password.trim();
+
+    if (!cleanEmail || !cleanPassword) {
+      setError('Please fill in both email and password.');
       return;
     }
 
     try {
       setLoading(true);
-      await signIn(email, password);
+      await signIn(cleanEmail, cleanPassword);
       navigate('/');
     } catch (err) {
+      console.error('Sign in error:', err);
       setError(err.message || 'Failed to sign in');
     } finally {
       setLoading(false);
@@ -43,32 +47,32 @@ export default function LoginPage() {
   const handleSignUp = async (e) => {
     e.preventDefault();
     setError('');
-    
-    if (!email || !password || !displayName || !confirmPassword) {
-      setError('Please fill in all fields.');
+    const cleanName = displayName.trim();
+    const cleanEmail = email.trim();
+    const cleanPassword = password.trim();
+
+    if (!cleanName || !cleanEmail || !cleanPassword || !confirmPassword) {
+      setError('Please fill in all required fields.');
       return;
     }
     
-    if (password !== confirmPassword) {
+    if (cleanPassword !== confirmPassword.trim()) {
       setError('Passwords do not match.');
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
-    }
-
-    if (!agreeTerms) {
-      setError('You must agree to the Terms and Conditions.');
+    const passwordPolicyRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+    if (!passwordPolicyRegex.test(cleanPassword)) {
+      setError('Password must be at least 8 characters long and contain at least one uppercase letter, lowercase letter, number, and special character.');
       return;
     }
 
     try {
       setLoading(true);
-      await signUp(email, password, displayName);
+      await signUp(cleanEmail, cleanPassword, cleanName);
       navigate('/');
     } catch (err) {
+      console.error('Sign up error:', err);
       setError(err.message || 'Failed to create account');
     } finally {
       setLoading(false);
@@ -393,6 +397,18 @@ export default function LoginPage() {
             </svg>
             {authMode === 'login' ? 'Sign in with Google' : 'Sign up with Google'}
           </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              loginAsGuest();
+              navigate('/');
+            }}
+            className="btn btn-cosmic-outline w-100 d-flex align-items-center justify-content-center gap-2 font-semibold"
+            style={{ borderRadius: '0px', height: '42px', fontSize: '0.85rem', color: '#94A3B8', borderColor: 'rgba(255,255,255,0.1)' }}
+          >
+            Continue as Guest (Demo Mode)
+          </button>
         </div>
 
         <p className="mt-4 text-center m-0" style={{ fontSize: '0.86rem', color: '#94A3B8' }}>
@@ -422,6 +438,13 @@ export default function LoginPage() {
             </>
           )}
         </p>
+
+        <div className="mt-4 pt-3 text-center border-top" style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}>
+          <span className="font-mono d-inline-flex align-items-center gap-1.5" style={{ fontSize: '0.72rem', color: '#64748B' }}>
+            <Check size={13} className="text-cyan-400" />
+            Protected by Google reCAPTCHA Enterprise
+          </span>
+        </div>
       </div>
     </div>
   );

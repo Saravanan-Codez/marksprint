@@ -31,6 +31,18 @@ export default function HomePage() {
   const [hovered, setHovered] = useState(null);
   const [selected, setSelected] = useState(null);
   const [scrollY, setScrollY] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredSubjects = SUBJECTS.filter((s) => {
+    const meta = SUBJECT_ICON[s.key];
+    const query = searchTerm.toLowerCase().trim();
+    return (
+      !query ||
+      meta.label.toLowerCase().includes(query) ||
+      s.desc.toLowerCase().includes(query) ||
+      s.key.toLowerCase().includes(query)
+    );
+  });
 
   useEffect(() => {
     let ticking = false;
@@ -56,14 +68,14 @@ export default function HomePage() {
           HERO SECTION
           ========================================= */}
       <section
-        className="glass-card surface p-5 p-md-6 p-lg-7 position-relative overflow-hidden parallax-container"
+        className="glass-card-cosmic liquid-glass p-5 p-md-6 p-lg-7 position-relative overflow-hidden parallax-container"
         style={{
-          background:
-            'color-mix(in oklab, var(--surface) 85%, transparent)',
-          backdropFilter: 'blur(14px)',
-          WebkitBackdropFilter: 'blur(14px)'
+          minHeight: '560px',
+          marginBottom: '8rem',
+          paddingBottom: '5rem'
         }}
       >
+          <div className="hero-streak" />
         <div
           className="parallax-layer"
           style={{
@@ -163,7 +175,7 @@ export default function HomePage() {
       {/* =========================================
           SUBJECT GRID
           ========================================= */}
-      <section id="subjects-grid">
+      <section id="subjects-grid" style={{ marginTop: '4rem' }}>
         <div className="d-flex align-items-end justify-content-between mb-4 mb-md-5 flex-wrap gap-3">
           <div>
             <div className="chip chip-primary mb-2" style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '0.7rem' }}>
@@ -171,14 +183,25 @@ export default function HomePage() {
             </div>
             <h2 className="text-h1">Pick a subject to sprint</h2>
             <p className="mt-2 text-lead" style={{ maxWidth: '56ch' }}>
-              All 7 core Grade 12 TN state-board subjects available immediately. Click a card
-              to jump into the setup screen.
+              All 7 core Grade 12 TN state-board subjects available immediately. Click a card to jump into setup.
             </p>
+          </div>
+
+          {/* Instant Search Filter */}
+          <div className="w-100 max-w-xs">
+            <input
+              type="text"
+              placeholder="Search subjects or topics..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="form-control cosmic-input px-3 py-2 font-semibold"
+              style={{ borderRadius: '0px', fontSize: '0.88rem' }}
+            />
           </div>
         </div>
 
         <div className="row g-4">
-          {SUBJECTS.map((s, idx) => {
+          {filteredSubjects.map((s, idx) => {
             const meta = SUBJECT_ICON[s.key];
             const Icon = meta.icon;
             const isSelected = selected === s.key;
@@ -186,12 +209,12 @@ export default function HomePage() {
               <div key={s.key} className="col-12 col-sm-6 col-lg-4 anim-fade-up" style={{ animationDelay: `${idx * 50}ms` }}>
                 <button
                   type="button"
-                  className="glass-card-cosmic glass-card-cosmic-hover edge-glow-desktop p-4 p-md-5 w-100 text-start h-100 position-relative d-flex flex-column"
+                  className="glass-card-cosmic p-4 p-md-5 w-100 text-start h-100 position-relative d-flex flex-column"
                   style={{
                     outline: isSelected ? `2px solid #00F0FF` : 'none',
                     outlineOffset: isSelected ? '2px' : 0,
                     cursor: 'pointer',
-                    borderRadius: '2px'
+                    borderRadius: '0px'
                   }}
                   onMouseEnter={() => setHovered(s.key)}
                   onMouseLeave={() => setHovered(null)}
@@ -205,7 +228,7 @@ export default function HomePage() {
                         width: '52px', height: '52px',
                         background: meta.bg,
                         color: meta.color,
-                        borderRadius: '2px'
+                        borderRadius: '0px'
                       }}
                     >
                       <Icon size={26} strokeWidth={2.1} />
@@ -216,7 +239,7 @@ export default function HomePage() {
                         width: '32px', height: '32px',
                         background: hovered === s.key ? 'var(--primary)' : 'rgba(255,255,255,0.06)',
                         color: hovered === s.key ? 'white' : '#94A3B8',
-                        borderRadius: '2px'
+                        borderRadius: '0px'
                       }}
                     >
                       <ArrowRight size={16} strokeWidth={2.3} />
