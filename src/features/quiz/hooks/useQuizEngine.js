@@ -237,7 +237,14 @@ export function useQuizEngine(subject) {
         if (!csvFile) {
           throw new Error(`Subject dataset '${subject}' is not found.`);
         }
-        const response = await fetch(csvFile);
+
+        let response;
+        try {
+          response = await fetch(csvFile, { cache: 'force-cache' });
+        } catch {
+          throw new Error(`Unable to reach the question dataset for ${subject}. Please check your connection and try again.`);
+        }
+
         if (!response.ok) throw new Error(`Failed to fetch dataset for ${subject} (HTTP ${response.status})`);
         
         const text = await response.text();
@@ -281,6 +288,10 @@ export function useQuizEngine(subject) {
                 });
               }
             });
+
+            if (!Array.isArray(mergedQuestions) || mergedQuestions.length === 0) {
+              throw new Error(`No questions were found for ${subject}.`);
+            }
 
             setAllQuestions(mergedQuestions);
             const lessons = [...new Set(mergedQuestions.map(q => q.lesson))].filter(Boolean).sort((a, b) => parseInt(a) - parseInt(b));
@@ -336,7 +347,7 @@ export function useQuizEngine(subject) {
   // Start Quiz
   const startQuiz = useCallback((opts = {}) => {
     if (allQuestions.length === 0) {
-      toast.error("No questions available for this subject");
+      toast.error("No questions are currently available for this subject. Please try again in a moment.");
       return;
     }
 
@@ -361,7 +372,7 @@ export function useQuizEngine(subject) {
 
     const filtered = buildQuestionPool();
     if (filtered.length === 0) {
-      toast.error("No questions match the current filter (lesson/volume/count).");
+      toast.error("No questions match the current filter. Please widen the selection and try again.");
       return;
     }
 

@@ -1,17 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
-  setPersistence,
-  browserLocalPersistence,
-  onAuthStateChanged,
-  updateProfile,
-} from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db, isFirebaseConfigured } from '../config/firebase';
+import { loadFirebase } from '../config/firebase';
 
 const AuthContext = createContext();
 
@@ -62,87 +50,116 @@ export function AuthProvider({ children }) {
 
   // Set persistence to local if Firebase is available
   useEffect(() => {
-    if (!isFirebaseConfigured || !auth) {
-      setLoading(false);
-      return;
-    }
-    setPersistence(auth, browserLocalPersistence).catch((err) => {
-      console.warn('Error setting persistence:', err);
-    });
+    let stopped = false;
+
+    const initPersistence = async () => {
+      const { auth, isFirebaseConfigured } = await loadFirebaseAuth();
+      if (stopped || !isFirebaseConfigured || !auth) {
+        setLoading(false);
+        return;
+      }
+      const { setPersistence, browserLocalPersistence } = await import('firebase/auth');
+      setPersistence(auth, browserLocalPersistence).catch((err) => {
+        console.warn('Error setting persistence:', err);
+      });
+    };
+
+    initPersistence();
+    return () => {
+      stopped = true;
+    };
   }, []);
 
   // Listen to auth state
   useEffect(() => {
-    if (!isFirebaseConfigured || !auth) {
-      setLoading(false);
-      return () => {};
-    }
-    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-      setLoading(true);
-      try {
-        if (authUser) {
-          setUser(authUser);
-          const fallbackProfile = {
-            uid: authUser.uid,
-            email: authUser.email,
-            displayName: authUser.displayName || authUser.email?.split('@')[0] || 'Student',
-            role: 'student',
-            providers: authUser.providerData.map((p) => p.providerId),
-          };
+    let stopped = false;
+    let unsubscribe = null;
 
-          // Fetch user profile from Firestore silently without breaking Auth
-          try {
-            if (db) {
-              const userRef = doc(db, 'users', authUser.uid);
-              const userDoc = await getDoc(userRef);
-              if (userDoc.exists()) {
-                setUserProfile(userDoc.data());
+    const initAuthListener = async () => {
+      const { auth, isFirebaseConfigured } = await loadFirebaseAuth();
+      if (stopped || !isFirebaseConfigured || !auth) {
+        setLoading(false);
+        return;
+      }
+
+      const { onAuthStateChanged } = await import('firebase/auth');
+      unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+        setLoading(true);
+        try {
+          if (authUser) {
+            setUser(authUser);
+            const fallbackProfile = {
+              uid: authUser.uid,
+              email: authUser.email,
+              displayName: authUser.displayName || authUser.email?.split('@')[0] || 'Student',
+              role: 'student',
+              providers: authUser.providerData.map((p) => p.providerId),
+            };
+
+            try {
+              const dbInstance = await loadFirestore();
+              if (dbInstance) {
+                const { doc, getDoc, setDoc, serverTimestamp } = await import('firebase/firestore');
+                const userRef = doc(dbInstance, 'users', authUser.uid);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists()) {
+                  setUserProfile(userDoc.data());
+                } else {
+                  const defaultProfile = {
+                    ...fallbackProfile,
+                    createdAt: serverTimestamp(),
+                  };
+                  await setDoc(userRef, defaultProfile).catch(() => {});
+                  setUserProfile(defaultProfile);
+                }
               } else {
-                const defaultProfile = {
-                  ...fallbackProfile,
-                  createdAt: serverTimestamp(),
-                };
-                await setDoc(userRef, defaultProfile).catch(() => {});
-                setUserProfile(defaultProfile);
+                setUserProfile(fallbackProfile);
               }
-            } else {
+            } catch (fsErr) {
+              console.warn('Firestore profile fetch warning:', fsErr);
               setUserProfile(fallbackProfile);
             }
-          } catch (fsErr) {
-            console.warn('Firestore profile fetch warning:', fsErr);
-            setUserProfile(fallbackProfile);
+          } else {
+            setUser(null);
+            setUserProfile(null);
           }
-        } else {
-          setUser(null);
-          setUserProfile(null);
+        } catch (err) {
+          console.error('Error fetching user profile:', err);
+          setError(formatAuthError(err));
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        console.error('Error fetching user profile:', err);
-        setError(formatAuthError(err));
-      } finally {
-        setLoading(false);
-      }
-    });
-    return () => unsubscribe();
+      });
+    };
+
+    initAuthListener();
+    return () => {
+      stopped = true;
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
   }, []);
 
-  const assertFirebaseEnabled = () => {
+  const assertFirebaseEnabled = async () => {
+    const { auth, isFirebaseConfigured } = await loadFirebaseAuth();
     if (!isFirebaseConfigured || !auth) {
       const error = new Error('Firebase is not configured. Please check your .env file and ensure all VITE_FIREBASE_* variables are set.');
       setError(error.message);
       throw error;
     }
+    return { auth };
   };
 
   // Sign up with email
   const signUp = async (email, password, displayName = 'Student') => {
-    assertFirebaseEnabled();
     setError(null);
     try {
+      const { auth } = await assertFirebaseEnabled();
+      const dbInstance = await loadFirestore();
+      const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth');
+      const { doc, setDoc, serverTimestamp } = await import('firebase/firestore');
+
       const result = await createUserWithEmailAndPassword(auth, email, password);
       const newUser = result.user;
-      
-      // Update Firebase Auth Display Name
       await updateProfile(newUser, { displayName: displayName || 'Student' }).catch(() => {});
 
       const profileData = {
@@ -153,8 +170,8 @@ export function AuthProvider({ children }) {
         providers: newUser.providerData.map((p) => p.providerId),
       };
 
-      if (db) {
-        const userRef = doc(db, 'users', newUser.uid);
+      if (dbInstance) {
+        const userRef = doc(dbInstance, 'users', newUser.uid);
         await setDoc(userRef, { ...profileData, createdAt: serverTimestamp() }).catch(() => {});
       }
       setUserProfile(profileData);
@@ -168,9 +185,10 @@ export function AuthProvider({ children }) {
 
   // Sign in with email
   const signIn = async (email, password) => {
-    assertFirebaseEnabled();
     setError(null);
     try {
+      const { auth } = await assertFirebaseEnabled();
+      const { signInWithEmailAndPassword } = await import('firebase/auth');
       const result = await signInWithEmailAndPassword(auth, email, password);
       return result.user;
     } catch (err) {
@@ -190,9 +208,12 @@ export function AuthProvider({ children }) {
 
   // Sign in with Google
   const signInWithGoogle = async () => {
-    assertFirebaseEnabled();
     setError(null);
     try {
+      const { auth, db } = await assertFirebaseEnabled();
+      const { GoogleAuthProvider, signInWithPopup } = await import('firebase/auth');
+      const { doc, getDoc, setDoc, serverTimestamp } = await import('firebase/firestore');
+
       const provider = new GoogleAuthProvider();
       // Request permission to store test results files in user's Google Drive account
       provider.addScope('https://www.googleapis.com/auth/drive.file');
@@ -267,7 +288,9 @@ export function AuthProvider({ children }) {
   const logOut = async () => {
     setError(null);
     try {
+      const { auth, isFirebaseConfigured } = await loadFirebase();
       if (auth && isFirebaseConfigured && user?.uid !== 'guest_student_demo') {
+        const { signOut } = await import('firebase/auth');
         await signOut(auth);
       }
       setUser(null);

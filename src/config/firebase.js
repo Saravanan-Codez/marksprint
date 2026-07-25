@@ -1,8 +1,3 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
-
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -17,23 +12,39 @@ let app = null;
 let auth = null;
 let db = null;
 let isFirebaseConfigured = false;
+let firebaseAppPromise = null;
+let firebaseAuthPromise = null;
+let firebaseFirestorePromise = null;
 
-if (
-  firebaseConfig.apiKey &&
-  firebaseConfig.authDomain &&
-  firebaseConfig.projectId &&
-  firebaseConfig.appId
-) {
-  try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    isFirebaseConfigured = true;
+function validateConfig() {
+  return (
+    firebaseConfig.apiKey &&
+    firebaseConfig.authDomain &&
+    firebaseConfig.projectId &&
+    firebaseConfig.appId
+  );
+}
 
-    // Initialize Google reCAPTCHA Enterprise App Check
+async function initializeFirebaseApp() {
+  if (firebaseAppPromise) {
+    return firebaseAppPromise;
+  }
+
+  firebaseAppPromise = (async () => {
+    if (!validateConfig()) {
+      console.warn(
+        'Firebase config is incomplete. Auth and Firestore are disabled. Please check your .env file and ensure all VITE_FIREBASE_* variables are set.'
+      );
+      return null;
+    }
+
+    const { initializeApp } = await import('firebase/app');
+    const appInstance = initializeApp(firebaseConfig);
+
     if (import.meta.env.VITE_RECAPTCHA_SITE_KEY && typeof window !== 'undefined') {
       try {
-        initializeAppCheck(app, {
+        const { initializeAppCheck, ReCaptchaEnterpriseProvider } = await import('firebase/app-check');
+        initializeAppCheck(appInstance, {
           provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
           isTokenAutoRefreshEnabled: true,
         });
@@ -41,12 +52,64 @@ if (
         console.warn('reCAPTCHA Enterprise App Check notice:', appCheckErr);
       }
     }
-  } catch (error) {
-    console.warn('Firebase initialization failed:', error);
-  }
-} else {
-  console.warn('Firebase config is incomplete. Auth and Firestore are disabled. Please check your .env file and ensure all VITE_FIREBASE_* variables are set.');
+
+    app = appInstance;
+    return app;
+  })();
+
+  return firebaseAppPromise;
 }
 
-export { auth, db, isFirebaseConfigured };
-export default app;
+async function loadFirebaseAuth() {
+  if (firebaseAuthPromise) {
+    return firebaseAuthPromise;
+  }
+
+  firebaseAuthPromise = (async () => {
+    const appInstance = await initializeFirebaseApp();
+    if (!appInstance) {
+      auth = null;
+      isFirebaseConfigured = false;
+      return { auth: null, isFirebaseConfigured: false };
+    }
+
+    const { getAuth } = await import('firebase/auth');
+    auth = getAuth(appInstance);
+    isFirebaseConfigured = true;
+    return { auth, isFirebaseConfigured };
+  })();
+
+  return firebaseAuthPromise;
+}
+
+async function loadFirestore() {
+  if (firebaseFirestorePromise) {
+    return firebaseFirestorePromise;
+  }
+
+  firebaseFirestorePromise = (async () => {
+    const appInstance = await initializeFirebaseApp();
+    if (!appInstance) {
+      db = null;
+      return null;
+    }
+
+    const { getFirestore } = await import('firebase/firestore');
+    db = getFirestore(appInstance);
+    return db;
+  })();
+
+  return firebaseFirestorePromise;
+}
+
+async function loadFirebase() {
+  const authResult = await loadFirebaseAuth();
+  const firestore = await loadFirestore();
+  return {
+    auth: authResult.auth,
+    db: firestore,
+    isFirebaseConfigured: authResult.isFirebaseConfigured,
+  };
+}
+
+export { loadFirebase, loadFirebaseAuth, loadFirestore };
