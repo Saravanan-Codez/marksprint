@@ -68,14 +68,14 @@ export default function HomePage() {
           HERO SECTION
           ========================================= */}
       <section
-        className="glass-card surface p-5 p-md-6 p-lg-7 position-relative overflow-hidden parallax-container"
+        className="glass-card-cosmic liquid-glass p-5 p-md-6 p-lg-7 position-relative overflow-hidden parallax-container"
         style={{
-          background:
-            'color-mix(in oklab, var(--surface) 85%, transparent)',
-          backdropFilter: 'blur(14px)',
-          WebkitBackdropFilter: 'blur(14px)'
+          minHeight: '560px',
+          marginBottom: '8rem',
+          paddingBottom: '5rem'
         }}
       >
+          <div className="hero-streak" />
         <div
           className="parallax-layer"
           style={{
@@ -175,7 +175,7 @@ export default function HomePage() {
       {/* =========================================
           SUBJECT GRID
           ========================================= */}
-      <section id="subjects-grid">
+      <section id="subjects-grid" style={{ marginTop: '4rem' }}>
         <div className="d-flex align-items-end justify-content-between mb-4 mb-md-5 flex-wrap gap-3">
           <div>
             <div className="chip chip-primary mb-2" style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '0.7rem' }}>
@@ -209,7 +209,7 @@ export default function HomePage() {
               <div key={s.key} className="col-12 col-sm-6 col-lg-4 anim-fade-up" style={{ animationDelay: `${idx * 50}ms` }}>
                 <button
                   type="button"
-                  className="glass-card-cosmic glass-card-cosmic-hover edge-glow-desktop p-4 p-md-5 w-100 text-start h-100 position-relative d-flex flex-column"
+                  className="glass-card-cosmic p-4 p-md-5 w-100 text-start h-100 position-relative d-flex flex-column"
                   style={{
                     outline: isSelected ? `2px solid #00F0FF` : 'none',
                     outlineOffset: isSelected ? '2px' : 0,

@@ -1,11 +1,12 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { useParams } from "react-router-dom";
 
 import { useQuizEngine } from "../features/quiz/hooks/useQuizEngine";
 import QuizSetup from "../features/quiz/components/QuizSetup";
 import QuizActive from "../features/quiz/components/QuizActive";
-import ResultsBoard from "../features/quiz/components/ResultsBoard";
-import RevisionBoard from "../features/quiz/components/RevisionBoard";
+
+const ResultsBoard = lazy(() => import("../features/quiz/components/ResultsBoard"));
+const RevisionBoard = lazy(() => import("../features/quiz/components/RevisionBoard"));
 
 function QuizLoadingSkeleton({ subject }) {
   return (
@@ -53,8 +54,16 @@ export default function QuizPage() {
     <div className="w-full flex-1 h-full flex flex-col items-center">
       {engine.quizMode === "setup" && <QuizSetup engine={engine} subject={subject} />}
       {engine.quizMode === "active" && <QuizActive engine={engine} />}
-      {engine.quizMode === "result" && <ResultsBoard engine={engine} />}
-      {engine.quizMode === "revision" && <RevisionBoard engine={engine} />}
+      {engine.quizMode === "result" && (
+        <Suspense fallback={<div className="text-center py-6">Loading results...</div>}>
+          <ResultsBoard engine={engine} />
+        </Suspense>
+      )}
+      {engine.quizMode === "revision" && (
+        <Suspense fallback={<div className="text-center py-6">Loading revision board...</div>}>
+          <RevisionBoard engine={engine} />
+        </Suspense>
+      )}
     </div>
   );
 }

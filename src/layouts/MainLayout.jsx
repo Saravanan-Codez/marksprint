@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
-import { LogOut, UserRound, Sparkles, Menu, X } from 'lucide-react';
+import { LogOut, UserRound, Sparkles, Menu, X, Moon, SunMedium } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../context/useAuth';
 import { useTheme } from '../context/useTheme';
@@ -18,7 +18,7 @@ const SUBJECT_MAP = {
 
 export default function MainLayout() {
   const { user, userProfile, googleAccessToken, logOut } = useAuth();
-  const { isDark } = useTheme();
+  const { theme, isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -130,6 +130,15 @@ export default function MainLayout() {
 
             {/* Right: User controls */}
             <div className="d-flex align-items-center gap-2">
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="btn btn-cosmic-outline btn-sm d-flex align-items-center justify-content-center"
+                title="Switch theme"
+                style={{ width: '38px', height: '38px', borderRadius: '0px' }}
+              >
+                {theme === 'space' ? <Moon size={18} /> : <SunMedium size={18} />}
+              </button>
               {quizSubject && (
                 <span className="chip chip-accent d-none d-md-inline-flex">{quizSubject}</span>
               )}

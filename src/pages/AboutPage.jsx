@@ -57,7 +57,7 @@ export default function AboutPage() {
             <h2 className="m-0 font-bold text-white" style={{ fontSize: '1.4rem' }}>Falkon Labs Team</h2>
           </div>
 
-          <div className="glass-card-cosmic glass-card-cosmic-hover edge-glow-desktop p-4 p-md-5">
+          <div className="glass-card-cosmic p-4 p-md-5">
             <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
               <div className="d-flex align-items-center gap-2">
                 <span className="badge-falkon">Falkon Labs</span>
