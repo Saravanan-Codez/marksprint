@@ -1,17 +1,12 @@
-<<<<<<<<< Temporary merge branch 1
-=========
-@import "tailwindcss";
+/* Tailwind import removed to avoid PostCSS import errors (not used) */
 
->>>>>>>>> Temporary merge branch 2
 /* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
-<<<<<<<<< Temporary merge branch 1
-=========
+ 
 /* Global Scrollbar - Hidden but Functional */
 /* Webkit browsers (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
