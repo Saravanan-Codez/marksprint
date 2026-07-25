@@ -19,13 +19,9 @@ function QuestionCardImpl({
 
   return (
     <AnimatePresence mode="wait">
-      <motion.div
+      <div
         key={currentIdx}
-        initial={{ x: 30, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        exit={{ x: -30, opacity: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="w-100 d-flex flex-column align-items-center pb-5 position-relative"
+        className="w-100 d-flex flex-column align-items-center pb-5 position-relative anim-fade-in"
       >
         <div className="surface w-100 p-4 p-md-5 mb-4 position-relative text-center">
           {onToggleBookmark && (
@@ -70,18 +66,22 @@ function QuestionCardImpl({
             let showCorrectIcon = false;
             let showWrongIcon = false;
 
+            const optTextClean = (opt.text || '').toString().trim();
+            const answerClean = (currentQ.answer || '').toString().trim();
+            const userAnsClean = (userAnswer || '').toString().trim();
+
             if (isLocked) {
               if (isTestMode) {
-                if (opt.text === userAnswer) {
+                if (optTextClean === userAnsClean) {
                   statusClass = "option-checked";
                 } else {
                   statusClass = "option-inactive";
                 }
               } else {
-                if (opt.text === currentQ.answer) {
+                if (optTextClean === answerClean || (optTextClean && answerClean && optTextClean.toLowerCase() === answerClean.toLowerCase())) {
                   statusClass = "option-correct";
                   showCorrectIcon = true;
-                } else if (opt.text === userAnswer) {
+                } else if (optTextClean === userAnsClean) {
                   statusClass = "option-wrong";
                   showWrongIcon = true;
                 } else {
@@ -184,7 +184,7 @@ function QuestionCardImpl({
           }
         `
         }} />
-      </motion.div>
+      </div>
     </AnimatePresence>
   );
 }

@@ -17,31 +17,40 @@ const AuthContext = createContext();
 
 function formatAuthError(err) {
   if (!err) return 'An unexpected authentication error occurred.';
-  const message = err.code || err.message || '';
+  const message = (err.code || err.message || '').toString();
   
   if (message.includes('auth/invalid-credential') || message.includes('auth/wrong-password') || message.includes('auth/user-not-found')) {
-    return 'Invalid email or password. Please check your credentials and try again.';
+    return 'Invalid email or password. Please verify your credentials and try again.';
   }
   if (message.includes('auth/email-already-in-use')) {
-    return 'An account with this email address already exists. Please log in instead.';
+    return 'An account with this email address already exists. Please log in using your existing account.';
   }
-  if (message.includes('auth/weak-password')) {
-    return 'Password is too weak. Please use at least 6 characters.';
+  if (message.includes('auth/weak-password') || message.includes('password-policy')) {
+    return 'Password must be at least 8 characters long and contain at least one uppercase letter, lowercase letter, number, and special character.';
   }
   if (message.includes('auth/invalid-email')) {
-    return 'Please enter a valid email address.';
+    return 'Please enter a valid email address (e.g. student@school.com).';
   }
   if (message.includes('auth/network-request-failed')) {
-    return 'Network error. Please check your internet connection and try again.';
+    return 'Network connection failed. Please check your internet connection and try again.';
   }
   if (message.includes('auth/popup-closed-by-user')) {
-    return 'Google sign-in popup was closed before completing.';
+    return 'Google sign-in popup was closed before completion. Please try again.';
+  }
+  if (message.includes('auth/popup-blocked')) {
+    return 'Google sign-in popup was blocked by your browser. Please allow popups for this site and retry.';
+  }
+  if (message.includes('auth/account-exists-with-different-credential')) {
+    return 'An account already exists with the same email address using a different sign-in method.';
   }
   if (message.includes('auth/too-many-requests')) {
-    return 'Too many failed login attempts. Please wait a moment before trying again.';
+    return 'Access temporarily throttled due to multiple failed attempts. Please wait 60 seconds before trying again.';
+  }
+  if (message.includes('auth/unauthorized-domain')) {
+    return 'This web domain is not authorized in Firebase authentication settings.';
   }
 
-  return err.message || 'Authentication failed. Please try again.';
+  return err.message || 'Authentication error. Please check your network and try again.';
 }
 
 export { AuthContext };

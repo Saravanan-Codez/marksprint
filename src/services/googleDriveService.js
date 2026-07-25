@@ -1,27 +1,102 @@
 /**
- * Google Drive Zero-Database Storage Service for MarkSprint
- * Saves and loads test results directly to/from the user's personal Google Drive.
+ * Google Drive Zero-Database Storage Engine for MarkSprint (Falkon Labs)
+ * Stores structured student assessment records inside a dedicated 'MarkSprint' folder on Google Drive.
  */
 
-const DRIVE_FILE_NAME = 'marksprint_test_results.json';
+const FOLDER_NAME = 'MarkSprint';
+const FILE_NAME = 'marksprint_structured_data.json';
 
 /**
- * Uploads or updates quiz results JSON file on user's Google Drive
+ * Searches for or creates the 'MarkSprint' folder on the user's Google Drive
  */
-export async function syncResultsToGoogleDrive(accessToken, resultsData) {
-  if (!accessToken) return { success: false, reason: 'No Google OAuth token' };
+export async function getOrCreateMarkSprintFolder(accessToken) {
+  if (!accessToken) return null;
 
   try {
-    const fileContent = JSON.stringify(resultsData, null, 2);
-    const blob = new Blob([fileContent], { type: 'application/json' });
-
-    // Search for existing file on Google Drive
-    const searchUrl = `https://www.googleapis.com/drive/v3/files?q=name='${DRIVE_FILE_NAME}' and trashed=false`;
+    // 1. Search for existing MarkSprint folder
+    const searchUrl = `https://www.googleapis.com/drive/v3/files?q=mimeType='application/vnd.google-apps.folder' and name='${FOLDER_NAME}' and trashed=false`;
     const searchRes = await fetch(searchUrl, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    if (!searchRes.ok) throw new Error('Failed to query Google Drive API');
+    if (!searchRes.ok) throw new Error('Failed to search Google Drive folders');
+    const searchData = await searchRes.json();
+    const existingFolder = searchData.files && searchData.files[0];
+
+    if (existingFolder) {
+      return existingFolder.id;
+    }
+
+    // 2. Create new MarkSprint folder if not found
+    const createUrl = 'https://www.googleapis.com/drive/v3/files';
+    const createRes = await fetch(createUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: FOLDER_NAME,
+        mimeType: 'application/vnd.google-apps.folder',
+        description: 'MarkSprint Learning & Assessment Records - Falkon Labs',
+      }),
+    });
+
+    if (!createRes.ok) throw new Error('Failed to create MarkSprint folder');
+    const newFolder = await createRes.json();
+    return newFolder.id;
+  } catch (err) {
+    console.warn('Google Drive folder resolution notice:', err.message);
+    return null;
+  }
+}
+
+/**
+ * Uploads structured quiz results to the 'MarkSprint/' folder on Google Drive
+ */
+export async function syncResultsToGoogleDrive(accessToken, historyData, studentProfile = null) {
+  if (!accessToken) return { success: false, reason: 'No Google OAuth token' };
+
+  try {
+    const folderId = await getOrCreateMarkSprintFolder(accessToken);
+    
+    // Construct structured data payload
+    const totalQ = historyData.reduce((acc, h) => acc + (h.totalQuestions || 0), 0);
+    const totalC = historyData.reduce((acc, h) => acc + (h.score || 0), 0);
+    const accuracy = totalQ > 0 ? Math.round((totalC / totalQ) * 100) : 0;
+
+    const structuredPayload = {
+      app: 'MarkSprint by Falkon Labs',
+      version: '1.0',
+      schema: 'structured_student_record_v1',
+      lastSynced: new Date().toISOString(),
+      studentProfile: {
+        displayName: studentProfile?.displayName || 'Student',
+        email: studentProfile?.email || 'N/A',
+      },
+      summary: {
+        totalSprints: historyData.length,
+        totalQuestions: totalQ,
+        totalCorrect: totalC,
+        overallAccuracy: accuracy,
+      },
+      testHistory: historyData,
+    };
+
+    const fileContent = JSON.stringify(structuredPayload, null, 2);
+    const blob = new Blob([fileContent], { type: 'application/json' });
+
+    // Search for existing file inside MarkSprint folder
+    const query = folderId
+      ? `name='${FILE_NAME}' and '${folderId}' in parents and trashed=false`
+      : `name='${FILE_NAME}' and trashed=false`;
+
+    const searchUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`;
+    const searchRes = await fetch(searchUrl, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!searchRes.ok) throw new Error('Failed to search files in Google Drive');
     const searchData = await searchRes.json();
     const existingFile = searchData.files && searchData.files[0];
 
@@ -37,14 +112,15 @@ export async function syncResultsToGoogleDrive(accessToken, resultsData) {
         body: blob,
       });
 
-      if (!updateRes.ok) throw new Error('Failed to update Google Drive file');
-      return { success: true, updated: true, fileId: existingFile.id };
+      if (!updateRes.ok) throw new Error('Failed to update structured file in Google Drive');
+      return { success: true, updated: true, fileId: existingFile.id, folderId };
     } else {
-      // Create new file on Google Drive
+      // Create new file inside MarkSprint folder
       const metadata = {
-        name: DRIVE_FILE_NAME,
+        name: FILE_NAME,
         mimeType: 'application/json',
-        description: 'MarkSprint Test Results and Student Progress Backup',
+        parents: folderId ? [folderId] : [],
+        description: 'MarkSprint Structured Assessment & Progress Log',
       };
 
       const formData = new FormData();
@@ -58,24 +134,29 @@ export async function syncResultsToGoogleDrive(accessToken, resultsData) {
         body: formData,
       });
 
-      if (!createRes.ok) throw new Error('Failed to create file on Google Drive');
+      if (!createRes.ok) throw new Error('Failed to create file in MarkSprint folder');
       const newFile = await createRes.json();
-      return { success: true, created: true, fileId: newFile.id };
+      return { success: true, created: true, fileId: newFile.id, folderId };
     }
   } catch (err) {
-    console.warn('Google Drive sync notice:', err.message);
+    console.warn('Google Drive structured sync notice:', err.message);
     return { success: false, error: err.message };
   }
 }
 
 /**
- * Downloads test results from Google Drive
+ * Downloads and parses structured results from MarkSprint folder on Google Drive
  */
 export async function loadResultsFromGoogleDrive(accessToken) {
   if (!accessToken) return null;
 
   try {
-    const searchUrl = `https://www.googleapis.com/drive/v3/files?q=name='${DRIVE_FILE_NAME}' and trashed=false`;
+    const folderId = await getOrCreateMarkSprintFolder(accessToken);
+    const query = folderId
+      ? `name='${FILE_NAME}' and '${folderId}' in parents and trashed=false`
+      : `name='${FILE_NAME}' and trashed=false`;
+
+    const searchUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`;
     const searchRes = await fetch(searchUrl, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
@@ -92,9 +173,10 @@ export async function loadResultsFromGoogleDrive(accessToken) {
     });
 
     if (!downloadRes.ok) return null;
-    return await downloadRes.json();
+    const parsed = await downloadRes.json();
+    return parsed.testHistory || (Array.isArray(parsed) ? parsed : null);
   } catch (err) {
-    console.warn('Failed to load from Google Drive:', err.message);
+    console.warn('Failed to load structured data from Google Drive:', err.message);
     return null;
   }
 }

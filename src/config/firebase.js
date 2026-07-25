@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -28,6 +29,18 @@ if (
     auth = getAuth(app);
     db = getFirestore(app);
     isFirebaseConfigured = true;
+
+    // Initialize Google reCAPTCHA Enterprise App Check
+    if (import.meta.env.VITE_RECAPTCHA_SITE_KEY && typeof window !== 'undefined') {
+      try {
+        initializeAppCheck(app, {
+          provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
+          isTokenAutoRefreshEnabled: true,
+        });
+      } catch (appCheckErr) {
+        console.warn('reCAPTCHA Enterprise App Check notice:', appCheckErr);
+      }
+    }
   } catch (error) {
     console.warn('Firebase initialization failed:', error);
   }

@@ -17,7 +17,7 @@ export function getLocalTestHistory() {
 /**
  * Saves a completed test result locally and syncs to Google Drive if OAuth token is available
  */
-export async function saveTestResult(result, googleAccessToken = null) {
+export async function saveTestResult(result, googleAccessToken = null, studentProfile = null) {
   const existingHistory = getLocalTestHistory();
   const updatedHistory = [
     {
@@ -28,16 +28,16 @@ export async function saveTestResult(result, googleAccessToken = null) {
     ...existingHistory,
   ];
 
-  // Save to localStorage immediately (offline-first zero latency)
+  // Save to localStorage immediately (0ms latency, offline-first)
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedHistory));
   } catch (e) {
     console.warn('Failed to write to localStorage:', e);
   }
 
-  // Auto-sync to Google Drive if OAuth token is provided
+  // Auto-sync structured data to Google Drive inside 'MarkSprint/' folder
   if (googleAccessToken) {
-    await syncResultsToGoogleDrive(googleAccessToken, updatedHistory).catch(() => {});
+    await syncResultsToGoogleDrive(googleAccessToken, updatedHistory, studentProfile).catch(() => {});
   }
 
   return updatedHistory;
@@ -46,7 +46,7 @@ export async function saveTestResult(result, googleAccessToken = null) {
 /**
  * Syncs local history with Google Drive cloud backup
  */
-export async function syncWithCloud(googleAccessToken) {
+export async function syncWithCloud(googleAccessToken, studentProfile = null) {
   if (!googleAccessToken) return getLocalTestHistory();
 
   const cloudData = await loadResultsFromGoogleDrive(googleAccessToken);
@@ -69,10 +69,10 @@ export async function syncWithCloud(googleAccessToken) {
     } catch (e) {
       console.warn('LocalStorage error:', e);
     }
-    await syncResultsToGoogleDrive(googleAccessToken, merged).catch(() => {});
+    await syncResultsToGoogleDrive(googleAccessToken, merged, studentProfile).catch(() => {});
     return merged;
   } else if (localData.length > 0) {
-    await syncResultsToGoogleDrive(googleAccessToken, localData).catch(() => {});
+    await syncResultsToGoogleDrive(googleAccessToken, localData, studentProfile).catch(() => {});
   }
 
   return localData;
