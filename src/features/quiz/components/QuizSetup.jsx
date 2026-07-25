@@ -117,6 +117,17 @@ export default function QuizSetup({ engine, subject }) {
         <p className="text-slate-500 font-light mt-2" style={{ fontSize: '0.95rem' }}>Configure your assessment parameters before starting the sprint.</p>
       </div>
 
+      {engine.loadError && (
+        <div className="p-4 mb-4 text-center" style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '0px' }}>
+          <div className="font-bold text-danger mb-1" style={{ fontSize: '0.95rem' }}>
+            ⚠️ {engine.loadError}
+          </div>
+          <p className="m-0 text-muted" style={{ fontSize: '0.82rem' }}>
+            Operating using custom local dataset or offline storage mode.
+          </p>
+        </div>
+      )}
+
       {/* Resume Saved Progress Banner */}
       {savedProgress && savedProgress.quizQuestions && (
         <div

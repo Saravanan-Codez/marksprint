@@ -61,8 +61,9 @@ export default function LoginPage() {
       return;
     }
 
-    if (cleanPassword.length < 6) {
-      setError('Password must be at least 6 characters.');
+    const passwordPolicyRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+    if (!passwordPolicyRegex.test(cleanPassword)) {
+      setError('Password must be at least 8 characters long and contain at least one uppercase letter, lowercase letter, number, and special character.');
       return;
     }
 
@@ -437,6 +438,13 @@ export default function LoginPage() {
             </>
           )}
         </p>
+
+        <div className="mt-4 pt-3 text-center border-top" style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}>
+          <span className="font-mono d-inline-flex align-items-center gap-1.5" style={{ fontSize: '0.72rem', color: '#64748B' }}>
+            <Check size={13} className="text-cyan-400" />
+            Protected by Google reCAPTCHA Enterprise
+          </span>
+        </div>
       </div>
     </div>
   );

@@ -17,7 +17,7 @@ const SUBJECT_MAP = {
 };
 
 export default function MainLayout() {
-  const { user, userProfile, logOut } = useAuth();
+  const { user, userProfile, googleAccessToken, logOut } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,7 +29,8 @@ export default function MainLayout() {
     : null;
 
   const navItems = [
-    { label: 'Dashboard', href: '/', icon: 'home' },
+    { label: 'Home', href: '/', icon: 'home' },
+    { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
     { label: 'About', href: '/about', icon: 'about' }
   ];
   if (userProfile?.role === 'teacher') {
@@ -134,9 +135,26 @@ export default function MainLayout() {
               )}
               {user ? (
                 <>
+                  {googleAccessToken && (
+                    <span 
+                      className="px-2 py-1 font-bold text-uppercase d-none d-lg-inline-flex align-items-center gap-1"
+                      style={{
+                        fontSize: '0.66rem',
+                        background: 'rgba(16, 185, 129, 0.15)',
+                        color: '#34D399',
+                        border: '1px solid rgba(52, 211, 153, 0.3)',
+                        borderRadius: '0px'
+                      }}
+                      title="Google Drive Cloud Auto-Sync Enabled"
+                    >
+                      <span>🟢</span> Drive Synced
+                    </span>
+                  )}
                   <div
-                    className="d-flex align-items-center gap-2 rounded-0 px-2 py-1"
-                    style={{ background: 'var(--surface-3)', borderRadius: '0px' }}
+                    className="d-flex align-items-center gap-2 rounded-0 px-2 py-1 cursor-pointer"
+                    onClick={() => navigate('/dashboard')}
+                    style={{ background: 'var(--surface-3)', borderRadius: '0px', cursor: 'pointer' }}
+                    title="View Analytics Dashboard"
                   >
                     <div
                       className="d-flex align-items-center justify-content-center rounded-0"
@@ -228,11 +246,12 @@ export default function MainLayout() {
         <div className="mx-auto px-4 px-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3" style={{ maxWidth: '1240px' }}>
           <div className="d-flex align-items-center gap-2">
             <div
-              className="d-flex align-items-center justify-content-center rounded-3"
+              className="d-flex align-items-center justify-content-center"
               style={{
                 width: '28px', height: '28px',
                 background: 'linear-gradient(135deg, var(--primary-500), var(--accent))',
-                color: 'white'
+                color: 'white',
+                borderRadius: '0px'
               }}
             >
               <Sparkles size={14} />
