@@ -31,7 +31,7 @@ if (
     console.warn('Firebase initialization failed:', error);
   }
 } else {
-  console.warn('Firebase config is incomplete. Auth and Firestore are disabled.');
+  console.warn('Firebase config is incomplete. Auth and Firestore are disabled. Please check your .env file and ensure all VITE_FIREBASE_* variables are set.');
 }
 
 export { auth, db, isFirebaseConfigured };
