@@ -3,6 +3,8 @@ import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { LogOut, UserRound, Sparkles, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../context/useAuth';
+import { useTheme } from '../context/useTheme';
+import Galaxy from '../components/Galaxy';
 
 const SUBJECT_MAP = {
   biology: 'Biology',
@@ -16,6 +18,7 @@ const SUBJECT_MAP = {
 
 export default function MainLayout() {
   const { user, userProfile, logOut } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -46,25 +49,27 @@ export default function MainLayout() {
 
   if (isAuthPage) {
     return (
-      <div className="min-h-screen w-full">
-      <div
-        className="position-fixed inset-0 z-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(900px 500px at 10% 0%, color-mix(in oklab, var(--primary) 18%, transparent) 0%, transparent 60%), radial-gradient(700px 500px at 100% 100%, color-mix(in oklab, var(--accent) 18%, transparent) 0%, transparent 60%), linear-gradient(135deg, var(--bg-50), var(--bg-100))'
-        }}
-      />
-      <div className="position-relative z-10">
-        <Outlet />
-      </div>
+      <div className="min-h-screen w-full position-relative">
+        <Galaxy isDark={isDark} />
+        <div
+          className="position-fixed inset-0 z-0 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(900px 500px at 10% 0%, color-mix(in oklab, var(--primary) 18%, transparent) 0%, transparent 60%), radial-gradient(700px 500px at 100% 100%, color-mix(in oklab, var(--accent) 18%, transparent) 0%, transparent 60%), linear-gradient(135deg, var(--bg-50), var(--bg-100))'
+          }}
+        />
+        <div className="position-relative z-10">
+          <Outlet />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col">
+    <div className="min-h-screen w-full flex flex-col position-relative">
+      <Galaxy isDark={isDark} />
       <header
-        className="sticky top-0 z-50 border-b"
+        className="glass-panel sticky top-0 z-50 border-b"
         style={{
           background: 'color-mix(in oklab, var(--surface) 85%, transparent)',
           backdropFilter: 'blur(14px)',
@@ -82,37 +87,38 @@ export default function MainLayout() {
               style={{ lineHeight: 1 }}
             >
               <div
-                className="d-flex align-items-center justify-content-center rounded-4 position-relative"
+                className="d-flex align-items-center justify-content-center rounded-0 position-relative"
                 style={{
                   width: '40px', height: '40px',
                   background: 'linear-gradient(135deg, var(--primary-500), var(--accent))',
                   color: 'white',
-                  boxShadow: '0 4px 12px -2px color-mix(in oklab, var(--primary) 40%, transparent)'
+                  boxShadow: '0 4px 12px -2px color-mix(in oklab, var(--primary) 40%, transparent)',
+                  borderRadius: '0px'
                 }}
               >
                 <Sparkles size={20} strokeWidth={2.3} />
               </div>
               <div className="text-start d-none d-md-block">
                 <div className="font-extrabold tracking-tight" style={{ fontSize: '1.05rem', color: 'var(--ink-900)' }}>MarkSprint</div>
-                <div className="font-medium" style={{ fontSize: '0.7rem', color: 'var(--ink-400)', letterSpacing: '0.08em' }}>ASSESSMENT · REVIEW</div>
+                <div className="font-semibold" style={{ fontSize: '0.66rem', color: '#38BDF8', letterSpacing: '0.08em' }}>FALKON LABS OPEN SOURCE</div>
               </div>
             </button>
 
             {/* Center Nav */}
-            <nav className="d-none d-md-flex align-items-center gap-1 rounded-4 p-1" style={{ background: 'var(--surface-3)' }}>
+            <nav className="d-none d-md-flex align-items-center gap-1 rounded-0 p-1" style={{ background: 'var(--surface-3)', borderRadius: '0px' }}>
               {navItems.map((item) => {
                 const active = activeHref === item.href;
                 return (
                   <Link
                     key={item.href}
                     to={item.href}
-                    className="px-4 py-2 rounded-3 text-decoration-none font-semibold transition-all"
+                    className="px-4 py-2 rounded-0 text-decoration-none font-semibold transition-all"
                     style={{
                       fontSize: '0.85rem',
                       background: active ? 'var(--surface)' : 'transparent',
                       color: active ? 'var(--ink-900)' : 'var(--ink-500)',
                       boxShadow: active ? 'var(--shadow-xs)' : 'none',
-                      transform: active ? 'none' : 'none'
+                      borderRadius: '0px'
                     }}
                   >
                     {item.label}
@@ -129,15 +135,16 @@ export default function MainLayout() {
               {user ? (
                 <>
                   <div
-                    className="d-flex align-items-center gap-2 rounded-4 px-2 py-1"
-                    style={{ background: 'var(--surface-3)' }}
+                    className="d-flex align-items-center gap-2 rounded-0 px-2 py-1"
+                    style={{ background: 'var(--surface-3)', borderRadius: '0px' }}
                   >
                     <div
-                      className="d-flex align-items-center justify-content-center rounded-circle"
+                      className="d-flex align-items-center justify-content-center rounded-0"
                       style={{
                         width: '32px', height: '32px',
                         background: 'var(--primary-100)',
-                        color: 'var(--primary-600)'
+                        color: 'var(--primary-600)',
+                        borderRadius: '0px'
                       }}
                     >
                       <UserRound size={16} />
@@ -210,8 +217,13 @@ export default function MainLayout() {
       </main>
 
       <footer
-        className="border-top py-5 mt-4"
-        style={{ borderColor: 'var(--ink-100)', background: 'var(--surface-2)' }}
+        className="glass-panel border-top py-5 mt-4"
+        style={{
+          borderColor: 'var(--ink-100)',
+          background: 'color-mix(in oklab, var(--surface) 85%, transparent)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)'
+        }}
       >
         <div className="mx-auto px-4 px-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3" style={{ maxWidth: '1240px' }}>
           <div className="d-flex align-items-center gap-2">
@@ -237,7 +249,7 @@ export default function MainLayout() {
             <a href="https://github.com/sreehari462/marksprint" target="_blank" rel="noreferrer" className="text-decoration-none font-medium" style={{ fontSize: '0.82rem', color: 'var(--ink-500)' }}>GitHub</a>
           </div>
           <div style={{ fontSize: '0.78rem', color: 'var(--ink-400)' }}>
-            Built for TN 12th-grade students · Designed for clarity
+            Falkon Labs Open Source · Maintained by Sree Hari Sk & S. Saravanan
           </div>
         </div>
       </footer>

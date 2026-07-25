@@ -49,9 +49,12 @@ export default function BreadcrumbNavigation({
             }}
             className={`flex items-center gap-3 px-6 py-3 rounded-lg font-semibold transition-all duration-300 border ${
               selectedSubject
-                ? 'bg-[#2aa8d8] text-white border-[#2aa8d8] shadow-[0_0_15px_rgba(42,168,216,0.3)]'
+                ? 'bg-[#2aa8d8] text-white shadow-[0_0_15px_rgba(42,168,216,0.3)]'
                 : 'bg-[rgba(255,255,255,0.05)] text-[#9fe3ff] border-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.08)]'
             }`}
+            style={{
+              borderColor: selectedSubject ? 'color-mix(in oklab, var(--primary) 40%, var(--ink-200))' : undefined
+            }}
           >
             <span className="text-sm uppercase tracking-wide">Subject</span>
             {selectedSubject && <span className="text-base font-bold">{selectedSubject}</span>}
@@ -151,9 +154,12 @@ export default function BreadcrumbNavigation({
               }}
               className={`flex items-center gap-3 px-6 py-3 rounded-lg font-semibold transition-all duration-300 border ${
                 selectedLesson
-                  ? 'bg-[#2aa8d8] text-white border-[#2aa8d8] shadow-[0_0_15px_rgba(42,168,216,0.3)]'
+                  ? 'bg-[#2aa8d8] text-white shadow-[0_0_15px_rgba(42,168,216,0.3)]'
                   : 'bg-[rgba(255,255,255,0.05)] text-[#9fe3ff] border-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.08)]'
               }`}
+              style={{
+                borderColor: selectedLesson ? 'color-mix(in oklab, var(--primary) 40%, var(--ink-200))' : undefined
+              }}
             >
               <span className="text-sm uppercase tracking-wide">Lesson</span>
               {selectedLesson && <span className="text-base font-bold">Lesson {selectedLesson}</span>}

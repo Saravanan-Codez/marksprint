@@ -1,160 +1,198 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ExternalLink, Code, ShieldCheck } from 'lucide-react';
-import SpotlightCard from '../components/SpotlightCard';
+import { ExternalLink, Code, ShieldCheck, Sparkles, Users, Heart, Rocket, Layers, Cpu } from 'lucide-react';
 
 export default function AboutPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-vh-100 w-100 bg-theme-base text-white py-5 position-relative overflow-auto">
+    <div className="w-100 py-4 position-relative">
       
-      {/* Background radial gradient */}
-      <div className="position-fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 80% at 50% -20%, rgba(200, 172, 214, 0.05), transparent)', zIndex: 0 }} />
+      {/* Background radial glow */}
+      <div 
+        className="position-fixed inset-0 pointer-events-none" 
+        style={{ 
+          background: 'radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.12), transparent 70%), radial-gradient(circle at 80% 70%, rgba(14, 165, 233, 0.1), transparent 60%)', 
+          zIndex: 0 
+        }} 
+      />
 
-      <div className="position-relative z-3 container py-4" style={{ maxWidth: '1000px' }}>
+      <div className="position-relative z-3 mx-auto" style={{ maxWidth: '1080px' }}>
         
-        {/* Main Card */}
-        <SpotlightCard className="p-4 p-md-5 mb-4" spotlightColor="rgba(200, 172, 214, 0.15)">
-          <p className="text-uppercase tracking-wider font-bold text-theme-highlight m-0" style={{ fontSize: '0.75rem', letterSpacing: '0.25em' }}>About the Product</p>
-          <h1 className="mt-3 font-bold text-white tracking-tight" style={{ fontSize: '2.5rem' }}>MARKSPRINT</h1>
-          <p className="mt-4 text-theme-slate font-light m-0" style={{ fontSize: '1.05rem', lineHeight: '1.6' }}>
-            MARKSPRINT is a calm, modern quiz platform crafted to help Tamil Nadu 12th-grade students learn quickly, retain results, and steadily improve performance.
-          </p>
-        </SpotlightCard>
+        {/* Main Hero Card */}
+        <div className="glass-card-cosmic p-4 p-md-5 mb-4 position-relative overflow-hidden">
+          <div className="d-flex align-items-center gap-2 mb-3">
+            <span className="badge-falkon">
+              <Sparkles size={13} /> FALKON LABS OPEN SOURCE
+            </span>
+          </div>
 
-        {/* Secondary Grid */}
+          <h1 className="font-bold text-white tracking-tight mb-3" style={{ fontSize: '2.4rem' }}>
+            MARKSPRINT
+          </h1>
+          <p className="m-0 font-normal leading-relaxed" style={{ fontSize: '1.08rem', color: '#94A3B8', maxWidth: '72ch' }}>
+            MarkSprint is a calm, high-performance open-source quiz and review platform engineered by <strong style={{ color: '#F8FAFC' }}>Falkon Labs</strong> to empower Tamil Nadu 12th-grade students to master board-exam subjects through active recall and realistic test simulation.
+          </p>
+
+          <div className="d-flex flex-wrap align-items-center gap-3 mt-4 pt-2">
+            <div className="d-flex align-items-center gap-2 px-3 py-2 rounded-4" style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <Rocket size={16} style={{ color: '#38BDF8' }} />
+              <span style={{ fontSize: '0.82rem', color: '#CBD5E1', fontWeight: 600 }}>100% Free & Open Source</span>
+            </div>
+            <div className="d-flex align-items-center gap-2 px-3 py-2 rounded-4" style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <Layers size={16} style={{ color: '#818CF8' }} />
+              <span style={{ fontSize: '0.82rem', color: '#CBD5E1', fontWeight: 600 }}>7 Core TN 12th Subjects</span>
+            </div>
+            <div className="d-flex align-items-center gap-2 px-3 py-2 rounded-4" style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <Cpu size={16} style={{ color: '#34D399' }} />
+              <span style={{ fontSize: '0.82rem', color: '#CBD5E1', fontWeight: 600 }}>Canvas Starfield Engine</span>
+            </div>
+          </div>
+        </div>
+
+        {/* MAINTAINERS SECTION */}
+        <div className="mb-4">
+          <div className="d-flex align-items-center gap-2 mb-3">
+            <Users size={20} style={{ color: '#38BDF8' }} />
+            <h2 className="m-0 font-bold text-white" style={{ fontSize: '1.4rem' }}>Falkon Labs Team</h2>
+          </div>
+
+          <div className="glass-card-cosmic glass-card-cosmic-hover edge-glow-desktop p-4 p-md-5">
+            <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+              <div className="d-flex align-items-center gap-2">
+                <span className="badge-falkon">Falkon Labs</span>
+                <span className="badge-falkon" style={{ background: 'rgba(129, 140, 248, 0.15)', color: '#A5B4FC', borderColor: 'rgba(165, 180, 252, 0.3)' }}>Open Source Team</span>
+              </div>
+              <Heart size={18} className="text-rose-400 opacity-75" />
+            </div>
+
+            <p className="mb-4" style={{ fontSize: '0.94rem', color: '#94A3B8', lineHeight: '1.6', maxWidth: '75ch' }}>
+              MarkSprint is designed, built, and actively maintained by the engineering team at <strong className="text-white">Falkon Labs</strong>. Our goal is to craft ultra-fast, student-first open-source tools with premium web ergonomics.
+            </p>
+
+            <div className="row g-4 pt-2">
+              {/* Sree Hari Sk */}
+              <div className="col-md-6">
+                <div className="p-4" style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(56, 189, 248, 0.25)', borderRadius: '0px' }}>
+                  <div className="d-flex align-items-center justify-content-between mb-2">
+                    <h3 className="font-bold text-white m-0" style={{ fontSize: '1.25rem' }}>Sree Hari Sk</h3>
+                    <span className="badge-falkon" style={{ fontSize: '0.65rem' }}>LEAD</span>
+                  </div>
+                  <p className="font-semibold mb-3" style={{ fontSize: '0.85rem', color: '#38BDF8' }}>Lead Developer & Maintainer</p>
+                  <p className="m-0 mb-3" style={{ fontSize: '0.86rem', color: '#94A3B8', lineHeight: '1.5' }}>
+                    Drives core platform architecture, active recall quiz engine, canvas starfield performance, and repository maintenance.
+                  </p>
+                  <a
+                    href="https://github.com/sreehari462"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="d-inline-flex align-items-center gap-2 font-semibold text-decoration-none"
+                    style={{ color: '#38BDF8', fontSize: '0.84rem' }}
+                  >
+                    GitHub Profile <ExternalLink size={14} />
+                  </a>
+                </div>
+              </div>
+
+              {/* S. Saravanan */}
+              <div className="col-md-6">
+                <div className="p-4" style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(129, 140, 248, 0.25)', borderRadius: '0px' }}>
+                  <div className="d-flex align-items-center justify-content-between mb-2">
+                    <h3 className="font-bold text-white m-0" style={{ fontSize: '1.25rem' }}>S. Saravanan</h3>
+                    <span className="badge-falkon" style={{ background: 'rgba(129, 140, 248, 0.15)', color: '#A5B4FC', borderColor: 'rgba(165, 180, 252, 0.3)', fontSize: '0.65rem' }}>CO-DEV</span>
+                  </div>
+                  <p className="font-semibold mb-3" style={{ fontSize: '0.85rem', color: '#A5B4FC' }}>Co-Developer & Maintainer</p>
+                  <p className="m-0 mb-3" style={{ fontSize: '0.86rem', color: '#94A3B8', lineHeight: '1.5' }}>
+                    Focuses on front-end user experience, TN state-board subject curriculum structure, content manager tools, and student interaction design.
+                  </p>
+                  <a
+                    href="https://saravanan-portfolio.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="d-inline-flex align-items-center gap-2 font-semibold text-decoration-none"
+                    style={{ color: '#A5B4FC', fontSize: '0.84rem' }}
+                  >
+                    Visit Portfolio <ExternalLink size={14} />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* HOW IT WORKS & FEATURES */}
         <div className="row g-4 mb-4">
           <div className="col-lg-7">
-            <SpotlightCard className="p-4 p-md-5 h-100" spotlightColor="rgba(200, 172, 214, 0.15)">
-              <h2 className="h3 font-bold text-white mb-3">How it works</h2>
-              <p className="text-theme-slate font-light leading-relaxed mb-4">
-                Choose a subject, configure your practice or test sprint, and use the review board to learn from your mistakes. The experience is intentionally lightweight to keep focus on learning rather than distractions.
+            <div className="glass-card-cosmic p-4 p-md-5 h-100">
+              <h2 className="font-bold text-white mb-3" style={{ fontSize: '1.35rem' }}>How MarkSprint Works</h2>
+              <p className="mb-4" style={{ color: '#94A3B8', fontSize: '0.92rem', lineHeight: '1.6' }}>
+                Select any subject, configure practice or exam sprints, and use active recall review to close knowledge gaps. Designed for extreme focus without ad clutter or textbook drudgery.
               </p>
 
               <div className="d-flex flex-column gap-3">
                 {[
-                  'Select from 7 subjects and start instantly.',
-                  'Use custom timers and shuffle settings to mimic exam pressure.',
-                  'Practice mode gives fast feedback, test mode keeps answers hidden until the end.',
-                  'Review incorrect answers with data-backed insight after each sprint.'
+                  'Instant access to all 7 TN state-board 12th subjects.',
+                  'Realistic exam timer presets to build speed and confidence.',
+                  'Practice mode with immediate feedback or Test mode with post-sprint review.',
+                  'Active recall loops that resurface incorrect answers until mastered.'
                 ].map((item) => (
-                  <div key={item} className="rounded-4 border p-3" style={{ backgroundColor: 'rgba(23, 21, 59, 0.55)', borderColor: 'rgba(255, 255, 255, 0.04)' }}>
-                    <div className="d-flex align-items-center gap-3">
-                      <ShieldCheck size={18} className="text-theme-highlight flex-shrink-0" />
-                      <span className="font-light text-theme-slate" style={{ fontSize: '0.85rem', lineHeight: '1.5' }}>{item}</span>
-                    </div>
+                  <div 
+                    key={item} 
+                    className="rounded-4 p-3 d-flex align-items-center gap-3" 
+                    style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)' }}
+                  >
+                    <ShieldCheck size={18} className="flex-shrink-0" style={{ color: '#38BDF8' }} />
+                    <span style={{ fontSize: '0.86rem', color: '#CBD5E1', lineHeight: '1.4' }}>{item}</span>
                   </div>
                 ))}
               </div>
-            </SpotlightCard>
+            </div>
           </div>
 
           <div className="col-lg-5">
-            <SpotlightCard className="p-4 p-md-5 h-100 d-flex flex-column justify-content-between" spotlightColor="rgba(200, 172, 214, 0.15)">
+            <div className="glass-card-cosmic p-4 p-md-5 h-100 d-flex flex-column justify-content-between">
               <div>
-                <p className="text-uppercase tracking-wider font-bold text-theme-highlight m-0" style={{ fontSize: '0.75rem', letterSpacing: '0.25em' }}>Built for Students</p>
-                <h3 className="h4 font-bold text-white mt-3">Designed for exam-ready study</h3>
-                <p className="text-theme-slate font-light mt-3 mb-0" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                  Designed around quick question flow, clean review screens, and easy subject selection so learners spend more time solving problems and less time navigating the app.
+                <span className="badge-falkon mb-2">OPEN SOURCE REPO</span>
+                <h3 className="font-bold text-white mt-2 mb-3" style={{ fontSize: '1.2rem' }}>Contribute on GitHub</h3>
+                <p className="m-0 mb-4" style={{ fontSize: '0.88rem', color: '#94A3B8', lineHeight: '1.6' }}>
+                  MarkSprint is maintained by Falkon Labs under an open-source model. We welcome contributions from developers, teachers, and students alike!
                 </p>
               </div>
 
-              <div className="mt-4 d-flex flex-column gap-3">
-                <div className="rounded-4 border p-3" style={{ backgroundColor: 'rgba(23, 21, 59, 0.55)', borderColor: 'rgba(255, 255, 255, 0.04)' }}>
-                  <p className="text-uppercase tracking-wider font-bold text-theme-slate m-0 mb-1" style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}>Data Source</p>
-                  <p className="text-white font-light m-0" style={{ fontSize: '0.82rem', lineHeight: '1.5' }}>CSV-driven content with local edits preserved via the content manager.</p>
-                </div>
-                <div className="rounded-4 border p-3" style={{ backgroundColor: 'rgba(23, 21, 59, 0.55)', borderColor: 'rgba(255, 255, 255, 0.04)' }}>
-                  <p className="text-uppercase tracking-wider font-bold text-theme-slate m-0 mb-1" style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}>Review Flow</p>
-                  <p className="text-white font-light m-0" style={{ fontSize: '0.82rem', lineHeight: '1.5' }}>Replay wrong questions automatically and close knowledge gaps faster.</p>
-                </div>
-              </div>
-            </SpotlightCard>
-          </div>
-        </div>
-
-        {/* Feature Highlights */}
-        <div className="row g-4 mb-4">
-          {[
-            { title: 'Modern Interface', detail: 'A refined layout built for clarity and performance.' },
-            { title: 'Faster Navigation', detail: 'Select subjects and start quizzes in two taps.' },
-            { title: 'Configurable Sessions', detail: 'Control timing, shuffling, and question selection with ease.' }
-          ].map((item) => (
-            <div key={item.title} className="col-lg-4">
-              <SpotlightCard className="p-4 h-100" spotlightColor="rgba(200, 172, 214, 0.15)">
-                <p className="h5 font-bold text-white m-0 mb-2">{item.title}</p>
-                <p className="text-theme-slate font-light m-0" style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>{item.detail}</p>
-              </SpotlightCard>
-            </div>
-          ))}
-        </div>
-
-        {/* Credits */}
-        <SpotlightCard className="p-4 p-md-5 mb-4" spotlightColor="rgba(200, 172, 214, 0.15)">
-          <h2 className="h3 font-bold text-white mb-4">Credits & Links</h2>
-          <div className="row g-4">
-            <div className="col-md-6">
-              <div className="rounded-5 border p-4 h-100 d-flex flex-column justify-content-between align-items-start" style={{ backgroundColor: 'rgba(23, 21, 59, 0.55)', borderColor: 'rgba(255, 255, 255, 0.04)' }}>
-                <div>
-                  <p className="text-uppercase tracking-wider font-bold text-theme-highlight m-0 mb-2" style={{ fontSize: '0.7rem' }}>Created by</p>
-                  <p className="h4 font-bold text-white m-0">S. Saravanan</p>
-                </div>
-                <a
-                  href="https://saravanan-portfolio.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn btn-link text-decoration-none text-theme-highlight font-semibold mt-4 p-0 d-flex align-items-center gap-2 hover-lavender-text"
-                  style={{ fontSize: '0.9rem' }}
-                >
-                  Visit portfolio <ExternalLink size={16} />
-                </a>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="rounded-5 border p-4 h-100 d-flex flex-column justify-content-between align-items-start" style={{ backgroundColor: 'rgba(23, 21, 59, 0.55)', borderColor: 'rgba(255, 255, 255, 0.04)' }}>
-                <div>
-                  <p className="text-uppercase tracking-wider font-bold text-theme-highlight m-0 mb-2" style={{ fontSize: '0.7rem' }}>Source code</p>
-                  <p className="h4 font-bold text-white m-0">GitHub Repository</p>
-                </div>
+              <div className="d-flex flex-column gap-3">
                 <a
                   href="https://github.com/sreehari462/marksprint"
                   target="_blank"
                   rel="noreferrer"
-                  className="btn btn-link text-decoration-none text-theme-highlight font-semibold mt-4 p-0 d-flex align-items-center gap-2 hover-lavender-text"
-                  style={{ fontSize: '0.9rem' }}
+                  className="btn btn-cosmic-outline py-3 px-4 d-flex align-items-center justify-content-center gap-2 font-bold text-decoration-none"
+                  style={{ borderRadius: '2px', fontSize: '0.9rem' }}
                 >
-                  Explore the code <Code size={16} />
+                  <Code size={18} /> View Repository on GitHub
                 </a>
               </div>
             </div>
           </div>
-        </SpotlightCard>
+        </div>
 
         {/* Action Buttons */}
-        <div className="d-flex flex-column flex-sm-row align-items-center gap-3 pt-3">
+        <div className="d-flex flex-column flex-sm-row align-items-center gap-3 pt-2">
           <button
             onClick={() => navigate('/')}
-            className="btn btn-outline-light border-theme-highlight text-theme-highlight px-4 py-3 font-bold text-uppercase w-100 w-sm-auto"
-            style={{ borderRadius: '16px', fontSize: '0.85rem', letterSpacing: '0.05em', minWidth: '160px' }}
+            className="btn btn-cosmic-primary px-4 py-3 font-bold w-100 w-sm-auto"
+            style={{ borderRadius: '2px', fontSize: '0.92rem', minWidth: '170px' }}
           >
-            Back to Home
+            Start a Sprint
           </button>
           <button
             onClick={() => navigate('/content-manager')}
-            className="btn btn-theme-highlight text-theme-base font-bold py-3 px-4 shadow-highlight-glow w-100 w-sm-auto"
-            style={{ borderRadius: '16px', fontSize: '0.85rem', letterSpacing: '0.05em', minWidth: '160px' }}
+            className="btn btn-cosmic-outline px-4 py-3 font-bold w-100 w-sm-auto"
+            style={{ borderRadius: '2px', fontSize: '0.92rem', minWidth: '170px' }}
           >
             Manage Content
           </button>
         </div>
       </div>
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        .hover-lavender-text:hover {
-          color: white !important;
-        }
-      `}} />
     </div>
   );
 }
+
