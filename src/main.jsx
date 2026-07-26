@@ -10,7 +10,7 @@ import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary.jsx';
 import LoadingFallback from './components/LoadingFallback.jsx';
 import './index.css';
-import { HomePage, QuizPage, AboutPage, ContentManagerPage, DashboardPage, LoginPage, SignupPage, NotFoundPage } from './routes/lazyPages';
+import { HomePage, QuizPage, AboutPage, ContentManagerPage, DashboardPage, LoginPage, SignupPage, NotFoundPage, SprintsPage, SetupPage } from './routes/lazyPages';
 
 // Register Service Worker for Offline-First capability
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
@@ -34,6 +34,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='/signup' element={<SignupPage />} />
                   <Route element={<MainLayout />}>
                     <Route path='/' element={<HomePage />} />
+                    <Route path='/setup' element={<SetupPage />} />
+                    <Route path='/sprints' element={<SprintsPage />} />
                     <Route path='/dashboard' element={<DashboardPage />} />
                     <Route path='/quiz/:subject' element={<QuizPage />} />
                     <Route path='/about' element={<AboutPage />} />

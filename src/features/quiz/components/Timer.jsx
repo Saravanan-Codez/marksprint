@@ -26,7 +26,6 @@ export default function Timer({ timeLeft, setTimeLeft, isActive, onTimeout, labe
   const displayTime = minutes > 0 ? `${minutes}:${seconds.toString().padStart(2, '0')}` : `${seconds}s`;
 
   const isWarning = timeLeft <= warningThreshold;
-  const progressPercent = Math.max(0, Math.min(100, (timeLeft / (warningThreshold * 3)) * 100));
 
   return (
     <div

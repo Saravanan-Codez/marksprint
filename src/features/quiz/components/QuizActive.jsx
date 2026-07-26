@@ -129,7 +129,7 @@ export default function QuizActive({ engine }) {
               style={{
                 width: `${progressPercentage}%`,
                 height: '100%',
-                background: '#FBBF24',
+                background: 'var(--brand)',
                 transition: 'width 0.4s ease'
               }}
             />

@@ -46,6 +46,9 @@ export function getLocalGamificationData() {
     streakShieldActive: true,
     privacyMode: 'public',
     customAvatarUrl: '',
+    setupCompleted: false,
+    board: 'tn_state',
+    standard: '12',
     dailyQuests: getInitialQuests(todayStr),
     friends: [
       { id: 'f1', name: 'Sree Hari Sk', xp: 1450, streak: 12, isLead: true, division: 'Sapphire League', avatar: '' },

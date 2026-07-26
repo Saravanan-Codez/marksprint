@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, AlertCircle, Smartphone } from 'lucide-react';
+import ClickSpark from '../../../components/ClickSpark';
+import Galaxy from '../../../components/Galaxy';
 
 // The Content Manager authentication is handled by the server API.
 // The server must be configured with CONTENT_MANAGER_PASSWORD and will expose /api/auth/* endpoints.
@@ -40,7 +42,6 @@ export default function PasswordGate({ onUnlock }) {
   const [isLocked, setIsLocked] = useState(false);
   const [lockoutTime, setLockoutTime] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [charValidation, setCharValidation] = useState(Array(PASSWORD_LENGTH).fill(null));
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isConfigured, setIsConfigured] = useState(true);
@@ -119,7 +120,6 @@ export default function PasswordGate({ onUnlock }) {
         setLockoutTime(null);
         setAttempts(0);
         setPasswordInput(Array(PASSWORD_LENGTH).fill(''));
-        setCharValidation(Array(PASSWORD_LENGTH).fill(null));
         localStorage.removeItem('contentManagerLockout');
         clearInterval(interval);
       }
@@ -224,7 +224,6 @@ export default function PasswordGate({ onUnlock }) {
       // Reset inputs for next attempt
       setTimeout(() => {
         setPasswordInput(Array(PASSWORD_LENGTH).fill(''));
-        setCharValidation(Array(PASSWORD_LENGTH).fill(null));
       }, 800);
     }
   };

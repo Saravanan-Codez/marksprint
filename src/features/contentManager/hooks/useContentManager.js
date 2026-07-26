@@ -2,23 +2,15 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Papa from 'papaparse';
 import CryptoJS from 'crypto-js';
 
-import physicsCsv from '../../../data/physics.csv?url';
-import chemistryCsv from '../../../data/chemistry.csv?url';
-import mathsCsv from '../../../data/maths.csv?url';
-import csCsv from '../../../data/cs.csv?url';
-import biologyCsv from '../../../data/biology.csv?url';
-import englishCsv from '../../../data/english.csv?url';
-import tamilCsv from '../../../data/tamil.csv?url';
-
 const CSV_MAP = {
-  physics: physicsCsv,
-  chemistry: chemistryCsv,
-  maths: mathsCsv,
-  cs: csCsv,
-  computer: csCsv,
-  biology: biologyCsv,
-  english: englishCsv,
-  tamil: tamilCsv
+  physics: '/datasets/physics.csv',
+  chemistry: '/datasets/chemistry.csv',
+  maths: '/datasets/maths.csv',
+  cs: '/datasets/cs.csv',
+  computer: '/datasets/cs.csv',
+  biology: '/datasets/biology.csv',
+  english: '/datasets/english.csv',
+  tamil: '/datasets/tamil.csv'
 };
 
 const DEFAULT_SUBJECTS = [

@@ -104,7 +104,7 @@ export default function ResultsBoard({ engine }) {
         })
         .catch((err) => console.warn('Auto save test result notice:', err));
     }
-  }, [accuracy, correct, total, selectedSubject, googleAccessToken, userProfile, firstAttemptAnswers, earnedXp, gamification, streakInfo.lastDate, streakInfo.streak]);
+  }, [accuracy, correct, total, selectedSubject, googleAccessToken, userProfile, firstAttemptAnswers, earnedXp, gamification, streakInfo.lastDate, streakInfo.streak, streakInfo.shieldUsed, user]);
 
   return (
     <div className="w-100 py-4 font-mono d-flex flex-column gap-5 anim-fade-in mx-auto" style={{ maxWidth: '950px' }}>

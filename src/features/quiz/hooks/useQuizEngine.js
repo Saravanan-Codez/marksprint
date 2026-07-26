@@ -3,25 +3,6 @@ import Papa from 'papaparse';
 import CryptoJS from 'crypto-js';
 import { useToast } from '../../../context/ToastContext.jsx';
 
-import physicsCsv from '../../../data/physics.csv?url';
-import chemistryCsv from '../../../data/chemistry.csv?url';
-import mathsCsv from '../../../data/maths.csv?url';
-import csCsv from '../../../data/cs.csv?url';
-import biologyCsv from '../../../data/biology.csv?url';
-import englishCsv from '../../../data/english.csv?url';
-import tamilCsv from '../../../data/tamil.csv?url';
-
-const CSV_MAP = {
-  physics: physicsCsv,
-  chemistry: chemistryCsv,
-  maths: mathsCsv,
-  cs: csCsv,
-  computer: csCsv,
-  biology: biologyCsv,
-  english: englishCsv,
-  tamil: tamilCsv
-};
-
 const SUBJECT_MAP = {
   physics: 'Physics',
   chemistry: 'Chemistry',
@@ -77,7 +58,7 @@ function buildQuestionId(q) {
   return `${base}:${btoa(unescape(encodeURIComponent(text))).slice(0, 32)}`;
 }
 
-export function useQuizEngine(subject) {
+export const useQuizEngine = (subject, board = 'tn_state', standard = '12') => {
   const toast = useToast();
 
   // Quiz Configuration State
@@ -233,19 +214,17 @@ export function useQuizEngine(subject) {
           }
         }
 
-        const csvFile = CSV_MAP[subject?.toLowerCase()];
-        if (!csvFile) {
-          throw new Error(`Subject dataset '${subject}' is not found.`);
-        }
+        const subjectKey = subject?.toLowerCase() === 'computer' ? 'cs' : subject?.toLowerCase();
+        const targetUrl = `/datasets/${board}/${standard}/${subjectKey}.csv`;
 
         let response;
         try {
-          response = await fetch(csvFile, { cache: 'force-cache' });
+          response = await fetch(targetUrl, { cache: 'force-cache' });
         } catch {
           throw new Error(`Unable to reach the question dataset for ${subject}. Please check your connection and try again.`);
         }
 
-        if (!response.ok) throw new Error(`Failed to fetch dataset for ${subject} (HTTP ${response.status})`);
+        if (!response.ok) throw new Error(`Failed to fetch dataset for ${subject} (HTTP ${response.status}) at ${targetUrl}`);
         
         const text = await response.text();
         Papa.parse(text, {
@@ -532,6 +511,9 @@ export function useQuizEngine(subject) {
     
     // Actions
     startQuiz, handleAnswer, finishQuiz, startRevision, buildQuestionPool,
+
+    // Feature: Bookmarks
+    isBookmarked, toggleBookmark,
 
     // Feature: Resume Progress
     savedProgress, clearSavedProgress, saveProgressNow,

@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from "react";
 import { useParams } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
 
 import { useQuizEngine } from "../features/quiz/hooks/useQuizEngine";
 import QuizSetup from "../features/quiz/components/QuizSetup";
@@ -10,29 +11,33 @@ const RevisionBoard = lazy(() => import("../features/quiz/components/RevisionBoa
 
 function QuizLoadingSkeleton({ subject }) {
   return (
-    <div className="container py-4" style={{ maxWidth: '800px' }}>
-      <div className="text-center mb-5">
-        <div
-          className="d-inline-block mb-3"
-          style={{
-            width: '56px', height: '56px',
-            background: 'rgba(99, 102, 241, 0.15)',
-            border: '1px solid rgba(99, 102, 241, 0.3)',
-            borderRadius: '16px',
-            animation: 'pulse 1.5s ease-in-out infinite'
-          }}
-        />
-        <h2 className="font-bold text-white mb-2 text-uppercase" style={{ fontSize: '1.6rem', letterSpacing: '0.05em' }}>
-          {subject}
-        </h2>
-        <p className="text-muted font-medium" style={{ fontSize: '0.88rem' }}>
-          Loading dataset and preparing questions...
-        </p>
-        <div className="d-flex justify-content-center mt-3">
-          <div className="spinner-border text-primary" role="status" style={{ width: '2rem', height: '2rem' }}>
-            <span className="visually-hidden">Loading...</span>
+    <div className="container py-5 d-flex align-items-center justify-content-center" style={{ minHeight: '60vh' }}>
+      <div className="neo-brutal-card p-5 text-center shadow-hard" style={{ maxWidth: '400px', width: '100%', background: 'var(--bg-main)' }}>
+        <div className="mb-4">
+          <div className="d-flex align-items-center justify-content-center gap-2 font-mono font-bold text-xs uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
+            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" style={{ width: '1rem', height: '1rem', borderWidth: '0.15em' }}></span>
+            INITIALIZING SPRINT...
+          </div>
+          <h2 className="font-headline text-3xl font-black uppercase italic m-0" style={{ color: 'var(--text-main)' }}>
+            {subject}
+          </h2>
+        </div>
+        
+        <div className="progress border-brutal" style={{ height: '24px', background: 'var(--bg-input)' }}>
+          <div 
+            className="progress-bar progress-bar-striped progress-bar-animated font-mono text-xs font-bold text-black border-r-2 border-black" 
+            role="progressbar" 
+            aria-valuenow="100" 
+            aria-valuemin="0" 
+            aria-valuemax="100" 
+            style={{ width: '100%', background: 'var(--brand)' }}
+          >
+            LOADING DATASET
           </div>
         </div>
+        <p className="mt-3 mb-0 font-mono text-xs font-bold uppercase" style={{ color: 'var(--text-muted)' }}>
+          ESTABLISHING SECURE CONNECTION TO MARKSPRINT CORE...
+        </p>
       </div>
     </div>
   );
@@ -40,7 +45,10 @@ function QuizLoadingSkeleton({ subject }) {
 
 export default function QuizPage() {
   const { subject } = useParams();
-  const engine = useQuizEngine(subject);
+  const { userProfile } = useAuth();
+  const board = userProfile?.board || 'tn_state';
+  const standard = userProfile?.standard || '12';
+  const engine = useQuizEngine(subject, board, standard);
 
   if (engine.loading) {
     return (

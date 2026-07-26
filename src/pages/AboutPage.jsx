@@ -1,9 +1,7 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ExternalLink, Code, ShieldCheck, Sparkles, Users, Heart, Rocket, Layers, Cpu } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 export default function AboutPage() {
-  const navigate = useNavigate();
 
   return (
     <div className="w-100 py-4 font-mono d-flex flex-column gap-5 anim-fade-in">
@@ -22,8 +20,8 @@ export default function AboutPage() {
       <div className="row g-4">
         {/* The Command */}
         <div className="col-12 col-lg-6">
-          <div className="bg-white border-brutal p-4 p-md-5 text-black h-100 shadow-hard-sm">
-            <h3 className="font-headline text-3xl font-black uppercase mb-4 text-black border-b-2 border-black pb-2">
+          <div className="neo-brutal-card p-4 p-md-5 h-100 shadow-hard-sm" style={{ background: 'var(--bg-main)' }}>
+            <h3 className="font-headline text-3xl font-black uppercase mb-4 border-b-brutal pb-2" style={{ color: 'var(--text-main)' }}>
               THE COMMAND_
             </h3>
 
@@ -33,13 +31,14 @@ export default function AboutPage() {
                 href="https://sreehari-sk.vercel.app/"
                 target="_blank"
                 rel="noreferrer"
-                className="bg-black text-brand p-4 border-2 border-black text-decoration-none hover:bg-brand hover:text-black transition-all d-block"
+                className="p-4 border-brutal text-decoration-none hover:bg-brand transition-all d-block group"
+                style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }}
               >
                 <div className="d-flex align-items-center justify-content-between mb-1">
-                  <h4 className="font-headline text-2xl font-black uppercase m-0">Sree Hari Sk</h4>
-                  <ExternalLink size={18} />
+                  <h4 className="font-headline text-2xl font-black uppercase m-0 group-hover:text-black transition-colors" style={{ color: 'var(--text-main)' }}>Sree Hari Sk</h4>
+                  <ExternalLink size={18} className="text-brand group-hover:text-black transition-colors" />
                 </div>
-                <p className="text-xs font-bold font-mono opacity-80 m-0 uppercase">LEAD DEVELOPER / PLATFORM ARCHITECT</p>
+                <p className="text-xs font-bold font-mono m-0 uppercase group-hover:text-black transition-colors" style={{ color: 'var(--text-muted)' }}>LEAD DEVELOPER / PLATFORM ARCHITECT</p>
               </a>
 
               {/* S. Saravanan */}
@@ -47,13 +46,14 @@ export default function AboutPage() {
                 href="https://saravanan-codes.pages.dev/"
                 target="_blank"
                 rel="noreferrer"
-                className="bg-black text-white p-4 border-2 border-black text-decoration-none hover:bg-brand hover:text-black transition-all d-block"
+                className="p-4 border-brutal text-decoration-none hover:bg-brand transition-all d-block group"
+                style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }}
               >
                 <div className="d-flex align-items-center justify-content-between mb-1">
-                  <h4 className="font-headline text-2xl font-black uppercase m-0">S. Saravanan</h4>
-                  <ExternalLink size={18} />
+                  <h4 className="font-headline text-2xl font-black uppercase m-0 group-hover:text-black transition-colors" style={{ color: 'var(--text-main)' }}>S. Saravanan</h4>
+                  <ExternalLink size={18} className="text-brand group-hover:text-black transition-colors" />
                 </div>
-                <p className="text-xs font-bold font-mono opacity-80 m-0 uppercase">CO-DEV / UX STRATEGIST</p>
+                <p className="text-xs font-bold font-mono m-0 uppercase group-hover:text-black transition-colors" style={{ color: 'var(--text-muted)' }}>CO-DEV / UX STRATEGIST</p>
               </a>
             </div>
           </div>
@@ -61,12 +61,12 @@ export default function AboutPage() {
 
         {/* Contribute Box */}
         <div className="col-12 col-lg-6">
-          <div className="bg-black border-brutal p-4 p-md-5 text-white d-flex flex-column justify-content-between h-100 shadow-hard-sm text-center">
+          <div className="neo-brutal-card p-4 p-md-5 d-flex flex-column justify-content-between h-100 shadow-hard-sm text-center" style={{ background: 'var(--bg-main)' }}>
             <div>
               <h3 className="font-headline text-4xl font-black uppercase mb-3 text-brand">
                 CONTRIBUTE_
               </h3>
-              <p className="font-bold mb-4 text-sm uppercase text-slate-300">
+              <p className="font-bold mb-4 text-sm uppercase" style={{ color: 'var(--text-muted)' }}>
                 OPEN SOURCE UNDER MIT LICENSE. JOIN THE REPOSITORY ON GITHUB TO CONTRIBUTE DATASETS, FEATURES, OR CODE IMPROVEMENTS.
               </p>
             </div>
@@ -75,7 +75,7 @@ export default function AboutPage() {
               href="https://github.com/sreehari462/marksprint"
               target="_blank"
               rel="noreferrer"
-              className="bg-white text-black border-2 border-black px-6 py-4 font-headline text-2xl font-black uppercase hover:bg-brand transition-all text-decoration-none d-inline-block"
+              className="btn btn-primary px-6 py-4 font-headline text-2xl font-black uppercase text-decoration-none d-inline-block w-100"
             >
               VIEW SOURCE CODE
             </a>

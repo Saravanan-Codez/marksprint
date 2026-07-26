@@ -47,9 +47,9 @@ export default function HomePage() {
 
       {/* Guest Status Banner */}
       {!user && (
-        <div className="bg-brand text-black border-2 border-black p-3.5 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 shadow-hard-sm">
+        <div className="bg-brand text-white border-2 border-black p-3.5 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 shadow-hard-sm">
           <div className="d-flex align-items-center gap-2">
-            <Sparkles size={20} className="flex-shrink-0 text-black" />
+            <Sparkles size={20} className="flex-shrink-0 text-white" />
             <span className="font-bold uppercase text-xs" style={{ letterSpacing: '0.04em' }}>
               <strong>RECRUIT NOTICE:</strong> PRACTICING IN GUEST MODE. SPRINT FREE OR ENLIST AN ACCOUNT TO SAVE STREAKS & CLIMB LEAGUES.
             </span>
@@ -64,35 +64,38 @@ export default function HomePage() {
       )}
 
       {/* HERO SECTION */}
-      <section className="position-relative overflow-hidden py-3">
+      <section className="position-relative overflow-hidden py-5 my-md-4">
         <div className="row g-4 align-items-center">
           <div className="col-12 col-lg-7">
-            <span className="d-inline-block bg-brand text-black px-3 py-1 font-bold text-xs mb-3 border border-black uppercase font-mono">
+            <span className="d-inline-block bg-brand text-white px-3 py-1 font-bold text-xs mb-4 border border-black uppercase font-mono shadow-hard-sm">
               FALKON LABS // OPEN SOURCE
             </span>
-            <h1 className="font-headline font-black text-uppercase tracking-tighter mb-4 text-white" style={{ fontSize: 'clamp(2.8rem, 6.5vw, 6rem)', lineHeight: '0.92' }}>
+            <h1 className="font-headline font-black text-uppercase tracking-tighter mb-4" style={{ fontSize: 'clamp(3.5rem, 8vw, 7.5rem)', lineHeight: '0.9', color: 'var(--text-main)' }}>
               STRIKE <span className="text-brand">HARD</span><br />
-              SPRINT <span className="text-cyan-400">FAST</span>
+              SPRINT <span style={{ color: 'var(--accent)' }}>FAST</span>
             </h1>
+            <p className="font-mono text-lg font-bold mb-4 uppercase" style={{ color: 'var(--text-muted)', maxWidth: '600px' }}>
+              Master TN 12th Board Exams through High-Speed Active Recall. Stop reading. Start executing.
+            </p>
           </div>
 
           <div className="col-12 col-lg-5">
-            <div className="bg-slate-900/90 border-2 border-brand p-4 p-md-5 shadow-hard text-white" style={{ borderRadius: '12px' }}>
-              <p className="font-headline text-lg font-black uppercase leading-tight mb-4 text-white" style={{ fontSize: '1.05rem', lineHeight: '1.4' }}>
+            <div className="neo-brutal-card p-4 p-md-5 shadow-hard" style={{ background: 'var(--bg-main)' }}>
+              <p className="font-headline text-lg font-black uppercase leading-tight mb-4" style={{ fontSize: '1.15rem', lineHeight: '1.4', color: 'var(--text-main)' }}>
                 ELIMINATE WEAKNESS. MASTER THE BOARD. 7 CORE SUBJECTS. ZERO DISTRACTIONS. ENGINEERED BY FALKON LABS.
               </p>
-              <div className="d-flex flex-column flex-sm-row gap-3">
+              <div className="d-flex flex-column gap-3">
                 <button
-                  onClick={() => document.getElementById('subjectGrid')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-brand text-black border-2 border-black px-4 py-3 font-headline text-base font-black uppercase hover:bg-white hover:text-black transition-all shadow-hard-sm"
+                  onClick={() => navigate('/sectors')}
+                  className="btn btn-primary py-3 font-headline text-xl font-black shadow-hard-sm"
                 >
                   STRIKE NOW
                 </button>
                 <button
                   onClick={() => navigate('/about')}
-                  className="bg-black text-white border-2 border-brand px-4 py-3 font-headline text-base font-black uppercase hover:bg-brand hover:text-black transition-all shadow-hard-sm"
+                  className="btn py-3 font-headline text-xl font-black shadow-hard-sm"
                 >
-                  RECON
+                  RECON (ABOUT)
                 </button>
               </div>
             </div>
@@ -101,97 +104,92 @@ export default function HomePage() {
       </section>
 
       {/* MARQUEE BANNER */}
-      <div className="bg-brand border-y-2 border-black py-3 my-1 overflow-hidden rotate-1">
-        <div className="animate-marquee-infinite">
-          <div className="font-headline text-xl font-black uppercase flex gap-5 text-black pr-5">
-            <span>BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL //</span>
-          </div>
-          <div className="font-headline text-xl font-black uppercase flex gap-5 text-black pr-5">
-            <span>BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL //</span>
+      <div className="w-100 overflow-hidden" style={{ maxWidth: '100vw' }}>
+        <div className="bg-brand border-y-brutal py-3 my-1 overflow-hidden rotate-1 shadow-hard-sm">
+          <div className="animate-marquee-infinite">
+            <div className="font-headline text-xl font-black uppercase flex gap-5 text-white pr-5">
+              <span>BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL //</span>
+            </div>
+            <div className="font-headline text-xl font-black uppercase flex gap-5 text-white pr-5">
+              <span>BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL //</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* TARGET SECTOR WALL */}
-      <section id="subjectGrid" className="py-2">
-        <div className="d-flex align-items-end justify-content-between mb-4 flex-wrap gap-3">
-          <div>
-            <h2 className="font-headline text-4xl font-black uppercase tracking-tighter m-0 text-white">
-              TARGET SECTORS_
-            </h2>
-            <p className="text-brand font-bold text-xs uppercase m-0 mt-1">
-              SELECT A SUBJECT TO LAUNCH HIGH-SPEED REVISION SPRINT
-            </p>
-          </div>
-
-          <div style={{ maxWidth: '280px' }} className="w-100">
-            <input
-              type="text"
-              placeholder="SEARCH SECTOR..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-100 bg-slate-900 text-brand border-2 border-brand/50 p-2.5 font-mono font-bold text-xs uppercase outline-none focus:border-brand"
-            />
-          </div>
+      {/* CORE SYSTEMS SECTION */}
+      <section className="py-5 my-md-4">
+        <div className="text-center mb-5">
+          <h2 className="font-headline text-5xl font-black uppercase tracking-tighter m-0" style={{ color: 'var(--text-main)' }}>
+            CORE SYSTEMS_
+          </h2>
+          <p className="text-brand font-bold text-sm uppercase m-0 mt-2 font-mono">
+            ARCHITECTED FOR MAXIMUM RETENTION
+          </p>
         </div>
-
-        {/* Subject Cards Grid */}
+        
         <div className="row g-4">
-          {filteredSubjects.map((s) => {
-            const meta = SUBJECT_ICON[s.key];
-            const Icon = meta.icon;
-
-            return (
-              <div key={s.key} className="col-12 col-md-6 col-lg-4">
-                <div
-                  onClick={() => navigate(`/quiz/${s.key}`)}
-                  className="neo-brutal-card p-4.5 h-100 d-flex flex-column justify-content-between cursor-pointer group"
-                >
-                  <div>
-                    <div className="d-flex align-items-center justify-content-between mb-3">
-                      <div className="w-12 h-12 bg-brand text-black flex items-center justify-center border-2 border-black" style={{ width: '46px', height: '46px' }}>
-                        <Icon size={24} />
-                      </div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-black bg-brand px-2.5 py-1 border border-black font-mono">
-                        {meta.preset}
-                      </span>
-                    </div>
-
-                    <h3 className="font-headline text-3xl font-black uppercase leading-none mb-1 text-white">
-                      {meta.label}
-                    </h3>
-                    <p className="text-xs font-bold text-slate-300 m-0 font-mono">{meta.desc}</p>
-                  </div>
-
-                  <div className="pt-4 d-flex align-items-center justify-content-between border-t-2 border-slate-700 mt-4">
-                    <span className="text-xs font-bold uppercase text-brand font-mono">DEPLOY SPRINT →</span>
-                    <div className="p-1.5 border-2 border-black bg-brand text-black group-hover:bg-white group-hover:text-black transition-colors">
-                      <ArrowRight size={18} />
-                    </div>
-                  </div>
-                </div>
+          <div className="col-12 col-md-4">
+            <div className="neo-brutal-card p-4 p-md-5 h-100 shadow-hard-sm" style={{ background: 'var(--bg-main)' }}>
+              <div className="bg-brand text-white border-brutal d-inline-flex p-3 mb-4">
+                <Zap size={28} />
               </div>
-            );
-          })}
+              <h3 className="font-headline text-2xl font-black uppercase mb-3" style={{ color: 'var(--text-main)' }}>RAPID FIRE SPRINTS</h3>
+              <p className="font-mono text-sm uppercase font-bold m-0" style={{ color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                Micro-quizzes engineered to test reflex memory. No long essays. Pure speed and accuracy metrics.
+              </p>
+            </div>
+          </div>
+          <div className="col-12 col-md-4">
+            <div className="neo-brutal-card p-4 p-md-5 h-100 shadow-hard-sm" style={{ background: 'var(--bg-main)' }}>
+              <div className="bg-brand text-white border-brutal d-inline-flex p-3 mb-4">
+                <Gauge size={28} />
+              </div>
+              <h3 className="font-headline text-2xl font-black uppercase mb-3" style={{ color: 'var(--text-main)' }}>ADVANCED TELEMETRY</h3>
+              <p className="font-mono text-sm uppercase font-bold m-0" style={{ color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                Track per-question time, identify weak sectors, and monitor XP growth with pinpoint precision.
+              </p>
+            </div>
+          </div>
+          <div className="col-12 col-md-4">
+            <div className="neo-brutal-card p-4 p-md-5 h-100 shadow-hard-sm" style={{ background: 'var(--bg-main)' }}>
+              <div className="bg-brand text-white border-brutal d-inline-flex p-3 mb-4">
+                <Trophy size={28} />
+              </div>
+              <h3 className="font-headline text-2xl font-black uppercase mb-3" style={{ color: 'var(--text-main)' }}>LEADERBOARDS</h3>
+              <p className="font-mono text-sm uppercase font-bold m-0" style={{ color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                Compete on the Sprint Leaderboard. Send kudos, maintain streaks, and climb the tactical divisions.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* INDUSTRIAL STATS ROW */}
-      <section className="py-4 border-t-2 border-brand/40">
-        <div className="row g-3 font-mono">
-          {[
-            { k: '07', v: 'CORE_SUBJECTS', bg: 'bg-slate-900 text-white border-2 border-brand/40' },
-            { k: '04', v: 'TIMER_PRESETS', bg: 'bg-brand text-black border-2 border-black' },
-            { k: '∞',  v: 'ATTEMPTS',     bg: 'bg-slate-900 text-white border-2 border-brand/40' },
-            { k: '02', v: 'SPRINT_MODES', bg: 'bg-slate-900 text-white border-2 border-brand/40' }
-          ].map((stat, i) => (
-            <div key={i} className="col-6 col-md-3">
-              <div className={`${stat.bg} p-4 shadow-hard-sm h-100`}>
-                <div className="font-headline text-5xl font-black">{stat.k}</div>
-                <div className="text-xs font-bold uppercase tracking-widest mt-2">{stat.v}</div>
-              </div>
+      {/* EXECUTION FLOW */}
+      <section className="py-5 mb-5 border-y-brutal bg-brand text-white shadow-hard" style={{ position: 'relative', left: '50%', right: '50%', marginLeft: '-50vw', marginRight: '-50vw', width: '100vw' }}>
+        <div className="mx-auto px-4" style={{ maxWidth: '1380px' }}>
+          <div className="text-center mb-5">
+            <h2 className="font-headline text-4xl font-black uppercase tracking-tighter m-0 text-black">
+              EXECUTION PROTOCOL_
+            </h2>
+          </div>
+          <div className="row g-4 text-center">
+            <div className="col-12 col-md-4">
+              <div className="font-headline text-6xl font-black mb-3" style={{ opacity: 0.3, color: '#000' }}>01</div>
+              <h4 className="font-headline text-xl font-black uppercase mb-2 text-black">SELECT SECTOR</h4>
+              <p className="font-mono text-xs font-bold uppercase m-0 text-white" style={{ opacity: 0.9 }}>Lock onto a core subject target.</p>
             </div>
-          ))}
+            <div className="col-12 col-md-4">
+              <div className="font-headline text-6xl font-black mb-3" style={{ opacity: 0.3, color: '#000' }}>02</div>
+              <h4 className="font-headline text-xl font-black uppercase mb-2 text-black">DEPLOY SPRINT</h4>
+              <p className="font-mono text-xs font-bold uppercase m-0 text-white" style={{ opacity: 0.9 }}>Execute active recall under time pressure.</p>
+            </div>
+            <div className="col-12 col-md-4">
+              <div className="font-headline text-6xl font-black mb-3" style={{ opacity: 0.3, color: '#000' }}>03</div>
+              <h4 className="font-headline text-xl font-black uppercase mb-2 text-black">ANALYZE DATA</h4>
+              <p className="font-mono text-xs font-bold uppercase m-0 text-white" style={{ opacity: 0.9 }}>Review telemetry and patch weaknesses.</p>
+            </div>
+          </div>
         </div>
       </section>
 

@@ -81,24 +81,24 @@ export default function FriendsLeaderboard() {
   };
 
   return (
-    <div className="bg-white border-brutal p-4 p-md-5 mb-4 text-black shadow-hard font-mono">
-      <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 border-b-2 border-black pb-3">
+    <div className="neo-brutal-card p-4 p-md-5 mb-4 shadow-hard font-mono" style={{ background: 'var(--bg-main)' }}>
+      <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 border-b-brutal pb-3">
         
         {/* Division Header */}
         <div className="d-flex align-items-center gap-3">
-          <div className="w-12 h-12 bg-black text-brand border-2 border-black flex items-center justify-center font-bold text-2xl" style={{ width: '48px', height: '48px' }}>
+          <div className="w-12 h-12 border-brutal flex items-center justify-center font-bold text-2xl" style={{ width: '48px', height: '48px', background: 'var(--brand)', color: '#FFFFFF' }}>
             {currentDivision.icon}
           </div>
           <div>
             <div className="d-flex align-items-center gap-2 flex-wrap">
-              <h3 className="font-headline text-3xl font-black uppercase italic m-0 text-black">
+              <h3 className="font-headline text-3xl font-black uppercase italic m-0" style={{ color: 'var(--text-main)' }}>
                 GLOBAL STANDINGS_
               </h3>
-              <span className="bg-brand text-black font-bold px-2 py-0.5 border border-black text-xs uppercase">
+              <span className="bg-brand text-white font-bold px-2 py-0.5 border-brutal text-xs uppercase">
                 {currentDivision.name}
               </span>
             </div>
-            <p className="m-0 font-bold text-xs uppercase text-slate-700 mt-1">
+            <p className="m-0 font-bold text-xs uppercase mt-1" style={{ color: 'var(--text-muted)' }}>
               TOP 3 STUDENTS GET PROMOTED TO THE NEXT TIER AT THE END OF THE SPRINT WEEK.
             </p>
           </div>
@@ -111,8 +111,8 @@ export default function FriendsLeaderboard() {
             placeholder="OPERATIVE EMAIL..."
             value={newFriendEmail}
             onChange={(e) => setNewFriendEmail(e.target.value)}
-            className="bg-white text-black border-2 border-black p-2 font-bold text-xs uppercase outline-none focus:bg-brand"
-            style={{ maxWidth: '200px' }}
+            className="border-brutal p-2 font-bold text-xs uppercase outline-none focus:bg-brand"
+            style={{ maxWidth: '200px', background: 'var(--bg-main)', color: 'var(--text-main)' }}
           />
           <button
             type="submit"
@@ -131,14 +131,14 @@ export default function FriendsLeaderboard() {
 
       {/* Standings Table */}
       <div className="table-responsive">
-        <table className="table table-bordered border-2 border-black align-middle m-0 font-mono">
-          <thead className="bg-black text-white border-b-2 border-black">
+        <table className="table table-bordered border-brutal align-middle m-0 font-mono" style={{ '--bs-table-bg': 'transparent' }}>
+          <thead className="border-b-brutal" style={{ background: 'var(--bg-main)' }}>
             <tr className="font-headline text-xs font-black uppercase">
-              <th scope="col" className="p-3 text-brand">POS</th>
-              <th scope="col" className="p-3 text-white">OPERATIVE</th>
-              <th scope="col" className="p-3 text-white text-center">STREAK</th>
-              <th scope="col" className="p-3 text-brand text-end">WEEKLY XP</th>
-              <th scope="col" className="p-3 text-white text-center">KUDOS</th>
+              <th scope="col" className="p-3" style={{ color: 'var(--text-main)' }}>POS</th>
+              <th scope="col" className="p-3" style={{ color: 'var(--text-main)' }}>OPERATIVE</th>
+              <th scope="col" className="p-3 text-center" style={{ color: 'var(--text-main)' }}>STREAK</th>
+              <th scope="col" className="p-3 text-end" style={{ color: 'var(--text-main)' }}>WEEKLY XP</th>
+              <th scope="col" className="p-3 text-center" style={{ color: 'var(--text-main)' }}>KUDOS</th>
             </tr>
           </thead>
           <tbody>
@@ -149,18 +149,22 @@ export default function FriendsLeaderboard() {
               return (
                 <tr 
                   key={item.id || index}
-                  className={item.isCurrentUser ? 'bg-brand text-black font-bold' : 'bg-white text-black'}
-                  style={{ borderBottom: '2px solid #000000' }}
+                  className={item.isCurrentUser ? 'font-bold' : ''}
+                  style={{ 
+                    background: item.isCurrentUser ? 'var(--brand)' : 'var(--bg-card)', 
+                    color: item.isCurrentUser ? '#FFFFFF' : 'var(--text-main)',
+                    borderBottom: '2px solid var(--border-main)' 
+                  }}
                 >
-                  <td className="p-3 font-headline font-black text-base">
+                  <td className="p-3 font-headline font-black text-base" style={{ color: item.isCurrentUser ? '#FFFFFF' : 'var(--text-main)' }}>
                     #{String(rank).padStart(2, '0')}
                   </td>
 
-                  <td className="p-3 font-bold text-sm">
+                  <td className="p-3 font-bold text-sm" style={{ color: item.isCurrentUser ? '#FFFFFF' : 'var(--text-main)' }}>
                     <div className="d-flex align-items-center gap-2">
                       <span className="uppercase">{item.name}</span>
                       {isLead && (
-                        <span className="bg-black text-brand px-1.5 py-0.5 text-[10px] font-black border border-black">
+                        <span className="bg-brand text-white px-1.5 py-0.5 text-[10px] font-black border-brutal">
                           MAINTAINER
                         </span>
                       )}
@@ -168,10 +172,13 @@ export default function FriendsLeaderboard() {
                   </td>
 
                   <td className="p-3 text-center font-bold">
-                    🔥 {item.streak || 1}D
+                    <span>
+                      <span style={{ color: '#F59E0B' }}>🔥</span> 
+                      <span style={{ color: item.isCurrentUser ? '#FFFFFF' : 'var(--text-main)' }}> {item.streak || 1}D</span>
+                    </span>
                   </td>
 
-                  <td className="p-3 text-end font-headline font-black text-lg">
+                  <td className="p-3 text-end font-headline font-black text-lg" style={{ color: item.isCurrentUser ? '#FFFFFF' : 'var(--text-main)' }}>
                     {(item.xp || 0).toLocaleString()}
                   </td>
 

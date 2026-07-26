@@ -111,14 +111,14 @@ function QuestionCardImpl({
             color: #000000 !important;
           }
           .neo-option-default:hover:not(:disabled) {
-            background: #FBBF24 !important;
+            background: var(--brand) !important;
             color: #000000 !important;
             transform: translate(-4px, -4px);
             box-shadow: 6px 6px 0px 0px #000000 !important;
           }
 
           .neo-option-checked {
-            background: #FBBF24 !important;
+            background: var(--brand) !important;
             color: #000000 !important;
             box-shadow: 4px 4px 0px 0px #000000 !important;
           }

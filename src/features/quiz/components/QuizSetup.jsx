@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { BarChart3, Trophy, Target, Trash2, Play, Clock } from 'lucide-react';
+import { BarChart3, Clock } from 'lucide-react';
 import { useToast } from '../../../context/ToastContext.jsx';
 
 const SUBJECT_KEYS = {
@@ -76,15 +76,6 @@ export default function QuizSetup({ engine, subject }) {
     clearSavedProgress();
     toast.info('Saved progress discarded.');
   }, [clearSavedProgress, toast]);
-
-  const doStartBookmarked = useCallback(() => {
-    if (!hasBookmarks) {
-      toast.warning('No bookmarked questions in this subject yet. Tap the star icon on questions to save them for later.');
-      return;
-    }
-    startBookmarkedQuiz();
-    toast.success('Starting bookmarked questions session!');
-  }, [hasBookmarks, startBookmarkedQuiz, toast]);
 
   const formatSavedAt = (iso) => {
     try {
@@ -190,7 +181,7 @@ export default function QuizSetup({ engine, subject }) {
                 key={t}
                 className="flex-grow-1 py-2.5 font-headline font-black text-sm uppercase transition-all border-0"
                 style={{
-                  background: quizType === t ? '#FBBF24' : 'transparent',
+                  background: quizType === t ? 'var(--brand)' : 'transparent',
                   color: quizType === t ? '#000000' : '#FFFFFF'
                 }}
                 onClick={() => setQuizType(t)}
@@ -211,7 +202,7 @@ export default function QuizSetup({ engine, subject }) {
                   key={lesson}
                   className="font-mono font-bold text-xs uppercase border-2 border-black px-3 py-2 transition-all"
                   style={{
-                    background: selectedLessons.includes(lesson) ? '#FBBF24' : '#FFFFFF',
+                    background: selectedLessons.includes(lesson) ? 'var(--brand)' : '#FFFFFF',
                     color: '#000000'
                   }}
                   onClick={() => setSelectedLessons(prev => prev.includes(lesson) ? prev.filter(l => l !== lesson) : [...prev, lesson])}
@@ -354,7 +345,7 @@ export default function QuizSetup({ engine, subject }) {
                   key={t}
                   className="flex-grow-1 py-2 font-headline font-black text-xs uppercase border-0"
                   style={{
-                    background: timerLimit === t ? '#FBBF24' : 'transparent',
+                    background: timerLimit === t ? 'var(--brand)' : 'transparent',
                     color: timerLimit === t ? '#000000' : '#FFFFFF'
                   }}
                   onClick={() => setTimerLimit(t)}
@@ -373,7 +364,7 @@ export default function QuizSetup({ engine, subject }) {
                   key={t}
                   className="flex-grow-1 py-2 font-headline font-black text-xs uppercase border-0"
                   style={{
-                    background: globalTimerLimit === t ? '#FBBF24' : 'transparent',
+                    background: globalTimerLimit === t ? 'var(--brand)' : 'transparent',
                     color: globalTimerLimit === t ? '#000000' : '#FFFFFF'
                   }}
                   onClick={() => setGlobalTimerLimit(t)}
@@ -392,7 +383,7 @@ export default function QuizSetup({ engine, subject }) {
                   key={n}
                   className="flex-grow-1 py-2 font-headline font-black text-xs uppercase border-0"
                   style={{
-                    background: questionCount === n ? '#FBBF24' : 'transparent',
+                    background: questionCount === n ? 'var(--brand)' : 'transparent',
                     color: questionCount === n ? '#000000' : '#FFFFFF'
                   }}
                   onClick={() => setQuestionCount(n)}

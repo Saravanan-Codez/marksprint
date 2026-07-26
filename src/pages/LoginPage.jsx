@@ -14,7 +14,6 @@ export default function LoginPage({ initialMode: defaultMode }) {
   const [displayName, setDisplayName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
   const [agreeTerms, setAgreeTerms] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -93,18 +92,18 @@ export default function LoginPage({ initialMode: defaultMode }) {
   };
 
   return (
-    <div className="min-vh-100 w-100 d-flex align-items-center justify-content-center py-5 px-3 position-relative overflow-hidden font-mono">
+    <div className="min-vh-100 w-100 d-flex align-items-center justify-content-center py-5 px-3 position-relative overflow-hidden font-mono" style={{ background: 'var(--bg-main)' }}>
       
       {/* Main Neo-Brutalism Card */}
       <div 
-        className="bg-white border-brutal p-4 p-sm-5 text-black shadow-hard position-relative z-3 w-100" 
+        className="neo-brutal-card p-4 p-sm-5 shadow-hard position-relative z-3 w-100" 
         style={{ maxWidth: '480px' }}
       >
         {/* Navigation & MarkSprint Header */}
-        <div className="d-flex align-items-center justify-content-between mb-4 border-b-2 border-black pb-3">
+        <div className="d-flex align-items-center justify-content-between mb-4 border-b-brutal pb-3">
           <button 
             onClick={() => navigate('/')} 
-            className="bg-black text-brand border-2 border-black p-2 font-bold hover:bg-brand hover:text-black transition-all"
+            className="btn btn-primary p-2"
             title="Go to Home"
             aria-label="Go to Home"
           >
@@ -112,26 +111,26 @@ export default function LoginPage({ initialMode: defaultMode }) {
           </button>
           
           <div className="text-center">
-            <h2 className="font-headline text-3xl font-black uppercase italic leading-none m-0 text-black">
+            <h2 className="font-headline text-3xl font-black uppercase italic leading-none m-0" style={{ color: 'var(--text-main)' }}>
               IDENTIFY_
             </h2>
-            <span className="font-bold text-xs bg-brand text-black px-2 py-0.5 border border-black inline-block mt-1 uppercase">
+            <span className="font-bold text-xs bg-brand text-black px-2 py-0.5 border-brutal inline-block mt-1 uppercase">
               ACCESS REQUIRED
             </span>
           </div>
 
-          <div style={{ width: '38px' }} />
+          <div style={{ width: '40px' }} />
         </div>
 
         {/* Dual Mode Tab Switcher */}
-        <div className="d-flex border-2 border-black p-1 mb-4 bg-black">
+        <div className="d-flex border-brutal p-1 mb-4" style={{ background: 'var(--bg-input)' }}>
           <button
             type="button"
             onClick={() => { setAuthMode('login'); setError(''); }}
-            className="btn flex-grow-1 py-2 font-headline text-lg font-black uppercase transition-all"
+            className="btn flex-grow-1 py-2 font-headline text-lg border-0 shadow-none"
             style={{
-              background: authMode === 'login' ? '#FBBF24' : 'transparent',
-              color: authMode === 'login' ? '#000000' : '#FFFFFF'
+              background: authMode === 'login' ? 'var(--brand)' : 'transparent',
+              color: authMode === 'login' ? '#000000' : 'var(--text-muted)'
             }}
           >
             SIGN IN
@@ -139,10 +138,10 @@ export default function LoginPage({ initialMode: defaultMode }) {
           <button
             type="button"
             onClick={() => { setAuthMode('signup'); setError(''); }}
-            className="btn flex-grow-1 py-2 font-headline text-lg font-black uppercase transition-all"
+            className="btn flex-grow-1 py-2 font-headline text-lg border-0 shadow-none"
             style={{
-              background: authMode === 'signup' ? '#FBBF24' : 'transparent',
-              color: authMode === 'signup' ? '#000000' : '#FFFFFF'
+              background: authMode === 'signup' ? 'var(--brand)' : 'transparent',
+              color: authMode === 'signup' ? '#000000' : 'var(--text-muted)'
             }}
           >
             ENLIST (SIGN UP)
@@ -151,10 +150,11 @@ export default function LoginPage({ initialMode: defaultMode }) {
 
         {error && (
           <div 
-            className="p-3 mb-4 d-flex align-items-center gap-2 bg-rose-100 border-2 border-rose-500 text-rose-900 font-bold text-xs" 
+            className="p-3 mb-4 d-flex align-items-center gap-2 border-brutal font-bold text-xs shadow-hard-sm" 
+            style={{ background: 'var(--danger)', color: '#000000' }}
             role="alert"
           >
-            <AlertCircle size={18} className="flex-shrink-0 text-rose-600" />
+            <AlertCircle size={18} className="flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
@@ -163,33 +163,33 @@ export default function LoginPage({ initialMode: defaultMode }) {
         {authMode === 'login' ? (
           <form onSubmit={handleSignIn} className="d-flex flex-column gap-3">
             <div className="d-flex flex-column gap-1">
-              <label className="font-headline text-xs font-black uppercase text-black">EMAIL_ADDRESS</label>
+              <label className="font-headline text-xs font-black uppercase" style={{ color: 'var(--text-main)' }}>EMAIL_ADDRESS</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ID@EXAMPLE.COM"
-                className="w-100 bg-white border-2 border-black p-3 font-bold text-black text-sm outline-none focus:bg-brand transition-colors"
+                className="form-control"
                 required
               />
             </div>
 
             <div className="d-flex flex-column gap-1">
-              <label className="font-headline text-xs font-black uppercase text-black">PASSPHRASE</label>
+              <label className="font-headline text-xs font-black uppercase" style={{ color: 'var(--text-main)' }}>PASSPHRASE</label>
               <div className="position-relative d-flex align-items-center">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-100 bg-white border-2 border-black p-3 font-bold text-black text-sm outline-none focus:bg-brand transition-colors"
+                  className="form-control"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="position-absolute p-2 border-0 bg-transparent text-black"
-                  style={{ right: '8px', top: '50%', transform: 'translateY(-50%)' }}
+                  className="position-absolute p-2 border-0 bg-transparent"
+                  style={{ right: '8px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-main)' }}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -200,7 +200,7 @@ export default function LoginPage({ initialMode: defaultMode }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-100 bg-black text-white border-2 border-black p-4 font-headline text-2xl font-black uppercase hover:bg-brand hover:text-black transition-all shadow-hard-sm mt-2"
+              className="btn btn-primary w-100 p-4 font-headline text-2xl mt-2"
             >
               {loading ? <Loader size={20} className="animate-spin d-inline" /> : 'EXECUTE SIGN_IN'}
             </button>
@@ -209,45 +209,45 @@ export default function LoginPage({ initialMode: defaultMode }) {
           /* SIGN UP FORM */
           <form onSubmit={handleSignUp} className="d-flex flex-column gap-3">
             <div className="d-flex flex-column gap-1">
-              <label className="font-headline text-xs font-black uppercase text-black">FULL_NAME</label>
+              <label className="font-headline text-xs font-black uppercase" style={{ color: 'var(--text-main)' }}>FULL_NAME</label>
               <input
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="OPERATIVE NAME"
-                className="w-100 bg-white border-2 border-black p-3 font-bold text-black text-sm outline-none focus:bg-brand transition-colors"
+                className="form-control"
                 required
               />
             </div>
 
             <div className="d-flex flex-column gap-1">
-              <label className="font-headline text-xs font-black uppercase text-black">EMAIL_ADDRESS</label>
+              <label className="font-headline text-xs font-black uppercase" style={{ color: 'var(--text-main)' }}>EMAIL_ADDRESS</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ID@EXAMPLE.COM"
-                className="w-100 bg-white border-2 border-black p-3 font-bold text-black text-sm outline-none focus:bg-brand transition-colors"
+                className="form-control"
                 required
               />
             </div>
 
             <div className="d-flex flex-column gap-1">
-              <label className="font-headline text-xs font-black uppercase text-black">PASSPHRASE</label>
+              <label className="font-headline text-xs font-black uppercase" style={{ color: 'var(--text-main)' }}>PASSPHRASE</label>
               <div className="position-relative d-flex align-items-center">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-100 bg-white border-2 border-black p-3 font-bold text-black text-sm outline-none focus:bg-brand transition-colors"
+                  className="form-control"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="position-absolute p-2 border-0 bg-transparent text-black"
-                  style={{ right: '8px', top: '50%', transform: 'translateY(-50%)' }}
+                  className="position-absolute p-2 border-0 bg-transparent"
+                  style={{ right: '8px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-main)' }}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -256,21 +256,21 @@ export default function LoginPage({ initialMode: defaultMode }) {
             </div>
 
             <div className="d-flex flex-column gap-1">
-              <label className="font-headline text-xs font-black uppercase text-black">CONFIRM PASSPHRASE</label>
+              <label className="font-headline text-xs font-black uppercase" style={{ color: 'var(--text-main)' }}>CONFIRM PASSPHRASE</label>
               <div className="position-relative d-flex align-items-center">
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-100 bg-white border-2 border-black p-3 font-bold text-black text-sm outline-none focus:bg-brand transition-colors"
+                  className="form-control"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="position-absolute p-2 border-0 bg-transparent text-black"
-                  style={{ right: '8px', top: '50%', transform: 'translateY(-50%)' }}
+                  className="position-absolute p-2 border-0 bg-transparent"
+                  style={{ right: '8px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-main)' }}
                   aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                 >
                   {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -288,27 +288,25 @@ export default function LoginPage({ initialMode: defaultMode }) {
               style={{ cursor: 'pointer', userSelect: 'none' }}
             >
               <div 
-                className="d-flex align-items-center justify-content-center transition-all flex-shrink-0"
+                className="d-flex align-items-center justify-content-center transition-all flex-shrink-0 border-brutal"
                 style={{
                   width: '18px',
                   height: '18px',
-                  border: agreeTerms ? '1px solid #06B6D4' : '1px solid rgba(255, 255, 255, 0.25)',
-                  background: agreeTerms ? '#06B6D4' : 'rgba(15, 23, 42, 0.6)',
-                  color: agreeTerms ? '#0B0E1F' : 'transparent',
-                  borderRadius: '5px'
+                  background: agreeTerms ? 'var(--brand)' : 'var(--bg-main)',
+                  color: agreeTerms ? '#000000' : 'transparent',
                 }}
               >
-                <Check size={14} strokeWidth={3} />
+                <Check size={14} strokeWidth={4} />
               </div>
-              <span style={{ color: '#94A3B8', fontSize: '0.84rem' }}>
-                I agree to the <a href="#" onClick={(e) => e.stopPropagation()} className="text-decoration-none font-semibold" style={{ color: '#38BDF8' }}>Terms and Conditions</a>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.84rem' }}>
+                I agree to the <Link to="/terms" onClick={(e) => e.stopPropagation()} className="text-decoration-none font-semibold text-brand hover:underline">Terms and Conditions</Link>
               </span>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-100 bg-brand text-black border-2 border-black p-4 font-headline text-2xl font-black uppercase hover:bg-black hover:text-brand transition-all shadow-hard-sm mt-2"
+              className="btn btn-primary w-100 p-4 font-headline text-2xl mt-2"
             >
               {loading ? <Loader size={20} className="animate-spin d-inline" /> : 'CREATE RECRUIT ACCOUNT'}
             </button>
@@ -316,16 +314,16 @@ export default function LoginPage({ initialMode: defaultMode }) {
         )}
 
         <div className="my-4 d-flex align-items-center gap-3">
-          <hr className="flex-grow-1 m-0 border-black border-2" />
-          <span className="font-mono text-xs font-bold text-black uppercase">OR CONTINUE WITH</span>
-          <hr className="flex-grow-1 m-0 border-black border-2" />
+          <hr className="flex-grow-1 m-0 border-brutal" />
+          <span className="font-mono text-xs font-bold uppercase" style={{ color: 'var(--text-muted)' }}>OR CONTINUE WITH</span>
+          <hr className="flex-grow-1 m-0 border-brutal" />
         </div>
 
-        <div className="d-flex flex-column gap-2.5">
+        <div className="d-flex flex-column gap-3">
           <button
             type="button"
             onClick={handleGoogleAuth}
-            className="w-100 bg-white text-black border-2 border-black p-3 font-headline text-lg font-black uppercase hover:bg-brand transition-all d-flex align-items-center justify-content-center gap-3 shadow-hard-sm"
+            className="btn w-100 p-3 font-headline text-lg shadow-hard"
           >
             <svg style={{ width: '20px', height: '20px' }} viewBox="0 0 24 24">
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
@@ -342,7 +340,7 @@ export default function LoginPage({ initialMode: defaultMode }) {
               loginAsGuest();
               navigate('/');
             }}
-            className="w-100 bg-black text-brand border-2 border-black p-3 font-headline text-lg font-black uppercase hover:bg-white hover:text-black transition-all shadow-hard-sm"
+            className="btn btn-accent w-100 p-3 font-headline text-lg shadow-hard"
           >
             CONTINUE WITHOUT ACCOUNT →
           </button>
