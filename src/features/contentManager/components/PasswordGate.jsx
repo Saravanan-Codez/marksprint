@@ -360,37 +360,37 @@ export default function PasswordGate({ onUnlock }) {
           }
         `}} />
 
-        <div className="relative z-10 max-w-md w-full">
-          <div className="bg-[rgba(255,255,255,0.03)] backdrop-blur-xl border border-[rgba(255,255,255,0.05)] rounded-none p-12 shadow-[0_0_20px_rgba(0,210,255,0.1)]">
-            <div className="flex justify-center mb-8">
-              <Lock size={48} className="text-[#00d2ff]" />
+        <div className="relative z-10 max-w-md w-full font-mono">
+          <div className="bg-white border-brutal p-8 shadow-hard text-black text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-black text-brand border-2 border-black flex items-center justify-center">
+                <Lock size={36} />
+              </div>
             </div>
 
-            <h1 className="text-3xl font-bold text-center text-[#7fdfff] mb-2">
-              Content Manager
+            <h1 className="font-headline text-3xl font-black uppercase italic text-black mb-1">
+              TEACHER GATEWAY_
             </h1>
-            <p className="text-center text-[#9fe3ff] mb-8">
-              Enter the security password to access
+            <p className="font-mono text-xs font-bold text-slate-700 uppercase mb-6">
+              ENTER SECURITY PASSPHRASE TO AUTHORIZE CONTENT MANAGEMENT
             </p>
 
             {errorMessage && (
-              <div className="mb-6 p-4 bg-[rgba(255,0,0,0.1)] border border-red-500 rounded-none flex items-start gap-3">
-                <AlertCircle size={20} className="text-red-500 flex-shrink-0 mt-0.5" />
-                <p className="text-red-400 text-sm">{errorMessage}</p>
+              <div className="mb-4 p-3 bg-rose-100 border-2 border-rose-500 text-rose-900 font-bold text-xs flex items-center gap-2">
+                <AlertCircle size={18} className="flex-shrink-0 text-rose-700" />
+                <span>{errorMessage}</span>
               </div>
             )}
 
             {isLocked && lockoutTime && (
-              <div className="mb-6 p-4 bg-[rgba(255,165,0,0.1)] border border-orange-500 rounded-none text-center">
-                <p className="text-orange-400 font-semibold">
-                  Locked for: {getTimeRemaining()}
-                </p>
+              <div className="mb-4 p-3 bg-brand text-black border-2 border-black font-bold text-xs uppercase">
+                LOCKED OUT. TIME REMAINING: {getTimeRemaining()}
               </div>
             )}
 
-            <div className="mb-8">
-              <label className="block text-center text-[#9fe3ff] mb-4 font-semibold">
-                Password ({PASSWORD_LENGTH} characters)
+            <div className="mb-6">
+              <label className="block font-headline text-xs font-black uppercase text-black mb-3">
+                SECURITY CODE ({PASSWORD_LENGTH} CHARS)
               </label>
               <div className="flex justify-center gap-2 flex-wrap">
                 {passwordInput.map((char, index) => (
@@ -403,22 +403,15 @@ export default function PasswordGate({ onUnlock }) {
                     onChange={(e) => handleCharInput(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
                     disabled={isLocked}
-                    className={`password-input-box ${
-                      charValidation[index] === 'correct'
-                        ? 'correct'
-                        : charValidation[index] === 'incorrect'
-                        ? 'incorrect'
-                        : ''
-                    } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className="w-8 h-10 bg-white border-2 border-black text-center font-headline font-black text-lg text-black focus:bg-brand outline-none"
                     autoFocus={index === 0}
                   />
                 ))}
               </div>
             </div>
 
-            <div className="text-center text-xs text-[#2aa8d8]">
-              <p>Attempts: {attempts}/{MAX_ATTEMPTS}</p>
-              <p className="mt-2">Green = Correct | Red = Incorrect</p>
+            <div className="text-xs font-bold text-slate-600 uppercase border-t-2 border-black pt-3">
+              ATTEMPTS: {attempts}/{MAX_ATTEMPTS}
             </div>
           </div>
         </div>

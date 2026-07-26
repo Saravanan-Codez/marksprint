@@ -75,19 +75,18 @@ export default function QuizActive({ engine }) {
     : 0;
 
   return (
-    <div className="container py-4 position-relative" style={{ maxWidth: '800px' }}>
+    <div className="w-100 py-4 font-mono d-flex flex-column gap-4 anim-fade-in mx-auto" style={{ maxWidth: '850px' }}>
 
-      <div className="d-flex flex-column gap-3 mb-4">
+      <div className="d-flex flex-column gap-3 mb-2">
 
-        {/* Header Row: Back button (left) + Timers (right) */}
+        {/* Header Row */}
         <div className="d-flex flex-row justify-content-between align-items-center flex-wrap gap-3">
           <button
-            className="btn-soft text-primary font-bold text-uppercase d-inline-flex align-items-center gap-2"
-            style={{ fontSize: '0.75rem', letterSpacing: '0.12em' }}
+            className="bg-black text-brand border-2 border-black px-4 py-2 font-headline text-xs font-black uppercase hover:bg-white hover:text-black transition-all"
             onClick={handleBackToSetup}
             title="Save progress and return to setup"
           >
-            &larr; Back to Filters
+            ← BACK TO SETUP
           </button>
 
           {/* Timer Pills */}
@@ -98,7 +97,7 @@ export default function QuizActive({ engine }) {
                 setTimeLeft={setGlobalTimeLeft}
                 isActive={true}
                 onTimeout={handleGlobalTimeout}
-                label="Total Time"
+                label="TOTAL"
                 warningThreshold={60}
               />
             )}
@@ -109,7 +108,7 @@ export default function QuizActive({ engine }) {
                 setTimeLeft={setTimeLeft}
                 isActive={!isLocked}
                 onTimeout={handleTimeout}
-                label="Question Time"
+                label="Q-TIME"
                 warningThreshold={5}
               />
             )}
@@ -117,26 +116,21 @@ export default function QuizActive({ engine }) {
         </div>
 
         {/* Progress Section */}
-        <div className="surface p-4 rounded-4 border shadow-sm">
-          <div className="d-flex flex-row justify-content-between align-items-center mb-3">
-            <span className="text-uppercase tracking-wider font-bold text-slate-500" style={{ fontSize: '0.75rem' }}>Progress</span>
-            <span className="h3 font-black text-slate-900 m-0 tracking-wider">
-              Q {currentIdx + 1} <span className="text-slate-400" style={{ fontSize: '0.9rem' }}>/ {firstAttemptQuestions.length}</span>
+        <div className="bg-white border-brutal p-4 text-black shadow-hard-sm">
+          <div className="d-flex flex-row justify-content-between align-items-center mb-2">
+            <span className="font-headline text-xs font-black uppercase text-black">SPRINT PROGRESS</span>
+            <span className="font-headline text-2xl font-black text-black">
+              Q {currentIdx + 1} / {firstAttemptQuestions.length}
             </span>
           </div>
-          <div className="d-flex flex-row justify-content-between align-items-center mb-2">
-            <span className="small text-slate-500"></span>
-            <span className="font-bold text-primary" style={{ fontSize: '0.9rem' }}>{progressPercentage.toFixed(0)}%</span>
-          </div>
-          <div className="progress" style={{ height: '14px', backgroundColor: '#e2e8f0', borderRadius: '10px' }}>
+
+          <div className="w-100 border-2 border-black bg-black p-0.5" style={{ height: '18px' }}>
             <div
-              className="progress-bar"
-              role="progressbar"
               style={{
                 width: `${progressPercentage}%`,
-                background: 'linear-gradient(90deg, #4f46e5, #14b8a6)',
-                borderRadius: '10px',
-                transition: 'width 0.5s ease'
+                height: '100%',
+                background: '#FBBF24',
+                transition: 'width 0.4s ease'
               }}
             />
           </div>

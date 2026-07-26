@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { LogOut, UserRound, Sparkles, Menu, X, Moon, SunMedium } from 'lucide-react';
-import { useState } from 'react';
 import { useAuth } from '../context/useAuth';
 import { useTheme } from '../context/useTheme';
 import Galaxy from '../components/Galaxy';
@@ -19,7 +18,7 @@ const SUBJECT_MAP = {
 };
 
 export default function MainLayout() {
-  const { user, userProfile, googleAccessToken, logOut } = useAuth();
+  const { user, userProfile, logOut } = useAuth();
   const { theme, isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,13 +53,6 @@ export default function MainLayout() {
     return (
       <div className="min-h-screen w-full position-relative">
         <Galaxy isDark={isDark} />
-        <div
-          className="position-fixed inset-0 z-0 pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(900px 500px at 10% 0%, color-mix(in oklab, var(--primary) 18%, transparent) 0%, transparent 60%), radial-gradient(700px 500px at 100% 100%, color-mix(in oklab, var(--accent) 18%, transparent) 0%, transparent 60%), linear-gradient(135deg, var(--bg-50), var(--bg-100))'
-          }}
-        />
         <div className="position-relative z-10">
           <Outlet />
         </div>
@@ -69,70 +61,61 @@ export default function MainLayout() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col position-relative">
+    <div className="min-h-screen w-full flex flex-col position-relative selection:bg-brand selection:text-black">
       <Galaxy isDark={isDark} />
+      
+      {/* Premium Tactical Header */}
       <header
-        className="glass-panel sticky-top z-50 border-bottom"
+        className="sticky-top z-50 transition-all"
         style={{
-          background: isDark ? 'rgba(18, 24, 45, 0.88)' : 'rgba(255, 255, 255, 0.92)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(226, 232, 240, 0.8)'
+          background: isDark ? 'rgba(8, 12, 24, 0.95)' : '#FFFFFF',
+          borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '2px solid #000000',
+          backdropFilter: 'blur(16px)'
         }}
       >
-        <div className="mx-auto px-3 px-md-4 px-lg-5" style={{ maxWidth: '1280px' }}>
-          <div className="d-flex align-items-center justify-content-between" style={{ height: '70px' }}>
+        <div className="mx-auto px-3 px-md-4 px-lg-5" style={{ maxWidth: '1380px' }}>
+          <div className="d-flex align-items-center justify-content-between" style={{ height: '64px' }}>
             
-            {/* Brand Logo & Name */}
+            {/* Brand Logo */}
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="d-flex align-items-center gap-3 p-0 border-0 bg-transparent cursor-pointer text-decoration-none"
-              style={{ lineHeight: 1 }}
+              className="d-flex align-items-center gap-3 p-0 border-0 bg-transparent cursor-pointer text-decoration-none group"
             >
               <div
-                className="d-flex align-items-center justify-content-center flex-shrink-0"
-                style={{
-                  width: '42px', height: '42px',
-                  background: isDark ? 'rgba(18, 24, 45, 0.95)' : '#FFFFFF',
-                  border: isDark ? '1px solid rgba(255, 255, 255, 0.16)' : '1px solid rgba(203, 213, 225, 0.8)',
-                  borderRadius: '12px',
-                  boxShadow: isDark ? '0 4px 16px rgba(0, 0, 0, 0.4)' : '0 4px 16px rgba(99, 102, 241, 0.25)',
-                  padding: '6px'
-                }}
+                className={`d-flex align-items-center justify-content-center transition-all flex-shrink-0 ${
+                  isDark ? 'bg-black text-brand border-2 border-amber-400' : 'bg-brand text-black border-2 border-black'
+                }`}
+                style={{ width: '40px', height: '40px', padding: '6px', borderRadius: '8px' }}
               >
                 <img src={faviconSvg} alt="MarkSprint Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
               <div className="text-start d-none d-sm-block">
-                <div className="font-extrabold tracking-tight card-title-text" style={{ fontSize: '1.25rem' }}>MarkSprint</div>
-                <div className="font-bold text-uppercase" style={{ fontSize: '0.62rem', color: '#06B6D4', letterSpacing: '0.12em' }}>FALKON LABS OPEN SOURCE</div>
+                <h1 className={`font-headline text-2xl font-black tracking-wider uppercase italic m-0 ${isDark ? 'text-white' : 'text-black'}`} style={{ lineHeight: '1' }}>
+                  MARKSPRINT
+                </h1>
+                <div className={`font-mono font-bold text-uppercase mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`} style={{ fontSize: '0.62rem', letterSpacing: '0.12em' }}>
+                  FALKON LABS // OPEN SOURCE
+                </div>
               </div>
             </button>
 
-            {/* Center Navigation Bar */}
-            <nav 
-              className="d-none d-md-flex align-items-center gap-2 p-1.5" 
-              style={{ 
-                background: isDark ? 'rgba(15, 23, 42, 0.75)' : 'rgba(241, 245, 249, 0.9)', 
-                borderRadius: '9999px', 
-                border: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(203, 213, 225, 0.8)' 
-              }}
-            >
+            {/* Navigation Links */}
+            <nav className="d-none d-md-flex align-items-center gap-1 font-mono text-xs">
               {navItems.map((item) => {
                 const active = activeHref === item.href;
                 return (
                   <Link
                     key={item.href}
                     to={item.href}
-                    className="px-4 py-2 text-decoration-none font-bold transition-all d-inline-block"
-                    style={{
-                      fontSize: '0.88rem',
-                      background: active ? 'linear-gradient(135deg, #6366F1, #4F46E5)' : 'transparent',
-                      color: active ? '#FFFFFF' : isDark ? '#E2E8F0' : '#334155',
-                      borderRadius: '9999px',
-                      boxShadow: active ? '0 4px 14px rgba(99, 102, 241, 0.35)' : 'none',
-                      whiteSpace: 'nowrap'
-                    }}
+                    className={`px-3.5 py-1.5 text-decoration-none transition-all font-headline font-bold text-xs uppercase ${
+                      active
+                        ? 'bg-brand text-black font-black shadow-sm'
+                        : isDark
+                        ? 'text-slate-300 hover:text-brand'
+                        : 'text-slate-700 hover:text-black'
+                    }`}
+                    style={{ borderRadius: '6px' }}
                   >
                     {item.label}
                   </Link>
@@ -140,96 +123,71 @@ export default function MainLayout() {
               })}
             </nav>
 
-            {/* Right: Theme Toggle & User Controls */}
-            <div className="d-flex align-items-center gap-3">
+            {/* Right Actions */}
+            <div className="d-flex align-items-center gap-2.5">
               <button
                 type="button"
                 onClick={toggleTheme}
-                className="btn btn-outline btn-sm d-flex align-items-center justify-content-center flex-shrink-0"
+                className={`btn p-0 font-mono font-bold uppercase d-flex align-items-center justify-content-center border-0 transition-all ${
+                  isDark ? 'bg-slate-900 text-brand hover:bg-slate-800' : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
+                }`}
                 title="Switch Theme Mode"
                 aria-label="Switch Theme Mode"
-                style={{ width: '40px', height: '40px', borderRadius: '12px' }}
+                style={{ width: '38px', height: '38px', borderRadius: '8px' }}
               >
-                {theme === 'space' ? <Moon size={18} /> : <SunMedium size={18} className="text-warning" />}
+                {theme === 'space' ? <Moon size={18} /> : <SunMedium size={18} className="text-amber-500" />}
               </button>
 
               {quizSubject && (
-                <span className="chip chip-accent d-none d-lg-inline-flex">{quizSubject}</span>
+                <span className="badge bg-brand text-black font-mono font-bold text-uppercase d-none d-lg-inline-flex px-3 py-1.5 border-0 text-xs" style={{ borderRadius: '6px' }}>
+                  {quizSubject}
+                </span>
               )}
 
               {user ? (
-                <>
-                  {googleAccessToken && (
-                    <span 
-                      className="px-2.5 py-1 font-bold text-uppercase d-none d-xl-inline-flex align-items-center gap-1.5"
-                      style={{
-                        fontSize: '0.68rem',
-                        background: 'rgba(16, 185, 129, 0.15)',
-                        color: '#34D399',
-                        border: '1px solid rgba(52, 211, 153, 0.3)',
-                        borderRadius: '9999px'
-                      }}
-                      title="Google Drive Cloud Auto-Sync Enabled"
-                    >
-                      <span style={{ fontSize: '0.6rem' }}>🟢</span> Drive Synced
-                    </span>
-                  )}
-                  
+                <div className="d-flex align-items-center gap-2">
                   <div
-                    className="d-flex align-items-center gap-2 px-3 py-1.5 cursor-pointer transition-all"
+                    className={`d-flex align-items-center gap-2 px-3 py-1.5 cursor-pointer font-mono font-bold text-xs transition-all ${
+                      isDark ? 'bg-slate-900 text-brand hover:bg-slate-800' : 'bg-slate-100 text-black hover:bg-slate-200'
+                    }`}
                     onClick={() => navigate('/dashboard')}
-                    style={{
-                      background: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(15, 23, 42, 0.05)',
-                      border: isDark ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid rgba(203, 213, 225, 0.8)',
-                      borderRadius: '9999px',
-                      cursor: 'pointer'
-                    }}
                     title="View Analytics Dashboard"
+                    style={{ borderRadius: '8px' }}
                   >
-                    <div
-                      className="d-flex align-items-center justify-content-center flex-shrink-0"
-                      style={{
-                        width: '30px', height: '30px',
-                        background: 'linear-gradient(135deg, #6366F1, #06B6D4)',
-                        color: 'white',
-                        borderRadius: '50%'
-                      }}
-                    >
-                      <UserRound size={15} />
-                    </div>
-                    <div className="text-start d-none d-md-block">
-                      <div className="font-bold card-title-text" style={{ fontSize: '0.82rem', lineHeight: '1.2' }}>
-                        {userProfile?.displayName || user.email?.split('@')[0] || 'User'}
-                      </div>
-                    </div>
+                    <UserRound size={15} className="text-brand" />
+                    <span className="uppercase d-none d-md-inline">
+                      {userProfile?.displayName || user.email?.split('@')[0] || 'User'}
+                    </span>
                   </div>
-
-                  <button type="button" onClick={handleLogout} className="btn btn-ghost btn-sm p-2" title="Logout">
-                    <LogOut size={18} />
-                  </button>
-                </>
-              ) : (
-                <div className="d-flex align-items-center gap-2.5">
-                  <span 
-                    className="d-none d-md-inline-flex align-items-center gap-1.5 px-3 py-1 font-bold text-uppercase"
-                    style={{
-                      fontSize: '0.7rem',
-                      background: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(15, 23, 42, 0.05)',
-                      color: isDark ? '#94A3B8' : '#475569',
-                      border: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(203, 213, 225, 0.8)',
-                      borderRadius: '9999px',
-                      letterSpacing: '0.04em'
-                    }}
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className={`btn p-2 border-0 transition-all ${
+                      isDark ? 'bg-slate-900 text-white hover:bg-rose-600' : 'bg-slate-100 text-black hover:bg-rose-600 hover:text-white'
+                    }`}
+                    title="Logout"
+                    style={{ borderRadius: '8px' }}
                   >
-                    Guest Mode
+                    <LogOut size={15} />
+                  </button>
+                </div>
+              ) : (
+                <div className="d-flex align-items-center gap-2">
+                  <span
+                    className={`font-mono font-bold text-[11px] uppercase px-3 py-1.5 d-none d-lg-inline ${
+                      isDark ? 'bg-amber-400/10 text-amber-400' : 'bg-amber-100 text-amber-900'
+                    }`}
+                    style={{ borderRadius: '6px' }}
+                  >
+                    GUEST MODE
                   </span>
                   <button 
                     type="button" 
                     onClick={() => navigate('/login')} 
-                    className="btn btn-primary btn-sm px-3.5 py-2 font-bold flex-shrink-0"
-                    style={{ fontSize: '0.86rem', borderRadius: '12px' }}
+                    className="bg-brand text-black border-0 px-4 py-2 font-headline text-xs font-black uppercase hover:bg-white hover:text-black transition-all shadow-sm"
+                    style={{ borderRadius: '6px' }}
                   >
-                    Sign In
+                    SIGN IN_
                   </button>
                 </div>
               )}
@@ -238,10 +196,11 @@ export default function MainLayout() {
               <button
                 type="button"
                 onClick={() => setMobileOpen(v => !v)}
-                className="btn btn-ghost btn-sm p-2 d-md-none"
+                className="btn bg-slate-900 text-brand border border-slate-700 p-2 d-md-none"
                 aria-label="Toggle menu"
+                style={{ borderRadius: '6px' }}
               >
-                {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+                {mobileOpen ? <X size={18} /> : <Menu size={18} />}
               </button>
             </div>
           </div>
@@ -249,15 +208,8 @@ export default function MainLayout() {
 
         {/* Mobile Navigation Dropdown */}
         {mobileOpen && (
-          <div
-            className="d-md-none border-top anim-fade-in"
-            style={{
-              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(226, 232, 240, 0.8)',
-              background: isDark ? 'rgba(18, 24, 45, 0.95)' : 'rgba(255, 255, 255, 0.96)',
-              backdropFilter: 'blur(16px)'
-            }}
-          >
-            <div className="mx-auto px-4 py-3 d-flex flex-column gap-2" style={{ maxWidth: '1280px' }}>
+          <div className="d-md-none border-t-2 border-brand/40 bg-slate-950 p-3 font-mono font-bold">
+            <div className="d-flex flex-column gap-2">
               {navItems.map((item) => {
                 const active = activeHref === item.href;
                 return (
@@ -265,14 +217,9 @@ export default function MainLayout() {
                     key={item.href}
                     to={item.href}
                     onClick={() => setMobileOpen(false)}
-                    className="px-3.5 py-2.5 text-decoration-none font-semibold"
-                    style={{
-                      fontSize: '0.92rem',
-                      borderRadius: '12px',
-                      background: active ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-                      color: active ? '#6366F1' : isDark ? 'var(--ink-700)' : '#334155',
-                      border: active ? '1px solid rgba(99, 102, 241, 0.3)' : '1px solid transparent'
-                    }}
+                    className={`p-3 text-decoration-none font-bold text-uppercase border-2 ${
+                      active ? 'bg-brand text-black border-black font-black' : 'bg-slate-900 text-white border-slate-700'
+                    }`}
                   >
                     {item.label}
                   </Link>
@@ -285,46 +232,32 @@ export default function MainLayout() {
 
       {/* Main Content Area */}
       <main className="flex-grow-1">
-        <div className="mx-auto px-3 px-md-4 px-lg-5 py-4 py-md-5" style={{ maxWidth: '1280px' }}>
+        <div className="mx-auto px-3 px-md-4 px-lg-5 py-4 py-md-5" style={{ maxWidth: '1380px' }}>
           <Outlet />
         </div>
       </main>
 
-      <footer
-        className="glass-panel border-top py-4 mt-5"
-        style={{
-          borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(226, 232, 240, 0.8)',
-          background: isDark ? 'rgba(18, 24, 45, 0.85)' : 'rgba(255, 255, 255, 0.92)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)'
-        }}
-      >
-        <div className="mx-auto px-4 px-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3" style={{ maxWidth: '1280px' }}>
-          <div className="d-flex align-items-center gap-2.5">
-            <div
-              className="d-flex align-items-center justify-content-center p-1.5"
-              style={{
-                width: '36px', height: '36px',
-                background: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(15, 23, 42, 0.05)',
-                border: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(203, 213, 225, 0.8)',
-                borderRadius: '10px'
-              }}
-            >
-              <img src={faviconSvg} alt="MarkSprint Logo" style={{ width: '22px', height: '22px', objectFit: 'contain' }} />
+      {/* Neo-Brutalism Tactical Footer */}
+      <footer className="border-t-2 border-brand/40 py-5 bg-slate-950 text-white font-mono">
+        <div className="mx-auto px-4 px-md-5" style={{ maxWidth: '1380px' }}>
+          <div className="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-4">
+            <div>
+              <h4 className="font-headline text-3xl font-black uppercase italic mb-1 text-white d-flex align-items-center gap-2">
+                MARKSPRINT <span className="text-brand text-xs font-mono font-bold not-italic">FALKON LABS</span>
+              </h4>
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 m-0">SPEED REVISION & KNOWLEDGE MASTERY ENGINE</p>
             </div>
-            <div className="font-bold card-title-text" style={{ fontSize: '0.9rem' }}>
-              © {new Date().getFullYear()} MarkSprint
+            <div className="d-flex gap-3 font-bold uppercase text-xs flex-wrap">
+              <Link to="/about" className="text-white text-decoration-none bg-slate-900 hover:bg-brand hover:text-black px-3 py-1.5 border border-slate-700 transition-all">ABOUT</Link>
+              {userProfile?.role === 'teacher' && (
+                <Link to="/content-manager" className="text-white text-decoration-none bg-slate-900 hover:bg-brand hover:text-black px-3 py-1.5 border border-slate-700 transition-all">CONTENT MANAGER</Link>
+              )}
+              <a href="https://github.com/sreehari462/marksprint" target="_blank" rel="noreferrer" className="text-white text-decoration-none bg-slate-900 hover:bg-brand hover:text-black px-3 py-1.5 border border-slate-700 transition-all">GITHUB</a>
             </div>
-          </div>
-          <div className="d-flex align-items-center gap-4 flex-wrap justify-content-center">
-            <Link to="/about" className="text-decoration-none font-medium" style={{ fontSize: '0.85rem', color: 'var(--ink-500)' }}>About</Link>
-            {userProfile?.role === 'teacher' && (
-              <Link to="/content-manager" className="text-decoration-none font-medium" style={{ fontSize: '0.85rem', color: 'var(--ink-500)' }}>Content Manager</Link>
-            )}
-            <a href="https://github.com/sreehari462/marksprint" target="_blank" rel="noreferrer" className="text-decoration-none font-medium" style={{ fontSize: '0.85rem', color: 'var(--ink-500)' }}>GitHub</a>
-          </div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--ink-400)' }}>
-            Falkon Labs Open Source · Maintained by Sree Hari Sk & S. Saravanan
+            <div className="text-md-end">
+              <p className="text-xs font-bold uppercase m-0 text-slate-300">MAINTAINED BY SREE HARI SK & S. SARAVANAN</p>
+              <p className="text-xs font-black mt-1 m-0 text-brand">© 2026_ALL_RIGHTS_RESERVED</p>
+            </div>
           </div>
         </div>
       </footer>

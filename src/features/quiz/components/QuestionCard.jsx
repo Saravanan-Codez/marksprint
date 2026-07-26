@@ -21,21 +21,21 @@ function QuestionCardImpl({
         key={currentIdx}
         className="w-100 d-flex flex-column align-items-center pb-5 position-relative anim-fade-in"
       >
-        <div className="surface w-100 p-4 p-md-5 mb-4 position-relative text-center">
-          <h2 className="text-h3 leading-relaxed mb-0" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentQ.question || "") }} />
-          {currentQ.question_image && <img src={currentQ.question_image} alt="Question" className="img-fluid mx-auto mt-4 rounded-3 border" style={{ maxHeight: '280px', objectFit: 'contain', borderColor: 'var(--ink-100)' }} />}
+        <div className="bg-white border-brutal w-100 p-4 p-md-5 mb-4 position-relative text-center text-black shadow-hard">
+          <h2 className="font-headline text-3xl font-black leading-relaxed mb-0 text-black" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentQ.question || "") }} />
+          {currentQ.question_image && <img src={currentQ.question_image} alt="Question" className="img-fluid mx-auto mt-4 border-2 border-black" style={{ maxHeight: '280px', objectFit: 'contain' }} />}
         </div>
 
         {isLocked && (
           <div className="position-absolute top-0 end-0 p-3 opacity-75 d-flex align-items-center gap-2">
-            <div className="spinner-border spinner-border-sm" role="status" style={{ color: 'var(--primary)' }}></div>
-            <span className="text-uppercase font-bold text-muted" style={{ fontSize: '0.65rem', letterSpacing: '0.12em', fontWeight: '700' }}>Processing</span>
+            <div className="spinner-border spinner-border-sm text-black" role="status"></div>
+            <span className="text-uppercase font-bold text-black font-mono" style={{ fontSize: '0.75rem' }}>PROCESSING</span>
           </div>
         )}
 
-        <div className="row g-3 w-100">
+        <div className="row g-3 w-100 font-mono">
           {currentQ.displayOptions.map((opt, i) => {
-            let statusClass = "option-default";
+            let statusClass = "neo-option-default";
             let showCorrectIcon = false;
             let showWrongIcon = false;
 
@@ -46,19 +46,19 @@ function QuestionCardImpl({
             if (isLocked) {
               if (isTestMode) {
                 if (optTextClean === userAnsClean) {
-                  statusClass = "option-checked";
+                  statusClass = "neo-option-checked";
                 } else {
-                  statusClass = "option-inactive";
+                  statusClass = "neo-option-inactive";
                 }
               } else {
                 if (optTextClean === answerClean || (optTextClean && answerClean && optTextClean.toLowerCase() === answerClean.toLowerCase())) {
-                  statusClass = "option-correct";
+                  statusClass = "neo-option-correct";
                   showCorrectIcon = true;
                 } else if (optTextClean === userAnsClean) {
-                  statusClass = "option-wrong";
+                  statusClass = "neo-option-wrong";
                   showWrongIcon = true;
                 } else {
-                  statusClass = "option-inactive";
+                  statusClass = "neo-option-inactive";
                 }
               }
             }
@@ -66,9 +66,9 @@ function QuestionCardImpl({
             return (
               <div key={`${currentIdx}-${i}`} className="col-12 col-md-6">
                 <button
-                  className={`option-btn d-flex align-items-center justify-content-between w-100 p-3 rounded-3 border text-start ${statusClass}`}
+                  className={`neo-option-btn d-flex align-items-center justify-content-between w-100 p-3.5 border-brutal text-start ${statusClass}`}
                   style={{
-                    minHeight: '72px',
+                    minHeight: '74px',
                     cursor: isLocked ? 'default' : 'pointer'
                   }}
                   onClick={() => handleAnswer(opt.text)}
@@ -76,28 +76,22 @@ function QuestionCardImpl({
                 >
                   <div className="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
                     <span
-                      className="flex-shrink-0 d-inline-flex align-items-center justify-content-center"
+                      className="flex-shrink-0 d-inline-flex align-items-center justify-content-center border-2 border-black bg-black text-brand font-headline font-black text-sm"
                       style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: 'var(--radius-sm)',
-                        background: 'var(--surface-3)',
-                        color: 'var(--ink-700)',
-                        fontWeight: '700',
-                        fontSize: '0.82rem',
-                        border: '1px solid var(--ink-100)'
+                        width: '36px',
+                        height: '36px'
                       }}
                     >
                       {LETTERS[i] || (i + 1)}
                     </span>
                     <div className="flex-grow-1 min-w-0">
-                      {opt.text && <span className="block text-base leading-relaxed font-medium" style={{ display: 'block', color: 'inherit' }} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(opt.text) }} />}
-                      {opt.img && <img src={opt.img} alt={`Option ${i + 1}`} className="img-fluid rounded-2 my-2" style={{ maxHeight: '120px', objectFit: 'contain' }} />}
+                      {opt.text && <span className="block text-base leading-relaxed font-bold text-black" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(opt.text) }} />}
+                      {opt.img && <img src={opt.img} alt={`Option ${i + 1}`} className="img-fluid border-2 border-black my-2" style={{ maxHeight: '120px', objectFit: 'contain' }} />}
                     </div>
                   </div>
 
-                  {showCorrectIcon && <CheckCircle2 className="flex-shrink-0 ms-3" size={22} style={{ color: 'var(--success)' }} />}
-                  {showWrongIcon && <XCircle className="flex-shrink-0 ms-3" size={22} style={{ color: 'var(--danger)' }} />}
+                  {showCorrectIcon && <CheckCircle2 className="flex-shrink-0 ms-3 text-emerald-600" size={24} />}
+                  {showWrongIcon && <XCircle className="flex-shrink-0 ms-3 text-rose-600" size={24} />}
                 </button>
               </div>
             );
@@ -106,57 +100,46 @@ function QuestionCardImpl({
 
         <style dangerouslySetInnerHTML={{
           __html: `
-          .option-btn {
-            font-family: var(--font-sans);
-            border: 1px solid;
-            transition: transform .2s cubic-bezier(.2,.7,.2,1), background-color .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
-          }
-          .option-btn:active:not(:disabled) { transform: translateY(1px); }
-          .option-btn:focus-visible { outline: none; box-shadow: var(--ring); }
-
-          .option-default {
-            background: var(--surface) !important;
-            border-color: var(--ink-200) !important;
-            color: var(--ink-800) !important;
-            box-shadow: var(--shadow-xs) !important;
-          }
-          .option-default:hover:not(:disabled) {
-            background: var(--surface-2) !important;
-            border-color: var(--primary) !important;
-            color: var(--ink-900) !important;
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md) !important;
+          .neo-option-btn {
+            font-family: var(--font-mono);
+            border: 4px solid #000000 !important;
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
           }
 
-          .option-checked {
-            background: var(--primary-50) !important;
-            border-color: var(--primary) !important;
-            color: var(--ink-900) !important;
-            box-shadow: var(--shadow-sm) !important;
+          .neo-option-default {
+            background: #FFFFFF !important;
+            color: #000000 !important;
+          }
+          .neo-option-default:hover:not(:disabled) {
+            background: #FBBF24 !important;
+            color: #000000 !important;
+            transform: translate(-4px, -4px);
+            box-shadow: 6px 6px 0px 0px #000000 !important;
           }
 
-          .option-correct {
-            background: var(--success-100) !important;
-            border-color: var(--success) !important;
-            color: var(--ink-900) !important;
-            box-shadow: var(--shadow-sm) !important;
+          .neo-option-checked {
+            background: #FBBF24 !important;
+            color: #000000 !important;
+            box-shadow: 4px 4px 0px 0px #000000 !important;
           }
 
-          .option-wrong {
-            background: var(--danger-100) !important;
-            border-color: var(--danger) !important;
-            color: var(--ink-900) !important;
-            box-shadow: var(--shadow-sm) !important;
+          .neo-option-correct {
+            background: #D1FAE5 !important;
+            color: #065F46 !important;
+            border-color: #059669 !important;
           }
 
-          .option-inactive {
-            background: var(--surface-2) !important;
-            border-color: var(--ink-100) !important;
-            color: var(--ink-400) !important;
-            opacity: 0.8;
+          .neo-option-wrong {
+            background: #FFE4E6 !important;
+            color: #9F1239 !important;
+            border-color: #E11D48 !important;
           }
-        `
-        }} />
+
+          .neo-option-inactive {
+            opacity: 0.55;
+            background: #F1F5F9 !important;
+          }
+        `}} />
       </div>
     </AnimatePresence>
   );

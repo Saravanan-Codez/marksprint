@@ -128,92 +128,62 @@ export default function DashboardPage() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="container py-4 py-md-5">
+    <div className="d-flex flex-column gap-5 anim-fade-in font-mono">
 
-      {/* ── Profile / Gamification Banner ─────────────────────────────────── */}
-      <div className="glass-card-cosmic p-4 p-md-5 mb-4 position-relative overflow-hidden" style={{ borderRadius: '24px' }}>
-        <div className="position-relative z-2 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
-
-          {/* Avatar + name + streak + division */}
-          <div className="d-flex align-items-center gap-3.5">
-            <div
-              className="d-flex align-items-center justify-content-center flex-shrink-0 overflow-hidden"
-              style={{ width: '68px', height: '68px', background: 'linear-gradient(135deg, #6366F1, #06B6D4)', border: `2px solid ${currentDivision.color}`, boxShadow: '0 8px 24px rgba(99, 102, 241, 0.4)', borderRadius: '20px' }}
-            >
-              {gamification.customAvatarUrl || user?.photoURL ? (
-                <img src={gamification.customAvatarUrl || user.photoURL} alt="Profile" className="w-100 h-100" style={{ objectFit: 'cover' }} />
-              ) : (
-                <User size={36} color="#fff" />
+      {/* ── Operative Profile Header ────────────────────────────────────────── */}
+      <div className="bg-white border-brutal p-4 p-md-5 text-black d-flex flex-column md:flex-row justify-content-between align-items-center gap-4 shadow-hard">
+        <div className="d-flex align-items-center gap-4">
+          <div className="w-24 h-24 bg-black text-brand border-brutal flex align-items-center justify-content-center flex-shrink-0" style={{ width: '80px', height: '80px' }}>
+            {gamification.customAvatarUrl || user?.photoURL ? (
+              <img src={gamification.customAvatarUrl || user.photoURL} alt="Profile" className="w-100 h-100" style={{ objectFit: 'cover' }} />
+            ) : (
+              <User size={48} className="text-brand" />
+            )}
+          </div>
+          <div>
+            <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
+              <h2 className="font-headline text-4xl font-black uppercase italic m-0 text-black">
+                {displayName.toUpperCase()}
+              </h2>
+              <span className="bg-brand text-black px-2 py-0.5 text-xs font-bold border border-black uppercase">
+                {currentDivision.icon} {currentDivision.name}
+              </span>
+            </div>
+            <div className="d-flex gap-2">
+              <span className="bg-black text-white px-2 py-0.5 text-xs font-bold font-mono">LVL {levelInfo.level}</span>
+              <span className="bg-brand text-black px-2 py-0.5 text-xs font-bold italic font-mono">XP: {(gamification.xp || 0).toLocaleString()}</span>
+              {gamification.streakDays > 0 && (
+                <span className="bg-black text-brand px-2 py-0.5 text-xs font-bold font-mono">🔥 {gamification.streakDays}D STREAK</span>
               )}
             </div>
-
-            <div>
-              <div className="d-flex align-items-center gap-2 flex-wrap mb-1">
-                <h1 className="font-extrabold text-white mb-0" style={{ fontSize: '1.65rem', letterSpacing: '-0.02em' }}>
-                  {displayName}
-                </h1>
-                <span 
-                  className="px-2.5 py-0.5 font-bold text-uppercase d-inline-flex align-items-center gap-1" 
-                  style={{ fontSize: '0.68rem', background: currentDivision.bg, color: currentDivision.color, border: `1px solid ${currentDivision.border}`, borderRadius: '9999px' }}
-                >
-                  <span>{currentDivision.icon}</span> {currentDivision.name}
-                </span>
-                <span className="px-2.5 py-0.5 font-bold text-uppercase d-inline-flex align-items-center gap-1" style={{ fontSize: '0.68rem', background: gamification.privacyMode === 'private' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)', color: gamification.privacyMode === 'private' ? '#F87171' : '#34D399', border: gamification.privacyMode === 'private' ? '1px solid rgba(248,113,113,0.3)' : '1px solid rgba(52,211,153,0.3)', borderRadius: '9999px' }}>
-                  {gamification.privacyMode === 'private' ? <Lock size={10} /> : <Eye size={10} />}
-                  {gamification.privacyMode || 'public'}
-                </span>
-              </div>
-
-              {/* Streak + level bar + shield */}
-              <div className="d-flex align-items-center gap-3 flex-wrap">
-                <span className="font-extrabold d-inline-flex align-items-center gap-1" style={{ color: '#F97316', fontSize: '0.88rem' }}>
-                  <Flame size={18} /> {gamification.streakDays || 1} Day Streak
-                </span>
-                {gamification.streakShieldActive && (
-                  <span className="font-bold d-inline-flex align-items-center gap-1" style={{ color: '#38BDF8', fontSize: '0.78rem' }} title="Streak Protected for Missed Days">
-                    <Shield size={14} /> Shield Protected
-                  </span>
-                )}
-                <div className="d-flex align-items-center gap-2" style={{ minWidth: '200px' }}>
-                  <span className="font-bold text-white" style={{ fontSize: '0.8rem' }}>Lvl {levelInfo.level}</span>
-                  <div className="flex-grow-1" style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '9999px', overflow: 'hidden' }}>
-                    <div style={{ width: `${levelInfo.percent}%`, height: '100%', background: 'linear-gradient(90deg, #6366F1, #06B6D4)', borderRadius: '9999px', transition: 'width 0.5s ease' }} />
-                  </div>
-                  <span className="text-muted" style={{ fontSize: '0.74rem' }}>{(gamification.xp || 0).toLocaleString()} XP</span>
-                </div>
-              </div>
-            </div>
           </div>
+        </div>
 
-          {/* Action buttons */}
-          <div className="d-flex align-items-center gap-2 flex-wrap">
-            <button
-              onClick={() => setShowSettings(true)}
-              className="btn btn-outline px-3.5 py-2 font-semibold d-flex align-items-center gap-2"
-              style={{ fontSize: '0.88rem' }}
-            >
-              <Settings size={16} /> Account Settings
-            </button>
-            <button
-              onClick={() => navigate('/')}
-              className="btn btn-primary px-4 py-2 font-bold d-flex align-items-center gap-2"
-              style={{ fontSize: '0.9rem' }}
-            >
-              <Zap size={16} /> Start Sprint
-            </button>
-          </div>
+        <div className="d-flex align-items-center gap-3 flex-wrap">
+          <button
+            onClick={() => setShowSettings(true)}
+            className="bg-white text-black border-2 border-black px-4 py-2.5 font-headline font-black uppercase hover:bg-black hover:text-white transition-all shadow-hard-sm"
+          >
+            SETTINGS_
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="bg-black text-white border-2 border-black px-6 py-3 font-headline text-xl font-black uppercase hover:bg-brand hover:text-black transition-all shadow-hard-sm"
+          >
+            START SPRINT
+          </button>
         </div>
       </div>
 
-      {/* ── Daily Quests Section ────────────────────────────────────────── */}
+      {/* ── Daily Sprint Quests Section ────────────────────────────────────────── */}
       {gamification.dailyQuests?.list && (
-        <div className="glass-card-cosmic p-4 mb-4" style={{ borderRadius: '20px' }}>
-          <div className="d-flex align-items-center justify-content-between mb-3">
+        <div className="bg-white border-brutal p-4 text-black shadow-hard-sm">
+          <div className="d-flex align-items-center justify-content-between mb-3 border-b-2 border-black pb-2">
             <div className="d-flex align-items-center gap-2">
-              <Gift size={20} className="text-cyan-400" />
-              <h3 className="font-bold card-title-text m-0" style={{ fontSize: '1.1rem' }}>Daily Sprint Quests</h3>
+              <Gift size={20} className="text-black" />
+              <h3 className="font-headline text-2xl font-black uppercase italic m-0 text-black">DAILY SPRINT QUESTS</h3>
             </div>
-            <span className="text-subtext" style={{ fontSize: '0.78rem' }}>Resets Daily</span>
+            <span className="font-mono text-xs font-bold uppercase text-black bg-brand px-2 py-0.5 border border-black">RESETS DAILY</span>
           </div>
 
           <div className="row g-3">
@@ -222,41 +192,41 @@ export default function DashboardPage() {
 
               return (
                 <div key={q.id} className="col-12 col-md-4">
-                  <div className="card-item-nested p-3.5 h-100 d-flex flex-column justify-content-between">
+                  <div className="bg-white border-2 border-black p-3.5 h-100 d-flex flex-column justify-content-between shadow-hard-sm">
                     <div>
                       <div className="d-flex align-items-center justify-content-between mb-1">
-                        <span className="font-bold card-title-text" style={{ fontSize: '0.9rem' }}>{q.icon} {q.title}</span>
-                        <span className="font-bold font-mono" style={{ color: '#EAB308', fontSize: '0.8rem' }}>+{q.reward} XP</span>
+                        <span className="font-bold font-mono text-black text-xs uppercase">{q.icon} {q.title}</span>
+                        <span className="font-bold font-mono text-black bg-brand px-1.5 py-0.5 text-xs border border-black">+{q.reward} XP</span>
                       </div>
-                      <p className="m-0 mb-2 text-subtext" style={{ fontSize: '0.8rem' }}>{q.desc}</p>
+                      <p className="m-0 mb-2 font-mono text-xs font-semibold text-slate-700">{q.desc}</p>
                     </div>
 
                     <div>
-                      <div className="d-flex align-items-center justify-content-between mb-1 text-subtext" style={{ fontSize: '0.76rem' }}>
-                        <span>Progress</span>
+                      <div className="d-flex align-items-center justify-content-between mb-1 font-mono text-xs font-bold text-black">
+                        <span>PROGRESS</span>
                         <span>{q.current} / {q.target}</span>
                       </div>
-                      <div className="w-100 mb-2.5" style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '9999px', overflow: 'hidden' }}>
-                        <div style={{ width: `${percent}%`, height: '100%', background: q.completed ? '#10B981' : '#06B6D4', borderRadius: '9999px', transition: 'width 0.4s ease' }} />
+                      <div className="w-100 mb-2 border border-black" style={{ height: '8px', background: '#E2E8F0', overflow: 'hidden' }}>
+                        <div style={{ width: `${percent}%`, height: '100%', background: q.completed ? '#10B981' : '#FBBF24', transition: 'width 0.4s ease' }} />
                       </div>
 
                       {q.completed ? (
                         q.claimed ? (
-                          <div className="text-center py-1 font-bold text-success" style={{ fontSize: '0.78rem' }}>
-                            <Check size={14} className="me-1 d-inline" /> Claimed
+                          <div className="text-center py-1 font-bold text-success text-xs">
+                            <Check size={14} className="me-1 d-inline" /> CLAIMED
                           </div>
                         ) : (
                           <button
                             onClick={() => handleClaimQuest(q.id, q.reward)}
-                            className="btn btn-accent btn-sm w-100 font-bold"
+                            className="bg-brand text-black border border-black btn-sm w-100 font-bold font-headline uppercase"
                             style={{ fontSize: '0.8rem' }}
                           >
-                            Claim +{q.reward} XP
+                            CLAIM +{q.reward} XP
                           </button>
                         )
                       ) : (
-                        <div className="text-center py-1 font-semibold text-muted" style={{ fontSize: '0.78rem' }}>
-                          In Progress
+                        <div className="text-center py-1 font-semibold text-slate-500 text-xs">
+                          IN PROGRESS
                         </div>
                       )}
                     </div>
@@ -268,44 +238,24 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ── Stats Grid ────────────────────────────────────────────────────────── */}
-      <div className="row g-3 mb-4">
-        {[
-          { icon: <Trophy size={22} />, color: '#818CF8', bg: 'rgba(99,102,241,0.15)', value: totalSprints, label: 'Sprints Completed' },
-          { icon: <Target size={22} />, color: '#34D399', bg: 'rgba(16,185,129,0.15)', value: `${overallAccuracy}%`, label: 'Overall Accuracy' },
-          { icon: <CheckCircle2 size={22} />, color: '#38BDF8', bg: 'rgba(56,189,248,0.15)', value: `${totalCorrect}/${totalQuestions}`, label: 'Questions Solved' },
-          { icon: <Clock size={22} />, color: '#FB923C', bg: 'rgba(251,146,60,0.15)', value: `${avgTimePerQuestion}s`, label: 'Avg Speed / Q' },
-        ].map(({ icon, color, bg, value, label }, i) => (
-          <div key={i} className="col-6 col-md-3">
-            <div className="glass-card-cosmic p-4 text-center h-100" style={{ borderRadius: '18px' }}>
-              <div className="d-flex align-items-center justify-content-center mx-auto mb-2.5" style={{ width: '46px', height: '46px', background: bg, color, borderRadius: '14px' }}>
-                {icon}
-              </div>
-              <div className="font-extrabold text-white" style={{ fontSize: '1.85rem' }}>{value}</div>
-              <div style={{ fontSize: '0.78rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Google Drive Storage Panel ────────────────────────────────────────── */}
-      <div className="glass-card-cosmic p-4 mb-4" style={{ borderRadius: '18px', borderLeft: '4px solid #06B6D4' }}>
+      {/* Google Drive Storage Panel */}
+      <div className="bg-slate-900 border-2 border-cyan-400 p-4 text-white shadow-hard-sm">
         <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
           <div className="d-flex align-items-center gap-3">
-            <div style={{ padding: '12px', background: googleAccessToken ? 'rgba(16,185,129,0.15)' : 'rgba(100,116,139,0.15)', color: googleAccessToken ? '#34D399' : '#94A3B8', border: googleAccessToken ? '1px solid rgba(52,211,153,0.3)' : '1px solid rgba(148,163,184,0.2)', borderRadius: '14px' }}>
+            <div className="p-3 bg-black text-cyan-400 border border-cyan-400 flex-shrink-0">
               {googleAccessToken ? <Cloud size={24} /> : <CloudOff size={24} />}
             </div>
             <div>
               <div className="d-flex align-items-center gap-2 flex-wrap mb-1">
-                <h3 className="font-bold text-white mb-0" style={{ fontSize: '1.1rem' }}>Google Drive Storage</h3>
-                <span className={`badge font-bold d-flex align-items-center gap-1 ${googleAccessToken ? 'bg-success' : 'bg-secondary'}`} style={{ fontSize: '0.68rem', borderRadius: '9999px' }}>
-                  {googleAccessToken ? <><ShieldCheck size={11} /> CONNECTED</> : 'OFFLINE MODE'}
+                <h3 className="font-headline font-black text-xl text-white mb-0">GOOGLE DRIVE STORAGE</h3>
+                <span className={`badge font-bold px-2 py-0.5 border text-xs ${googleAccessToken ? 'bg-emerald-500 text-black border-black' : 'bg-slate-800 text-slate-300 border-slate-600'}`}>
+                  {googleAccessToken ? '✓ CONNECTED' : 'OFFLINE MODE'}
                 </span>
-                <span className="badge font-mono" style={{ background: 'rgba(56,189,248,0.12)', color: '#38BDF8', border: '1px solid rgba(56,189,248,0.3)', fontSize: '0.68rem', borderRadius: '9999px' }}>
-                  <FolderCheck size={11} className="me-1" />/MarkSprint/
+                <span className="bg-black text-cyan-400 border border-cyan-400 font-mono text-xs font-bold px-2 py-0.5">
+                  /MarkSprint/
                 </span>
               </div>
-              <p className="m-0" style={{ fontSize: '0.85rem', color: '#94A3B8' }}>
+              <p className="m-0 text-xs font-bold text-slate-300">
                 {googleAccessToken
                   ? 'Assessment records auto-sync to your Google Drive inside /MarkSprint/.'
                   : 'Sign in with Google to enable automatic Drive cloud backup.'}
@@ -314,23 +264,23 @@ export default function DashboardPage() {
           </div>
 
           <div className="d-flex align-items-center gap-2 flex-wrap">
-            <button onClick={() => setShowInspector(v => !v)} className="btn btn-outline px-3 py-2 font-semibold d-flex align-items-center gap-2" style={{ fontSize: '0.85rem' }}>
-              <Code size={15} /> {showInspector ? 'Hide JSON' : 'Inspect JSON'}
+            <button onClick={() => setShowInspector(v => !v)} className="bg-black text-white border-2 border-black px-3 py-1.5 font-headline font-bold text-xs uppercase hover:bg-white hover:text-black transition-all">
+              <Code size={14} className="me-1 d-inline" /> {showInspector ? 'HIDE JSON' : 'INSPECT JSON'}
             </button>
             {!isGuestUser && (
-              <button onClick={handleManualSync} disabled={syncing} className="btn btn-outline px-3 py-2 font-semibold d-flex align-items-center gap-2" style={{ fontSize: '0.85rem' }}>
-                <RefreshCw size={15} className={syncing ? 'animate-spin' : ''} />
-                {syncing ? 'Syncing...' : 'Sync to Drive'}
+              <button onClick={handleManualSync} disabled={syncing} className="bg-brand text-black border-2 border-black px-3 py-1.5 font-headline font-bold text-xs uppercase hover:bg-white hover:text-black transition-all">
+                <RefreshCw size={14} className={`me-1 d-inline ${syncing ? 'animate-spin' : ''}`} />
+                {syncing ? 'SYNCING...' : 'SYNC DRIVE'}
               </button>
             )}
             {!isGuestUser && (
-              <button onClick={handleExportJSON} className="btn btn-outline px-3 py-2 font-semibold d-flex align-items-center gap-2" style={{ fontSize: '0.85rem' }}>
-                <Download size={15} /> Export JSON
+              <button onClick={handleExportJSON} className="bg-black text-brand border-2 border-black px-3 py-1.5 font-headline font-bold text-xs uppercase hover:bg-brand hover:text-black transition-all">
+                <Download size={14} className="me-1 d-inline" /> EXPORT JSON
               </button>
             )}
             {isGuestUser && (
-              <div className="px-3 py-2 font-semibold d-flex align-items-center gap-2" style={{ fontSize: '0.8rem', color: '#94A3B8', background: 'rgba(148,163,184,0.08)', borderRadius: '12px', border: '1px solid rgba(148,163,184,0.15)' }}>
-                🔒 Sign in to enable Drive Sync
+              <div className="px-3 py-1.5 font-bold text-xs uppercase bg-black text-slate-400 border border-slate-700">
+                🔒 SIGN IN FOR DRIVE SYNC
               </div>
             )}
           </div>
@@ -338,95 +288,94 @@ export default function DashboardPage() {
 
         {/* JSON Inspector */}
         {showInspector && (
-          <div className="mt-3 p-3" style={{ background: '#090D16', border: '1px solid rgba(6, 182, 212, 0.3)', borderRadius: '12px' }}>
+          <div className="mt-3 p-3 bg-black border-2 border-cyan-400 text-cyan-400 font-mono">
             <div className="d-flex align-items-center justify-content-between mb-2">
-              <span className="font-bold text-white" style={{ fontSize: '0.78rem' }}>
-                📁 /MarkSprint/marksprint_structured_data.json Preview
+              <span className="font-bold text-xs">
+                📁 /MarkSprint/marksprint_structured_data.json PREVIEW
               </span>
-              <button onClick={() => setShowInspector(false)} className="btn btn-link p-0 text-decoration-none font-bold" style={{ color: '#F43F5E', fontSize: '0.78rem' }}>
-                Close ✕
+              <button onClick={() => setShowInspector(false)} className="text-rose-400 font-bold border-0 bg-transparent text-xs">
+                CLOSE ✕
               </button>
             </div>
-            <pre className="m-0 p-3 overflow-auto" style={{ background: '#05070E', fontSize: '0.75rem', maxHeight: '240px', lineHeight: '1.4', color: '#67e8f9', borderRadius: '8px' }}>
+            <pre className="m-0 p-3 overflow-auto text-xs" style={{ maxHeight: '240px', lineHeight: '1.4', background: '#05070E' }}>
               {JSON.stringify(structuredExportPayload, null, 2)}
             </pre>
           </div>
         )}
 
         {syncNotice && (
-          <div className="mt-3 p-2 font-semibold text-center" style={{ background: 'rgba(6, 182, 212, 0.15)', border: '1px solid rgba(6, 182, 212, 0.3)', color: '#06B6D4', fontSize: '0.84rem', borderRadius: '10px' }}>
+          <div className="mt-3 p-2 font-bold text-center bg-brand text-black border-2 border-black text-xs uppercase">
             {syncNotice}
           </div>
         )}
       </div>
 
-      {/* ── Friends Leaderboard ───────────────────────────────────────────────── */}
+      {/* Friends Leaderboard */}
       <FriendsLeaderboard />
 
-      {/* ── Main Two-Column Layout ────────────────────────────────────────────── */}
+      {/* Main Two-Column Layout */}
       <div className="row g-4 mb-4">
 
         {/* Sprint History */}
         <div className="col-12 col-lg-7">
-          <div className="glass-card-cosmic p-4 h-100" style={{ borderRadius: '18px' }}>
-            <div className="d-flex align-items-center justify-content-between mb-4">
-              <h2 className="font-bold text-white m-0" style={{ fontSize: '1.15rem' }}>
-                Recent Sprint History
+          <div className="bg-slate-900 border-2 border-brand/50 p-4 h-100 text-white shadow-hard-sm">
+            <div className="d-flex align-items-center justify-content-between mb-3 border-b-2 border-brand/40 pb-2">
+              <h2 className="font-headline text-2xl font-black uppercase italic m-0 text-white">
+                RECENT SPRINT HISTORY_
               </h2>
-              <span style={{ fontSize: '0.78rem', color: '#64748B' }}>{history.length} Total Records</span>
+              <span className="bg-brand text-black px-2 py-0.5 font-mono text-xs font-bold border border-black">{history.length} RECORDS</span>
             </div>
 
             {history.length === 0 ? (
               <div className="text-center py-5">
-                <Flame size={36} color="#475569" className="mb-2" />
-                <p className="text-white font-semibold mb-1">No Sprint History Yet</p>
-                <p style={{ fontSize: '0.84rem', color: '#94A3B8' }}>Take your first quiz sprint to track your performance!</p>
-                <button onClick={() => navigate('/')} className="btn btn-primary mt-2 px-4 py-2 font-bold" style={{ fontSize: '0.84rem' }}>
-                  Start Sprint
+                <Flame size={36} className="text-brand mb-2 mx-auto" />
+                <p className="font-headline text-lg font-bold text-white mb-1">NO SPRINT HISTORY YET</p>
+                <p className="text-xs font-bold text-slate-300 font-mono">Take your first quiz sprint to track your performance!</p>
+                <button onClick={() => navigate('/')} className="bg-brand text-black border-2 border-black mt-3 px-5 py-2 font-headline font-black uppercase hover:bg-white">
+                  START SPRINT
                 </button>
               </div>
             ) : (
-              <div className="d-flex flex-column gap-2.5" style={{ maxHeight: '420px', overflowY: 'auto' }}>
+              <div className="d-flex flex-column gap-3" style={{ maxHeight: '440px', overflowY: 'auto' }}>
                 {history.map((item) => {
                   const percent = item.totalQuestions > 0 ? Math.round((item.score / item.totalQuestions) * 100) : 0;
                   const dateStr = item.timestamp
                     ? new Date(item.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
                     : 'Recent';
                   const hasTelemetry = item.telemetry && item.telemetry.length > 0;
-                  const scoreColor = percent >= 80 ? '#34D399' : percent >= 50 ? '#FBBF24' : '#F87171';
+                  const scoreColorClass = percent >= 80 ? 'bg-emerald-400 text-black' : percent >= 50 ? 'bg-brand text-black' : 'bg-rose-500 text-white';
 
                   return (
                     <div
                       key={item.id || item.timestamp}
-                      className="card-item-nested p-3.5 d-flex flex-column gap-2"
+                      className="bg-black border-2 border-slate-700 p-3.5 d-flex flex-column gap-2 text-white"
                     >
                       <div className="d-flex align-items-center justify-content-between gap-3">
                         <div>
-                          <div className="font-bold card-title-text text-capitalize" style={{ fontSize: '0.92rem' }}>
+                          <div className="font-headline font-black text-xl uppercase text-white">
                             {item.subject || 'General Sprint'}
                           </div>
-                          <div className="d-flex align-items-center gap-2 mt-1 text-subtext" style={{ fontSize: '0.76rem' }}>
+                          <div className="d-flex align-items-center gap-2 mt-0.5 font-mono text-xs text-slate-400 font-bold">
                             <span>{dateStr}</span>
                             <span>•</span>
-                            <span>{item.totalQuestions || 0} Questions</span>
+                            <span>{item.totalQuestions || 0} QUESTIONS</span>
                           </div>
                         </div>
-                        <div className="font-extrabold text-end" style={{ fontSize: '1.05rem', color: scoreColor }}>
+                        <div className={`font-headline font-black text-lg px-3 py-1 border border-black ${scoreColorClass}`}>
                           {item.score}/{item.totalQuestions} ({percent}%)
                         </div>
                       </div>
 
                       {hasTelemetry && (
-                        <div className="pt-2 border-top" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-                          <span className="font-bold text-muted d-block mb-1" style={{ fontSize: '0.72rem' }}>
-                            ⏱ Per-Question Telemetry:
+                        <div className="pt-2 border-t border-slate-800">
+                          <span className="font-mono text-[10px] font-bold text-brand uppercase d-block mb-1">
+                            ⏱ PER-QUESTION TELEMETRY:
                           </span>
                           <div className="d-flex flex-wrap gap-1.5">
                             {item.telemetry.map((t, tIdx) => (
                               <span
                                 key={tIdx}
-                                className="px-2 font-mono"
-                                style={{ fontSize: '0.68rem', background: t.isCorrect ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: t.isCorrect ? '#34D399' : '#F87171', border: t.isCorrect ? '1px solid rgba(52,211,153,0.3)' : '1px solid rgba(248,113,113,0.3)', borderRadius: '6px', lineHeight: '1.8' }}
+                                className={`px-2 py-0.5 font-mono text-[11px] font-bold border ${t.isCorrect ? 'bg-emerald-950 text-emerald-300 border-emerald-600' : 'bg-rose-950 text-rose-300 border-rose-600'}`}
                                 title={`Q${t.questionIndex}: ${t.secondsSpent}s (${t.isCorrect ? 'Correct' : 'Wrong'})`}
                               >
                                 Q{t.questionIndex}: {t.secondsSpent}s {t.isCorrect ? '✓' : '✗'}
@@ -445,32 +394,31 @@ export default function DashboardPage() {
 
         {/* Subject Mastery */}
         <div className="col-12 col-lg-5">
-          <div className="glass-card-cosmic p-4 h-100" style={{ borderRadius: '18px' }}>
-            <div className="d-flex align-items-center gap-2 mb-4">
-              <BarChart2 size={20} color="#818CF8" />
-              <h2 className="font-bold text-white m-0" style={{ fontSize: '1.15rem' }}>Subject Mastery</h2>
+          <div className="bg-slate-900 border-2 border-brand/50 p-4 h-100 text-white shadow-hard-sm">
+            <div className="d-flex align-items-center gap-2 mb-3 border-b-2 border-brand/40 pb-2">
+              <BarChart2 size={22} className="text-brand" />
+              <h2 className="font-headline text-2xl font-black uppercase italic m-0 text-white">SUBJECT MASTERY_</h2>
             </div>
 
             {Object.keys(subjectStats).length === 0 ? (
               <div className="text-center py-5">
-                <BookOpen size={36} color="#475569" className="mb-2" />
-                <p className="text-white font-semibold mb-1">No Subject Data Yet</p>
-                <p style={{ fontSize: '0.84rem', color: '#94A3B8' }}>Complete quizzes to see subject mastery stats.</p>
+                <BookOpen size={36} className="text-slate-500 mb-2 mx-auto" />
+                <p className="font-headline text-lg font-bold text-white mb-1">NO SUBJECT DATA YET</p>
+                <p className="text-xs font-bold text-slate-300 font-mono">Complete quizzes to see subject mastery stats.</p>
               </div>
             ) : (
-              <div className="d-flex flex-column gap-3">
+              <div className="d-flex flex-column gap-3 font-mono">
                 {Object.entries(subjectStats).map(([sub, stat]) => {
                   const accuracy = stat.total > 0 ? Math.round((stat.correct / stat.total) * 100) : 0;
-                  const barColor = accuracy >= 75 ? 'linear-gradient(90deg,#10B981,#34D399)' : accuracy >= 50 ? 'linear-gradient(90deg,#F59E0B,#FBBF24)' : 'linear-gradient(90deg,#EF4444,#F87171)';
-                  const textColor = accuracy >= 75 ? '#34D399' : accuracy >= 50 ? '#FBBF24' : '#F87171';
+                  const barBg = accuracy >= 75 ? '#10B981' : accuracy >= 50 ? '#FBBF24' : '#F43F5E';
                   return (
-                    <div key={sub}>
-                      <div className="d-flex align-items-center justify-content-between mb-1" style={{ fontSize: '0.86rem' }}>
-                        <span className="font-bold text-white text-capitalize">{sub}</span>
-                        <span className="font-bold" style={{ color: textColor }}>{accuracy}% ({stat.correct}/{stat.total})</span>
+                    <div key={sub} className="bg-black p-3 border border-slate-700">
+                      <div className="d-flex align-items-center justify-content-between mb-1 text-xs">
+                        <span className="font-bold text-white uppercase">{sub}</span>
+                        <span className="font-headline font-black text-sm" style={{ color: barBg }}>{accuracy}% ({stat.correct}/{stat.total})</span>
                       </div>
-                      <div className="w-100" style={{ height: '8px', background: 'rgba(255,255,255,0.08)', borderRadius: '9999px', overflow: 'hidden' }}>
-                        <div style={{ width: `${accuracy}%`, height: '100%', background: barColor, borderRadius: '9999px', transition: 'width 0.5s ease' }} />
+                      <div className="w-100 border border-slate-700 bg-slate-900" style={{ height: '10px' }}>
+                        <div style={{ width: `${accuracy}%`, height: '100%', background: barBg, transition: 'width 0.5s ease' }} />
                       </div>
                     </div>
                   );
@@ -478,9 +426,9 @@ export default function DashboardPage() {
               </div>
             )}
 
-            <div className="mt-4 pt-3 border-top" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-              <Link to="/" className="text-decoration-none font-bold d-flex align-items-center justify-content-between" style={{ color: '#38BDF8', fontSize: '0.86rem' }}>
-                <span>Browse Subjects</span>
+            <div className="mt-4 pt-3 border-t border-slate-800">
+              <Link to="/" className="bg-brand text-black border-2 border-black p-3 font-headline font-black text-xs uppercase text-decoration-none d-flex align-items-center justify-content-between hover:bg-white">
+                <span>BROWSE TARGET SECTORS</span>
                 <ArrowRight size={16} />
               </Link>
             </div>
