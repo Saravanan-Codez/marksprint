@@ -9,7 +9,9 @@ import {
   getLocalGamificationData, 
   saveGamificationData, 
   calculateXpForQuiz, 
-  calculateStreakUpdate 
+  calculateStreakUpdate,
+  updateQuestsOnSprintComplete,
+  syncGamificationToFirestore
 } from "../../../services/gamificationService";
 import { 
   saveRecordBookToDrive, 
@@ -18,7 +20,7 @@ import {
 
 export default function ResultsBoard({ engine }) {
   const navigate = useNavigate();
-  const { googleAccessToken, userProfile } = useAuth();
+  const { user, googleAccessToken, userProfile } = useAuth();
   const { firstAttemptQuestions, firstAttemptAnswers, firstAttemptCorrect, selectedSubject } = engine;
   const [syncedDrive, setSyncedDrive] = useState(false);
 
@@ -27,7 +29,7 @@ export default function ResultsBoard({ engine }) {
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
   const gamification = getLocalGamificationData();
   const earnedXp = calculateXpForQuiz(correct, total, firstAttemptAnswers || []);
-  const streakInfo = calculateStreakUpdate(gamification.lastStreakDate, gamification.streakDays);
+  const streakInfo = calculateStreakUpdate(gamification.lastStreakDate, gamification.streakDays, gamification.streakShieldActive);
   const currentStreak = streakInfo.streak;
 
   useEffect(() => {
@@ -44,13 +46,19 @@ export default function ResultsBoard({ engine }) {
 
       const newXp = (gamification.xp || 0) + earnedXp;
 
-      const updatedGamification = {
+      let updatedGamification = {
         ...gamification,
         xp: newXp,
         streakDays: streakInfo.streak,
-        lastStreakDate: streakInfo.lastDate
+        lastStreakDate: streakInfo.lastDate,
+        streakShieldActive: streakInfo.shieldUsed ? false : gamification.streakShieldActive
       };
+
+      // Update Daily Quests
+      updatedGamification = updateQuestsOnSprintComplete(updatedGamification, correct, total, earnedXp);
+
       saveGamificationData(updatedGamification);
+      syncGamificationToFirestore(user, updatedGamification);
 
       // 2. Format detailed telemetry
       const detailedTelemetry = (firstAttemptAnswers || []).map((ans, idx) => ({
@@ -122,7 +130,7 @@ export default function ResultsBoard({ engine }) {
               <span className="text-h2 font-black m-0" style={{ color: 'var(--primary)' }}>{accuracy}%</span>
             </div>
 
-            <div className="d-flex align-items-center justify-content-between gap-2 p-3 px-4" style={{ background: 'rgba(234, 179, 8, 0.12)', border: '1px solid rgba(234, 179, 8, 0.3)', borderRadius: '0px' }}>
+            <div className="d-flex align-items-center justify-content-between gap-2 p-3 px-4" style={{ background: 'rgba(234, 179, 8, 0.12)', border: '1px solid rgba(234, 179, 8, 0.3)', borderRadius: '14px' }}>
               <div className="d-flex align-items-center gap-2" style={{ color: '#EAB308', fontWeight: '800' }}>
                 <Zap size={20} />
                 <span>+ {earnedXp} XP Earned</span>
@@ -138,7 +146,7 @@ export default function ResultsBoard({ engine }) {
           {syncedDrive && (
             <div 
               className="p-2.5 mb-4 d-flex align-items-center justify-content-center gap-2 font-semibold"
-              style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34D399', fontSize: '0.82rem', borderRadius: '0px' }}
+              style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34D399', fontSize: '0.82rem', borderRadius: '12px' }}
             >
               <Cloud size={16} />
               Results Auto-Synced to Google Drive

@@ -52,7 +52,7 @@ export default function AccountSettingsModal({ isOpen, onClose, onUpdated }) {
     >
       <div 
         className="glass-card-cosmic p-4 p-md-5 position-relative w-100 overflow-hidden"
-        style={{ maxWidth: '580px', borderRadius: '0px', border: '1px solid rgba(0, 240, 255, 0.4)' }}
+        style={{ maxWidth: '580px', borderRadius: '24px', border: '1px solid rgba(6, 182, 212, 0.4)' }}
       >
         <div className="d-flex align-items-center justify-content-between mb-4 pb-3 border-b" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
           <div className="d-flex align-items-center gap-2">
@@ -73,8 +73,8 @@ export default function AccountSettingsModal({ isOpen, onClose, onUpdated }) {
               style={{
                 width: '64px', height: '64px',
                 background: 'linear-gradient(135deg, var(--primary), var(--accent))',
-                border: '2px solid #00F0FF',
-                borderRadius: '0px'
+                border: '2px solid #06B6D4',
+                borderRadius: '50%'
               }}
             >
               {avatarUrl ? (
@@ -86,8 +86,8 @@ export default function AccountSettingsModal({ isOpen, onClose, onUpdated }) {
 
             <div className="d-flex flex-column gap-2">
               <label 
-                className="btn btn-cosmic-outline px-3 py-1.5 font-bold cursor-pointer m-0 d-inline-flex align-items-center gap-1.5"
-                style={{ fontSize: '0.8rem', borderRadius: '0px' }}
+                className="btn btn-outline px-3 py-1.5 font-bold cursor-pointer m-0 d-inline-flex align-items-center gap-1.5"
+                style={{ fontSize: '0.8rem' }}
               >
                 <Upload size={14} /> Upload Image
                 <input type="file" accept="image/*" className="d-none" onChange={handleAvatarUpload} />
@@ -119,9 +119,9 @@ export default function AccountSettingsModal({ isOpen, onClose, onUpdated }) {
                   className="cursor-pointer p-1 transition-all"
                   style={{
                     width: '38px', height: '38px',
-                    border: avatarUrl === url ? '2px solid #00F0FF' : '1px solid rgba(255, 255, 255, 0.2)',
+                    border: avatarUrl === url ? '2px solid #06B6D4' : '1px solid rgba(255, 255, 255, 0.2)',
                     background: 'var(--surface-3)',
-                    borderRadius: '0px'
+                    borderRadius: '50%'
                   }}
                 />
               ))}
@@ -140,7 +140,7 @@ export default function AccountSettingsModal({ isOpen, onClose, onUpdated }) {
                 style={{
                   background: privacyMode === 'public' ? 'rgba(16, 185, 129, 0.15)' : 'var(--surface-3)',
                   border: privacyMode === 'public' ? '1px solid #34D399' : '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '0px'
+                  borderRadius: '14px'
                 }}
               >
                 <Eye size={20} className={privacyMode === 'public' ? 'text-success' : 'text-muted'} />
@@ -156,7 +156,7 @@ export default function AccountSettingsModal({ isOpen, onClose, onUpdated }) {
                 style={{
                   background: privacyMode === 'private' ? 'rgba(239, 68, 68, 0.15)' : 'var(--surface-3)',
                   border: privacyMode === 'private' ? '1px solid #F87171' : '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '0px'
+                  borderRadius: '14px'
                 }}
               >
                 <Lock size={20} className={privacyMode === 'private' ? 'text-danger' : 'text-muted'} />
@@ -168,7 +168,7 @@ export default function AccountSettingsModal({ isOpen, onClose, onUpdated }) {
         </div>
 
         {/* Google Drive Multi-File Structure Info */}
-        <div className="p-3 mb-4" style={{ background: '#090D16', border: '1px solid rgba(0, 240, 255, 0.2)', borderRadius: '0px' }}>
+        <div className="p-3 mb-4" style={{ background: '#090D16', border: '1px solid rgba(6, 182, 212, 0.2)', borderRadius: '12px' }}>
           <div className="d-flex align-items-center gap-1.5 mb-1 font-bold text-white" style={{ fontSize: '0.8rem' }}>
             <FolderCheck size={16} className="text-cyan-400" />
             Google Drive Allocated File Architecture
@@ -180,16 +180,16 @@ export default function AccountSettingsModal({ isOpen, onClose, onUpdated }) {
         </div>
 
         {savedNotice && (
-          <div className="p-2.5 mb-3 text-center font-bold text-success" style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '0px', fontSize: '0.82rem' }}>
+          <div className="p-2.5 mb-3 text-center font-bold text-success" style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '10px', fontSize: '0.82rem' }}>
             <Check size={16} className="me-1" /> {savedNotice}
           </div>
         )}
 
         <div className="d-flex align-items-center justify-content-end gap-2">
-          <button onClick={onClose} className="btn btn-cosmic-outline px-4 py-2 font-semibold" style={{ borderRadius: '0px' }}>
+          <button onClick={onClose} className="btn btn-outline px-4 py-2 font-semibold">
             Cancel
           </button>
-          <button onClick={handleSave} className="btn btn-cosmic-primary px-4 py-2 font-bold d-flex align-items-center gap-2" style={{ borderRadius: '0px' }}>
+          <button onClick={handleSave} className="btn btn-primary px-4 py-2 font-bold d-flex align-items-center gap-2">
             <Sparkles size={16} /> Save Changes
           </button>
         </div>

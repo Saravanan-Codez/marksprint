@@ -12,6 +12,15 @@ import LoadingFallback from './components/LoadingFallback.jsx';
 import './index.css';
 import { HomePage, QuizPage, AboutPage, ContentManagerPage, DashboardPage, LoginPage, SignupPage, NotFoundPage } from './routes/lazyPages';
 
+// Register Service Worker for Offline-First capability
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.warn('Service worker registration notice:', err);
+    });
+  });
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>

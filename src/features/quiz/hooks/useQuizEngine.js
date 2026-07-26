@@ -507,35 +507,6 @@ export function useQuizEngine(subject) {
     setQuizMode("revision");
   }, [allQuestions, buildQuestionPool, toast]);
 
-  const hasBookmarkedQuestions = useCallback(() => {
-    const list = allQuestions || [];
-    for (let i = 0; i < list.length; i++) {
-      if (bookmarks.has(buildQuestionId(list[i]))) return true;
-    }
-    return false;
-  }, [allQuestions, bookmarks]);
-
-  const startBookmarkedQuiz = useCallback(() => {
-    const bookmarkedList = (allQuestions || []).filter(q => bookmarks.has(buildQuestionId(q)));
-    if (bookmarkedList.length === 0) {
-      toast.warning("No bookmarked questions in this subject. Tap the bookmark icon on questions to save them for later.");
-      return;
-    }
-    const filtered = buildQuestionPool(bookmarkedList);
-    setFirstAttemptQuestions(filtered);
-    setQuizQuestions(filtered);
-    setCurrentIdx(0);
-    setFirstAttemptCorrect(0);
-    setFirstAttemptAnswers([]);
-    setUserAnswer(null);
-    setIsLocked(false);
-    setIsInRepeatMode(false);
-    setCurrentRoundWrong([]);
-    setQuizMode("active");
-    if (timerLimit > 0) setTimeLeft(parseInt(timerLimit));
-    if (globalTimerLimit > 0) setGlobalTimeLeft(parseInt(globalTimerLimit) * 60);
-  }, [allQuestions, bookmarks, buildQuestionPool, timerLimit, globalTimerLimit, toast]);
-
   return {
     // Config state
     quizMode, setQuizMode,
@@ -561,9 +532,6 @@ export function useQuizEngine(subject) {
     
     // Actions
     startQuiz, handleAnswer, finishQuiz, startRevision, buildQuestionPool,
-
-    // Feature: Bookmarks
-    bookmarks, isBookmarked, toggleBookmark, startBookmarkedQuiz, hasBookmarkedQuestions,
 
     // Feature: Resume Progress
     savedProgress, clearSavedProgress, saveProgressNow,

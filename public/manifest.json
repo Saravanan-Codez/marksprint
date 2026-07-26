@@ -1,0 +1,16 @@
+{
+  "short_name": "MarkSprint",
+  "name": "MarkSprint — Active Recall Quiz Platform",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#080C19",
+  "theme_color": "#6366F1",
+  "display": "standalone",
+  "orientation": "portrait"
+}

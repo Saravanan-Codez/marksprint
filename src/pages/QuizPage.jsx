@@ -15,10 +15,10 @@ function QuizLoadingSkeleton({ subject }) {
         <div
           className="d-inline-block mb-3"
           style={{
-            width: '52px', height: '52px',
+            width: '56px', height: '56px',
             background: 'rgba(99, 102, 241, 0.15)',
             border: '1px solid rgba(99, 102, 241, 0.3)',
-            borderRadius: '0px',
+            borderRadius: '16px',
             animation: 'pulse 1.5s ease-in-out infinite'
           }}
         />

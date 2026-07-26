@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Bookmark, BarChart3, Trophy, Target, Trash2, Play, Clock } from 'lucide-react';
+import { BarChart3, Trophy, Target, Trash2, Play, Clock } from 'lucide-react';
 import { useToast } from '../../../context/ToastContext.jsx';
 
 const SUBJECT_KEYS = {
@@ -27,8 +27,7 @@ export default function QuizSetup({ engine, subject }) {
     startQuiz, startRevision,
     allQuestions, buildQuestionPool,
     savedProgress, clearSavedProgress,
-    startBookmarkedQuiz, hasBookmarkedQuestions,
-    statistics, isBookmarked
+    statistics
   } = engine;
 
   const toast = useToast();
@@ -37,17 +36,6 @@ export default function QuizSetup({ engine, subject }) {
     const key = SUBJECT_KEYS[subject] || subject;
     return statistics?.bySubject?.[key] || null;
   }, [statistics, subject]);
-
-  const hasBookmarks = useMemo(() => hasBookmarkedQuestions(), [hasBookmarkedQuestions]);
-
-  const bookmarkCount = useMemo(() => {
-    if (!allQuestions || !isBookmarked) return 0;
-    let count = 0;
-    for (let i = 0; i < allQuestions.length; i++) {
-      if (isBookmarked(allQuestions[i])) count++;
-    }
-    return count;
-  }, [allQuestions, isBookmarked]);
 
   const doStartQuiz = useCallback(() => {
     if (!allQuestions || allQuestions.length === 0) {
@@ -118,7 +106,7 @@ export default function QuizSetup({ engine, subject }) {
       </div>
 
       {engine.loadError && (
-        <div className="p-4 mb-4 text-center" style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '0px' }}>
+        <div className="p-4 mb-4 text-center" style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '14px' }}>
           <div className="font-bold text-danger mb-1" style={{ fontSize: '0.95rem' }}>
             ⚠️ {engine.loadError}
           </div>
@@ -193,18 +181,11 @@ export default function QuizSetup({ engine, subject }) {
                 <div className="text-slate-500" style={{ fontSize: '0.7rem' }}>Best Score</div>
               </div>
             </div>
-            <div className="col-6 col-md-3">
+            <div className="col-4">
               <div className="surface-3 p-3 rounded-4 text-center border">
                 <div className="d-flex justify-content-center mb-1"><BarChart3 size={16} className="text-teal-600" /></div>
                 <div className="h3 font-black m-0 text-slate-900">{subjectStats?.avgScore ?? 0}<small className="text-slate-500" style={{ fontSize: '0.9rem' }}>%</small></div>
                 <div className="text-slate-500" style={{ fontSize: '0.7rem' }}>Avg Score</div>
-              </div>
-            </div>
-            <div className="col-6 col-md-3">
-              <div className="surface-3 p-3 rounded-4 text-center border">
-                <div className="d-flex justify-content-center mb-1"><Bookmark size={16} className="text-primary" /></div>
-                <div className="h3 font-black m-0 text-slate-900">{bookmarkCount}</div>
-                <div className="text-slate-500" style={{ fontSize: '0.7rem' }}>Bookmarked</div>
               </div>
             </div>
           </div>
@@ -456,22 +437,6 @@ export default function QuizSetup({ engine, subject }) {
 
         {/* Start Sprint Actions */}
         <div className="pt-3 d-flex flex-column gap-3">
-          {hasBookmarks && (
-            <button
-              className="btn-soft py-3 font-bold tracking-widest text-uppercase animate-fade-in d-inline-flex align-items-center justify-content-center gap-2 shadow-sm"
-              style={{
-                borderRadius: '16px',
-                fontSize: '0.9rem',
-                color: '#b45309',
-                backgroundColor: '#fff7ed',
-                border: '1px solid #fdba74'
-              }}
-              onClick={doStartBookmarked}
-            >
-              <Bookmark size={16} fill="currentColor" />
-              Start Bookmarked Quiz
-            </button>
-          )}
           <button
             className="btn-outline text-slate-700 py-3 font-bold tracking-widest text-uppercase"
             style={{ borderRadius: '16px', fontSize: '1rem' }}

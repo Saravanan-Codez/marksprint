@@ -3,9 +3,9 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Mail, Lock, Loader, AlertCircle, Eye, EyeOff, ChevronLeft, User, Check } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
 
-export default function LoginPage() {
+export default function LoginPage({ initialMode: defaultMode }) {
   const location = useLocation();
-  const initialMode = location.pathname === '/signup' ? 'signup' : 'login';
+  const initialMode = defaultMode || (location.pathname === '/signup' ? 'signup' : 'login');
   
   const [authMode, setAuthMode] = useState(initialMode);
   const [email, setEmail] = useState('');
@@ -99,7 +99,7 @@ export default function LoginPage() {
       <div
         className="position-fixed inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.18), transparent 65%), radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.15), transparent 50%)',
+          background: 'radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.18), transparent 65%), radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.15), transparent 50%)',
           zIndex: 0
         }}
       />
@@ -107,14 +107,14 @@ export default function LoginPage() {
       {/* Main Glass Card */}
       <div 
         className="glass-card-cosmic position-relative z-3 w-100 p-4 p-sm-5" 
-        style={{ maxWidth: '450px', borderRadius: '0px' }}
+        style={{ maxWidth: '450px', borderRadius: '24px' }}
       >
-        {/* Navigation & MarkSprint by Falkon Labs Header */}
+        {/* Navigation & MarkSprint Header */}
         <div className="d-flex align-items-center justify-content-between mb-4">
           <button 
             onClick={() => navigate('/')} 
-            className="btn btn-cosmic-outline p-2 d-flex align-items-center justify-content-center"
-            style={{ width: '38px', height: '38px', borderRadius: '0px' }}
+            className="btn btn-outline p-2 d-flex align-items-center justify-content-center"
+            style={{ width: '40px', height: '40px', borderRadius: '12px' }}
             title="Go to Home"
             aria-label="Go to Home"
           >
@@ -130,25 +130,37 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div style={{ width: '38px' }} />
+          <div style={{ width: '40px' }} />
         </div>
 
-        {/* Dual Mode Mode Tab Switcher */}
+        {/* Suggestion Banner */}
+        <div 
+          className="p-3 mb-4 text-center" 
+          style={{ background: 'rgba(6, 182, 212, 0.12)', border: '1px solid rgba(6, 182, 212, 0.3)', borderRadius: '16px' }}
+        >
+          <div className="font-bold text-white mb-1" style={{ fontSize: '0.86rem' }}>
+            ⚡ Create a free account to sync streaks & XP
+          </div>
+          <div style={{ fontSize: '0.78rem', color: '#94A3B8' }}>
+            Or practice immediately without an account — zero credit card, 100% free!
+          </div>
+        </div>
+
+        {/* Dual Mode Tab Switcher */}
         <div 
           className="d-flex p-1 mb-4" 
-          style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '0px' }}
+          style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '9999px' }}
         >
           <button
             type="button"
             onClick={() => { setAuthMode('login'); setError(''); }}
-            className="btn flex-grow-1 py-2.5 font-bold transition-all"
+            className="btn flex-grow-1 py-2 font-bold transition-all"
             style={{
-              borderRadius: '0px',
+              borderRadius: '9999px',
               fontSize: '0.88rem',
               background: authMode === 'login' ? 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)' : 'transparent',
               color: authMode === 'login' ? '#FFFFFF' : '#94A3B8',
-              border: authMode === 'login' ? '1px solid rgba(0, 240, 255, 0.5)' : '1px solid transparent',
-              boxShadow: authMode === 'login' ? '0 0 14px rgba(0, 240, 255, 0.25)' : 'none'
+              boxShadow: authMode === 'login' ? '0 4px 14px rgba(99, 102, 241, 0.35)' : 'none'
             }}
           >
             Sign In
@@ -156,14 +168,13 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => { setAuthMode('signup'); setError(''); }}
-            className="btn flex-grow-1 py-2.5 font-bold transition-all"
+            className="btn flex-grow-1 py-2 font-bold transition-all"
             style={{
-              borderRadius: '0px',
+              borderRadius: '9999px',
               fontSize: '0.88rem',
-              background: authMode === 'signup' ? 'linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)' : 'transparent',
+              background: authMode === 'signup' ? 'linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)' : 'transparent',
               color: authMode === 'signup' ? '#FFFFFF' : '#94A3B8',
-              border: authMode === 'signup' ? '1px solid rgba(0, 240, 255, 0.5)' : '1px solid transparent',
-              boxShadow: authMode === 'signup' ? '0 0 14px rgba(0, 240, 255, 0.25)' : 'none'
+              boxShadow: authMode === 'signup' ? '0 4px 14px rgba(6, 182, 212, 0.35)' : 'none'
             }}
           >
             Sign Up
@@ -173,7 +184,7 @@ export default function LoginPage() {
         {error && (
           <div 
             className="p-3 mb-4 d-flex align-items-center gap-2" 
-            style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#FCA5A5', borderRadius: '0px' }}
+            style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#FCA5A5', borderRadius: '12px' }}
             role="alert"
           >
             <AlertCircle size={18} className="flex-shrink-0" />
@@ -194,7 +205,6 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
                   className="form-control input-cosmic input-cosmic-has-icon-left"
-                  style={{ borderRadius: '0px', height: '46px' }}
                 />
               </div>
             </div>
@@ -209,7 +219,6 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="form-control input-cosmic input-cosmic-has-icon-left input-cosmic-has-icon-right"
-                  style={{ borderRadius: '0px', height: '46px' }}
                 />
                 <button
                   type="button"
@@ -224,10 +233,13 @@ export default function LoginPage() {
             </div>
 
             <div className="d-flex align-items-center justify-content-between my-1" style={{ fontSize: '0.84rem' }}>
-              {/* INSTANT ZERO-LAG CONTROLLED CHECKBOX */}
               <div 
                 className="d-flex align-items-center gap-2 m-0 cursor-pointer"
                 onClick={() => setRememberMe(!rememberMe)}
+                onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') setRememberMe(!rememberMe); }}
+                role="checkbox"
+                aria-checked={rememberMe}
+                tabIndex={0}
                 style={{ cursor: 'pointer', userSelect: 'none' }}
               >
                 <div 
@@ -235,10 +247,10 @@ export default function LoginPage() {
                   style={{
                     width: '18px',
                     height: '18px',
-                    border: rememberMe ? '1px solid #00F0FF' : '1px solid rgba(255, 255, 255, 0.25)',
-                    background: rememberMe ? '#00F0FF' : 'rgba(15, 23, 42, 0.6)',
+                    border: rememberMe ? '1px solid #06B6D4' : '1px solid rgba(255, 255, 255, 0.25)',
+                    background: rememberMe ? '#06B6D4' : 'rgba(15, 23, 42, 0.6)',
                     color: rememberMe ? '#0B0E1F' : 'transparent',
-                    borderRadius: '0px'
+                    borderRadius: '5px'
                   }}
                 >
                   <Check size={14} strokeWidth={3} />
@@ -254,8 +266,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-cosmic-primary w-100 font-bold mt-2 d-flex align-items-center justify-content-center"
-              style={{ borderRadius: '0px', height: '46px', fontSize: '0.94rem' }}
+              className="btn btn-primary w-100 font-bold mt-2"
+              style={{ fontSize: '0.94rem' }}
             >
               {loading ? <Loader size={20} className="animate-spin" /> : 'Sign In'}
             </button>
@@ -273,7 +285,6 @@ export default function LoginPage() {
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Alex Morgan"
                   className="form-control input-cosmic input-cosmic-has-icon-left"
-                  style={{ borderRadius: '0px', height: '46px' }}
                 />
               </div>
             </div>
@@ -288,7 +299,6 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
                   className="form-control input-cosmic input-cosmic-has-icon-left"
-                  style={{ borderRadius: '0px', height: '46px' }}
                 />
               </div>
             </div>
@@ -303,7 +313,6 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="form-control input-cosmic input-cosmic-has-icon-left input-cosmic-has-icon-right"
-                  style={{ borderRadius: '0px', height: '46px' }}
                 />
                 <button
                   type="button"
@@ -327,7 +336,6 @@ export default function LoginPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
                   className="form-control input-cosmic input-cosmic-has-icon-left input-cosmic-has-icon-right"
-                  style={{ borderRadius: '0px', height: '46px' }}
                 />
                 <button
                   type="button"
@@ -341,10 +349,13 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* INSTANT ZERO-LAG CONTROLLED TERMS CHECKBOX */}
             <div 
               className="d-flex align-items-center gap-2 my-1 cursor-pointer"
               onClick={() => setAgreeTerms(!agreeTerms)}
+              onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') setAgreeTerms(!agreeTerms); }}
+              role="checkbox"
+              aria-checked={agreeTerms}
+              tabIndex={0}
               style={{ cursor: 'pointer', userSelect: 'none' }}
             >
               <div 
@@ -352,10 +363,10 @@ export default function LoginPage() {
                 style={{
                   width: '18px',
                   height: '18px',
-                  border: agreeTerms ? '1px solid #00F0FF' : '1px solid rgba(255, 255, 255, 0.25)',
-                  background: agreeTerms ? '#00F0FF' : 'rgba(15, 23, 42, 0.6)',
+                  border: agreeTerms ? '1px solid #06B6D4' : '1px solid rgba(255, 255, 255, 0.25)',
+                  background: agreeTerms ? '#06B6D4' : 'rgba(15, 23, 42, 0.6)',
                   color: agreeTerms ? '#0B0E1F' : 'transparent',
-                  borderRadius: '0px'
+                  borderRadius: '5px'
                 }}
               >
                 <Check size={14} strokeWidth={3} />
@@ -368,8 +379,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-cosmic-accent w-100 font-bold mt-2 d-flex align-items-center justify-content-center"
-              style={{ borderRadius: '0px', height: '46px', fontSize: '0.94rem' }}
+              className="btn btn-accent w-100 font-bold mt-2"
+              style={{ fontSize: '0.94rem' }}
             >
               {loading ? <Loader size={20} className="animate-spin" /> : 'Create Account'}
             </button>
@@ -386,8 +397,8 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={handleGoogleAuth}
-            className="btn btn-cosmic-outline w-100 d-flex align-items-center justify-content-center gap-3 font-semibold"
-            style={{ borderRadius: '0px', height: '46px', fontSize: '0.9rem' }}
+            className="btn btn-outline w-100 d-flex align-items-center justify-content-center gap-3 font-semibold"
+            style={{ fontSize: '0.9rem' }}
           >
             <svg style={{ width: '18px', height: '18px' }} viewBox="0 0 24 24">
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
@@ -404,10 +415,16 @@ export default function LoginPage() {
               loginAsGuest();
               navigate('/');
             }}
-            className="btn btn-cosmic-outline w-100 d-flex align-items-center justify-content-center gap-2 font-semibold"
-            style={{ borderRadius: '0px', height: '42px', fontSize: '0.85rem', color: '#94A3B8', borderColor: 'rgba(255,255,255,0.1)' }}
+            className="btn btn-ghost w-100 py-2.5 font-bold d-flex align-items-center justify-content-center gap-2"
+            style={{
+              fontSize: '0.88rem',
+              color: '#38BDF8',
+              border: '1px dashed rgba(56, 189, 248, 0.4)',
+              background: 'rgba(56, 189, 248, 0.08)',
+              borderRadius: '12px'
+            }}
           >
-            Continue as Guest (Demo Mode)
+            Continue Without an Account →
           </button>
         </div>
 
@@ -442,7 +459,7 @@ export default function LoginPage() {
         <div className="mt-4 pt-3 text-center border-top" style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}>
           <span className="font-mono d-inline-flex align-items-center gap-1.5" style={{ fontSize: '0.72rem', color: '#64748B' }}>
             <Check size={13} className="text-cyan-400" />
-            Protected by Google reCAPTCHA Enterprise
+            Protected by Falkon Privacy & Encryption
           </span>
         </div>
       </div>

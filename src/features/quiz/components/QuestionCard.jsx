@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import DOMPurify from 'dompurify';
-import { CheckCircle2, XCircle, Bookmark, BookmarkCheck } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { AnimatePresence } from 'framer-motion';
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
@@ -11,9 +11,7 @@ function QuestionCardImpl({
   handleAnswer,
   isLocked,
   userAnswer,
-  isTestMode,
-  isBookmarked = false,
-  onToggleBookmark
+  isTestMode
 }) {
   if (!currentQ) return null;
 
@@ -24,31 +22,6 @@ function QuestionCardImpl({
         className="w-100 d-flex flex-column align-items-center pb-5 position-relative anim-fade-in"
       >
         <div className="surface w-100 p-4 p-md-5 mb-4 position-relative text-center">
-          {onToggleBookmark && (
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onToggleBookmark(currentQ); }}
-              className="position-absolute top-3 end-3 border-0 p-2 rounded-2 transition-all"
-              style={{
-                background: isBookmarked ? 'var(--warning-100)' : 'var(--surface-4)',
-                color: isBookmarked ? 'var(--warning)' : 'var(--ink-400)',
-                zIndex: 5,
-                borderRadius: 'var(--radius-full)',
-                width: '38px',
-                height: '38px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-              aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this question'}
-              title={isBookmarked ? 'Bookmarked' : 'Bookmark for later'}
-            >
-              {isBookmarked
-                ? <BookmarkCheck size={18} fill={isBookmarked ? 'var(--warning)' : 'none'} />
-                : <Bookmark size={18} />
-              }
-            </button>
-          )}
           <h2 className="text-h3 leading-relaxed mb-0" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentQ.question || "") }} />
           {currentQ.question_image && <img src={currentQ.question_image} alt="Question" className="img-fluid mx-auto mt-4 rounded-3 border" style={{ maxHeight: '280px', objectFit: 'contain', borderColor: 'var(--ink-100)' }} />}
         </div>
