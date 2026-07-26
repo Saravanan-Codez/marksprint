@@ -1,36 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
 import {
   ArrowRight, BookOpen, FlaskConical, Dna, Atom, Calculator, Code2,
-  Languages, Sparkles, Trophy, BookMarked, Target, Clock, Zap,
-  Brain, Award, Gauge
+  Languages, Sparkles, Trophy, Clock, Zap, Brain, Shield, ShieldCheck, Gauge, Target
 } from 'lucide-react';
 
 const SUBJECT_ICON = {
-  biology:     { icon: Dna,         color: '#10B981', bg: '#D1FAE5', label: 'Biology' },
-  physics:     { icon: Atom,        color: '#4F46E5', bg: '#E0E7FF', label: 'Physics' },
-  chemistry:   { icon: FlaskConical,color: '#F59E0B', bg: '#FEF3C7', label: 'Chemistry' },
-  maths:       { icon: Calculator,  color: '#8B5CF6', bg: '#EDE9FE', label: 'Maths' },
-  cs:          { icon: Code2,       color: '#0EA5E9', bg: '#E0F2FE', label: 'Computer Science' },
-  english:     { icon: Languages,   color: '#EC4899', bg: '#FCE7F3', label: 'English' },
-  tamil:       { icon: BookOpen,    color: '#EF4444', bg: '#FEE2E2', label: 'Tamil' }
+  biology:     { icon: Dna,          label: 'BIOLOGY',          desc: 'CELLS. SYSTEMS. DIAGRAMS.', preset: '[ 04 PRESETS ]' },
+  physics:     { icon: Atom,         label: 'PHYSICS',          desc: 'MECHANICS & OPTICS',        preset: '[ 04 PRESETS ]' },
+  chemistry:   { icon: FlaskConical, label: 'CHEMISTRY',        desc: 'ORGANIC & PHYSICAL',        preset: '[ 04 PRESETS ]' },
+  maths:       { icon: Calculator,   label: 'MATHS',            desc: 'ALGEBRA & CALCULUS',        preset: '[ 04 PRESETS ]' },
+  cs:          { icon: Code2,        label: 'COMP SCI',         desc: 'LOGIC & DATA STRUCTURES',   preset: '[ 04 PRESETS ]' },
+  english:     { icon: Languages,    label: 'ENGLISH',          desc: 'GRAMMAR & COMPREHENSION',   preset: '[ 04 PRESETS ]' },
+  tamil:       { icon: BookOpen,     label: 'TAMIL',            desc: 'LANGUAGE & LITERATURE',     preset: '[ 04 PRESETS ]' }
 };
 
 const SUBJECTS = [
-  { key: 'biology',   desc: 'Cell biology, human systems, diagrams.' },
-  { key: 'physics',   desc: 'Mechanics, optics, modern physics.' },
-  { key: 'chemistry', desc: 'Organic, inorganic and physical chemistry.' },
-  { key: 'maths',     desc: 'Algebra, calculus and problem solving.' },
-  { key: 'cs',        desc: 'Programming logic and data structures.' },
-  { key: 'english',   desc: 'Grammar, comprehension and writing.' },
-  { key: 'tamil',     desc: 'Language and literature practice.' }
+  { key: 'biology' },
+  { key: 'physics' },
+  { key: 'chemistry' },
+  { key: 'maths' },
+  { key: 'cs' },
+  { key: 'english' },
+  { key: 'tamil' }
 ];
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [hovered, setHovered] = useState(null);
-  const [selected, setSelected] = useState(null);
-  const [scrollY, setScrollY] = useState(0);
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredSubjects = SUBJECTS.filter((s) => {
@@ -39,285 +37,162 @@ export default function HomePage() {
     return (
       !query ||
       meta.label.toLowerCase().includes(query) ||
-      s.desc.toLowerCase().includes(query) ||
+      meta.desc.toLowerCase().includes(query) ||
       s.key.toLowerCase().includes(query)
     );
   });
 
-  useEffect(() => {
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          setScrollY(window.scrollY);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const parallaxOffsetY = Math.min(scrollY * 0.15, 60);
-
   return (
-    <div className="d-flex flex-column gap-6 gap-lg-8 anim-fade-up" style={{ position: 'relative', zIndex: 2 }}>
+    <div className="d-flex flex-column gap-5 anim-fade-in font-mono">
 
-      {/* =========================================
-          HERO SECTION
-          ========================================= */}
-      <section
-        className="glass-card-cosmic liquid-glass p-5 p-md-6 p-lg-7 position-relative overflow-hidden parallax-container"
-        style={{
-          minHeight: '560px',
-          marginBottom: '8rem',
-          paddingBottom: '5rem'
-        }}
-      >
-          <div className="hero-streak" />
-        <div
-          className="parallax-layer"
-          style={{
-            transform: `translateY(${parallaxOffsetY}px)`,
-            willChange: 'transform'
-          }}
-        >
-        <div
-          className="position-absolute anim-float"
-          style={{
-            width: '320px', height: '320px',
-            right: '-80px', top: '-80px',
-            background: 'radial-gradient(square at 30% 30%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 65%)',
-            pointerEvents: 'none',
-            borderRadius: '0px'
-          }}
-        />
-        <div
-          className="position-absolute anim-float"
-          style={{
-            width: '260px', height: '260px',
-            left: '-60px', bottom: '-70px',
-            background: 'radial-gradient(square at 60% 40%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 65%)',
-            pointerEvents: 'none',
-            animationDelay: '1.2s',
-            borderRadius: '0px'
-          }}
-        />
+      {/* Guest Status Banner */}
+      {!user && (
+        <div className="bg-brand text-white border-2 border-black p-3.5 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 shadow-hard-sm">
+          <div className="d-flex align-items-center gap-2">
+            <Sparkles size={20} className="flex-shrink-0 text-white" />
+            <span className="font-bold uppercase text-xs" style={{ letterSpacing: '0.04em' }}>
+              <strong>RECRUIT NOTICE:</strong> PRACTICING IN GUEST MODE. SPRINT FREE OR ENLIST AN ACCOUNT TO SAVE STREAKS & CLIMB LEAGUES.
+            </span>
+          </div>
+          <button
+            onClick={() => navigate('/login')}
+            className="bg-black text-white border-2 border-black px-4 py-2 font-headline font-black uppercase text-xs hover:bg-white hover:text-black transition-all flex-shrink-0 shadow-hard-sm"
+          >
+            ENLIST NOW_
+          </button>
+        </div>
+      )}
 
-        <div className="position-relative z-2 py-3">
-          <div className="max-w-3xl">
-            <div className="d-flex align-items-center gap-2 mb-3">
-              <span className="badge-falkon">
-                <Sparkles size={13} /> Falkon Labs Open Source
-              </span>
-            </div>
-            <h1 className="text-display mb-3 font-bold text-white" style={{ fontSize: '2.6rem', letterSpacing: '-0.02em' }}>
-              Sprint through every <span style={{ color: '#38BDF8' }}>subject</span>.
+      {/* HERO SECTION */}
+      <section className="position-relative overflow-hidden py-5 my-md-4">
+        <div className="row g-4 align-items-center">
+          <div className="col-12 col-lg-7">
+            <span className="d-inline-block bg-brand text-white px-3 py-1 font-bold text-xs mb-4 border border-black uppercase font-mono shadow-hard-sm">
+              FALKON LABS // OPEN SOURCE
+            </span>
+            <h1 className="font-headline font-black text-uppercase tracking-tighter mb-4" style={{ fontSize: 'clamp(3.5rem, 8vw, 7.5rem)', lineHeight: '0.9', color: 'var(--text-main)' }}>
+              STRIKE <span className="text-brand">HARD</span><br />
+              SPRINT <span style={{ color: 'var(--accent)' }}>FAST</span>
             </h1>
-            <p className="text-lead mb-4" style={{ maxWidth: '64ch', color: '#94A3B8', fontSize: '1.08rem', lineHeight: '1.6' }}>
-              A calm, focused open-source quiz platform engineered by Falkon Labs for Tamil Nadu 12th graders. Configure realistic timed sprints, review incorrect answers, and master board-exam subjects.
-            </p>
-            <div className="d-flex flex-wrap align-items-center gap-3 mb-5">
-              <button
-                onClick={() => document.getElementById('subjects-grid')?.scrollIntoView({ behavior: 'smooth' })}
-                className="btn btn-cosmic-primary px-4 py-3 font-bold d-inline-flex align-items-center gap-2"
-                style={{ borderRadius: '0px', fontSize: '0.96rem' }}
-              >
-                Choose a Subject
-                <ArrowRight size={18} />
-              </button>
-              <button
-                onClick={() => navigate('/about')}
-                className="btn btn-cosmic-outline px-4 py-3 font-bold"
-                style={{ borderRadius: '0px', fontSize: '0.96rem' }}
-              >
-                Learn More
-              </button>
-            </div>
-
-            {/* Quick stats row */}
-            <div className="d-flex flex-wrap gap-4 pt-3 border-top" style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}>
-              {[
-                { icon: Target,  k: '7', v: 'Core Subjects' },
-                { icon: Clock,   k: '4', v: 'Timer Presets' },
-                { icon: Zap,     k: '∞', v: 'Sprint Attempts' },
-                { icon: Award,   k: '2', v: 'Sprint Modes' }
-              ].map((s, i) => {
-                const Icon = s.icon;
-                return (
-                  <div key={s.v} className="d-flex align-items-center gap-3 anim-fade-up" style={{ animationDelay: `${i * 60}ms` }}>
-                    <div
-                      className="d-flex align-items-center justify-content-center"
-                      style={{
-                        width: '42px', height: '42px',
-                        background: 'rgba(255, 255, 255, 0.04)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        color: '#38BDF8',
-                        borderRadius: '0px'
-                      }}
-                    >
-                      <Icon size={18} />
-                    </div>
-                    <div>
-                      <div className="font-extrabold text-white" style={{ fontSize: '1.15rem', lineHeight: 1.1 }}>{s.k}</div>
-                      <div style={{ fontSize: '0.76rem', color: '#94A3B8' }}>{s.v}</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-        </div>
-      </section>
-
-      {/* =========================================
-          SUBJECT GRID
-          ========================================= */}
-      <section id="subjects-grid" style={{ marginTop: '4rem' }}>
-        <div className="d-flex align-items-end justify-content-between mb-4 mb-md-5 flex-wrap gap-3">
-          <div>
-            <div className="chip chip-primary mb-2" style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '0.7rem' }}>
-              <BookMarked size={12} /> Subjects
-            </div>
-            <h2 className="text-h1">Pick a subject to sprint</h2>
-            <p className="mt-2 text-lead" style={{ maxWidth: '56ch' }}>
-              All 7 core Grade 12 TN state-board subjects available immediately. Click a card to jump into setup.
+            <p className="font-mono text-lg font-bold mb-4 uppercase" style={{ color: 'var(--text-muted)', maxWidth: '600px' }}>
+              Master TN 12th Board Exams through High-Speed Active Recall. Stop reading. Start executing.
             </p>
           </div>
 
-          {/* Instant Search Filter */}
-          <div className="w-100 max-w-xs">
-            <input
-              type="text"
-              placeholder="Search subjects or topics..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="form-control cosmic-input px-3 py-2 font-semibold"
-              style={{ borderRadius: '0px', fontSize: '0.88rem' }}
-            />
-          </div>
-        </div>
-
-        <div className="row g-4">
-          {filteredSubjects.map((s, idx) => {
-            const meta = SUBJECT_ICON[s.key];
-            const Icon = meta.icon;
-            const isSelected = selected === s.key;
-            return (
-              <div key={s.key} className="col-12 col-sm-6 col-lg-4 anim-fade-up" style={{ animationDelay: `${idx * 50}ms` }}>
+          <div className="col-12 col-lg-5">
+            <div className="neo-brutal-card p-4 p-md-5 shadow-hard" style={{ background: 'var(--bg-main)' }}>
+              <p className="font-headline text-lg font-black uppercase leading-tight mb-4" style={{ fontSize: '1.15rem', lineHeight: '1.4', color: 'var(--text-main)' }}>
+                ELIMINATE WEAKNESS. MASTER THE BOARD. 7 CORE SUBJECTS. ZERO DISTRACTIONS. ENGINEERED BY FALKON LABS.
+              </p>
+              <div className="d-flex flex-column gap-3">
                 <button
-                  type="button"
-                  className="glass-card-cosmic p-4 p-md-5 w-100 text-start h-100 position-relative d-flex flex-column"
-                  style={{
-                    outline: isSelected ? `2px solid #00F0FF` : 'none',
-                    outlineOffset: isSelected ? '2px' : 0,
-                    cursor: 'pointer',
-                    borderRadius: '0px'
-                  }}
-                  onMouseEnter={() => setHovered(s.key)}
-                  onMouseLeave={() => setHovered(null)}
-                  onClick={() => { setSelected(s.key); setTimeout(() => navigate(`/quiz/${s.key}`), 80); }}
+                  onClick={() => navigate('/sectors')}
+                  className="btn btn-primary py-3 font-headline text-xl font-black shadow-hard-sm"
                 >
-                  {/* Top row */}
-                  <div className="d-flex align-items-start justify-content-between mb-4">
-                    <div
-                      className="d-flex align-items-center justify-content-center"
-                      style={{
-                        width: '52px', height: '52px',
-                        background: meta.bg,
-                        color: meta.color,
-                        borderRadius: '0px'
-                      }}
-                    >
-                      <Icon size={26} strokeWidth={2.1} />
-                    </div>
-                    <div
-                      className="d-flex align-items-center justify-content-center transition-all"
-                      style={{
-                        width: '32px', height: '32px',
-                        background: hovered === s.key ? 'var(--primary)' : 'rgba(255,255,255,0.06)',
-                        color: hovered === s.key ? 'white' : '#94A3B8',
-                        borderRadius: '0px'
-                      }}
-                    >
-                      <ArrowRight size={16} strokeWidth={2.3} />
-                    </div>
-                  </div>
-
-                  <h3 className="text-h3 mb-2" style={{ color: 'var(--ink-900)' }}>{meta.label}</h3>
-                  <p style={{ fontSize: '0.88rem', lineHeight: 1.6 }}>{s.desc}</p>
-
-                  <div className="mt-auto pt-4 d-flex align-items-center gap-3">
-                    <div className="d-flex align-items-center gap-1.5" style={{ color: 'var(--ink-400)' }}>
-                      <Gauge size={14} />
-                      <span style={{ fontSize: '0.76rem', fontWeight: 500 }}>4 timer presets</span>
-                    </div>
-                    <div className="d-flex align-items-center gap-1.5 ml-auto" style={{ color: 'var(--ink-400)' }}>
-                      <Brain size={14} />
-                      <span style={{ fontSize: '0.76rem', fontWeight: 500 }}>Review mode</span>
-                    </div>
-                  </div>
+                  STRIKE NOW
+                </button>
+                <button
+                  onClick={() => navigate('/about')}
+                  className="btn py-3 font-headline text-xl font-black shadow-hard-sm"
+                >
+                  RECON (ABOUT)
                 </button>
               </div>
-            );
-          })}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* =========================================
-          FEATURE HIGHLIGHTS
-          ========================================= */}
-      <section
-        className="row g-4 mt-2"
-      >
-        {[
-          {
-            icon: Clock, tint: 'primary', title: 'Realistic Exam Timers',
-            body: 'Per-question and global timers mimic real board-exam pressure so you get used to working under time constraints.'
-          },
-          {
-            icon: BookMarked, tint: 'accent', title: 'Bookmark + Resume',
-            body: 'Save tricky questions for later, or exit mid-sprint and resume exactly where you left off — progress is auto-saved.'
-          },
-          {
-            icon: Brain, tint: 'success', title: 'Active Recall Loops',
-            body: 'Wrong answers are re-inserted into the queue until you answer correctly. Fast, focused mastery per concept.'
-          },
-          {
-            icon: Trophy, tint: 'warning', title: 'Persistent Statistics',
-            body: 'Best score, rolling average, and attempt counts tracked per subject — watch your improvement compound over sessions.'
-          }
-        ].map((f, idx) => {
-          const Icon = f.icon;
-          const tintMap = {
-            primary: { bg: 'var(--primary-100)', fg: 'var(--primary-600)' },
-            accent:  { bg: 'var(--accent-100)',  fg: 'var(--accent-600)' },
-            success: { bg: 'var(--success-100)', fg: 'var(--success)' },
-            warning: { bg: 'var(--warning-100)', fg: '#B45309' }
-          };
-          const tint = tintMap[f.tint];
-          return (
-            <div key={f.title} className="col-12 col-md-6 col-xl-3 anim-fade-up" style={{ animationDelay: `${idx * 60}ms` }}>
-              <div className="surface surface-hover h-100 p-4 p-md-5">
-                <div
-                  className="d-flex align-items-center justify-content-center rounded-4 mb-4"
-                  style={{
-                    width: '48px', height: '48px',
-                    background: tint.bg,
-                    color: tint.fg
-                  }}
-                >
-                  <Icon size={22} strokeWidth={2.1} />
-                </div>
-                <h3 className="text-h3 mb-2" style={{ color: 'var(--ink-900)' }}>{f.title}</h3>
-                <p style={{ fontSize: '0.88rem', lineHeight: 1.6 }}>{f.body}</p>
-              </div>
+      {/* MARQUEE BANNER */}
+      <div className="w-100 overflow-hidden" style={{ maxWidth: '100vw' }}>
+        <div className="bg-brand border-y-brutal py-3 my-1 overflow-hidden rotate-1 shadow-hard-sm">
+          <div className="animate-marquee-infinite">
+            <div className="font-headline text-xl font-black uppercase flex gap-5 text-white pr-5">
+              <span>BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL //</span>
             </div>
-          );
-        })}
+            <div className="font-headline text-xl font-black uppercase flex gap-5 text-white pr-5">
+              <span>BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL // BIOLOGY // PHYSICS // CHEMISTRY // MATHS // COMPUTER SCIENCE // ENGLISH // TAMIL //</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CORE SYSTEMS SECTION */}
+      <section className="py-5 my-md-4">
+        <div className="text-center mb-5">
+          <h2 className="font-headline text-5xl font-black uppercase tracking-tighter m-0" style={{ color: 'var(--text-main)' }}>
+            CORE SYSTEMS_
+          </h2>
+          <p className="text-brand font-bold text-sm uppercase m-0 mt-2 font-mono">
+            ARCHITECTED FOR MAXIMUM RETENTION
+          </p>
+        </div>
+        
+        <div className="row g-4">
+          <div className="col-12 col-md-4">
+            <div className="neo-brutal-card p-4 p-md-5 h-100 shadow-hard-sm" style={{ background: 'var(--bg-main)' }}>
+              <div className="bg-brand text-white border-brutal d-inline-flex p-3 mb-4">
+                <Zap size={28} />
+              </div>
+              <h3 className="font-headline text-2xl font-black uppercase mb-3" style={{ color: 'var(--text-main)' }}>RAPID FIRE SPRINTS</h3>
+              <p className="font-mono text-sm uppercase font-bold m-0" style={{ color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                Micro-quizzes engineered to test reflex memory. No long essays. Pure speed and accuracy metrics.
+              </p>
+            </div>
+          </div>
+          <div className="col-12 col-md-4">
+            <div className="neo-brutal-card p-4 p-md-5 h-100 shadow-hard-sm" style={{ background: 'var(--bg-main)' }}>
+              <div className="bg-brand text-white border-brutal d-inline-flex p-3 mb-4">
+                <Gauge size={28} />
+              </div>
+              <h3 className="font-headline text-2xl font-black uppercase mb-3" style={{ color: 'var(--text-main)' }}>ADVANCED TELEMETRY</h3>
+              <p className="font-mono text-sm uppercase font-bold m-0" style={{ color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                Track per-question time, identify weak sectors, and monitor XP growth with pinpoint precision.
+              </p>
+            </div>
+          </div>
+          <div className="col-12 col-md-4">
+            <div className="neo-brutal-card p-4 p-md-5 h-100 shadow-hard-sm" style={{ background: 'var(--bg-main)' }}>
+              <div className="bg-brand text-white border-brutal d-inline-flex p-3 mb-4">
+                <Trophy size={28} />
+              </div>
+              <h3 className="font-headline text-2xl font-black uppercase mb-3" style={{ color: 'var(--text-main)' }}>LEADERBOARDS</h3>
+              <p className="font-mono text-sm uppercase font-bold m-0" style={{ color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                Compete on the Sprint Leaderboard. Send kudos, maintain streaks, and climb the tactical divisions.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
+
+      {/* EXECUTION FLOW */}
+      <section className="py-5 mb-5 border-y-brutal bg-brand text-white shadow-hard" style={{ position: 'relative', left: '50%', right: '50%', marginLeft: '-50vw', marginRight: '-50vw', width: '100vw' }}>
+        <div className="mx-auto px-4" style={{ maxWidth: '1380px' }}>
+          <div className="text-center mb-5">
+            <h2 className="font-headline text-4xl font-black uppercase tracking-tighter m-0 text-black">
+              EXECUTION PROTOCOL_
+            </h2>
+          </div>
+          <div className="row g-4 text-center">
+            <div className="col-12 col-md-4">
+              <div className="font-headline text-6xl font-black mb-3" style={{ opacity: 0.3, color: '#000' }}>01</div>
+              <h4 className="font-headline text-xl font-black uppercase mb-2 text-black">SELECT SECTOR</h4>
+              <p className="font-mono text-xs font-bold uppercase m-0 text-white" style={{ opacity: 0.9 }}>Lock onto a core subject target.</p>
+            </div>
+            <div className="col-12 col-md-4">
+              <div className="font-headline text-6xl font-black mb-3" style={{ opacity: 0.3, color: '#000' }}>02</div>
+              <h4 className="font-headline text-xl font-black uppercase mb-2 text-black">DEPLOY SPRINT</h4>
+              <p className="font-mono text-xs font-bold uppercase m-0 text-white" style={{ opacity: 0.9 }}>Execute active recall under time pressure.</p>
+            </div>
+            <div className="col-12 col-md-4">
+              <div className="font-headline text-6xl font-black mb-3" style={{ opacity: 0.3, color: '#000' }}>03</div>
+              <h4 className="font-headline text-xl font-black uppercase mb-2 text-black">ANALYZE DATA</h4>
+              <p className="font-mono text-xs font-bold uppercase m-0 text-white" style={{ opacity: 0.9 }}>Review telemetry and patch weaknesses.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }

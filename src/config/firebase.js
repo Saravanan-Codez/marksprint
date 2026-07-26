@@ -41,18 +41,6 @@ async function initializeFirebaseApp() {
     const { initializeApp } = await import('firebase/app');
     const appInstance = initializeApp(firebaseConfig);
 
-    if (import.meta.env.VITE_RECAPTCHA_SITE_KEY && typeof window !== 'undefined') {
-      try {
-        const { initializeAppCheck, ReCaptchaEnterpriseProvider } = await import('firebase/app-check');
-        initializeAppCheck(appInstance, {
-          provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
-          isTokenAutoRefreshEnabled: true,
-        });
-      } catch (appCheckErr) {
-        console.warn('reCAPTCHA Enterprise App Check notice:', appCheckErr);
-      }
-    }
-
     app = appInstance;
     return app;
   })();

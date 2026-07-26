@@ -1,31 +1,50 @@
-import React, { useState } from 'react';
-import { Trophy, Flame, Zap, UserPlus, ShieldAlert, Award, UserCheck } from 'lucide-react';
-import { getLocalGamificationData, saveGamificationData } from '../services/gamificationService';
+import React, { useState, useEffect } from 'react';
+import { Trophy, Flame, Zap, UserPlus, ShieldAlert, Award, UserCheck, Heart, Sparkles, ThumbsUp } from 'lucide-react';
+import { getLocalGamificationData, saveGamificationData, getDivisionInfo, fetchFirestoreLeaderboard } from '../services/gamificationService';
 import { useAuth } from '../context/useAuth';
+import { useToast } from '../context/ToastContext';
 
 export default function FriendsLeaderboard() {
   const { user, userProfile } = useAuth();
+  const toast = useToast();
   const gamification = getLocalGamificationData();
+  
   const [friends, setFriends] = useState(gamification.friends || []);
+  const [remoteLeaderboard, setRemoteLeaderboard] = useState(null);
   const [newFriendEmail, setNewFriendEmail] = useState('');
   const [notice, setNotice] = useState('');
+  const [kudosSent, setKudosSent] = useState({});
 
   const currentUserDisplayName = userProfile?.displayName || user?.displayName || user?.email?.split('@')[0] || 'You';
   const userXp = gamification.xp || 0;
   const userStreak = gamification.streakDays || 1;
+  const currentDivision = getDivisionInfo(userXp);
 
-  // Build combined leaderboard array
-  const leaderboardList = [
+  // Fetch Firestore leaderboard when component mounts
+  useEffect(() => {
+    fetchFirestoreLeaderboard().then((dbList) => {
+      if (dbList && dbList.length > 0) {
+        setRemoteLeaderboard(dbList);
+      }
+    });
+  }, []);
+
+  // Combine remote/local leaderboard data
+  const baseList = remoteLeaderboard || [
     {
       id: 'current_user',
       name: `${currentUserDisplayName} (You)`,
       xp: userXp,
       streak: userStreak,
       isCurrentUser: true,
+      division: currentDivision.name,
       avatar: gamification.customAvatarUrl || user?.photoURL,
     },
     ...friends,
-  ].sort((a, b) => b.xp - a.xp);
+  ];
+
+  // If remoteLeaderboard present, ensure current user is represented accurately
+  const leaderboardList = [...baseList].sort((a, b) => b.xp - a.xp);
 
   const handleAddFriend = (e) => {
     e.preventDefault();
@@ -36,82 +55,90 @@ export default function FriendsLeaderboard() {
     for (let i = 0; i < emailClean.length; i++) {
       charSum += emailClean.charCodeAt(i);
     }
+    const friendXp = (charSum % 800) + 200;
+    const friendDiv = getDivisionInfo(friendXp).name;
+
     const newFriendObj = {
       id: `friend_${emailClean}_${charSum}`,
       name: emailClean.split('@')[0],
       email: emailClean,
-      xp: (charSum % 400) + 150,
-      streak: (charSum % 5) + 1,
+      xp: friendXp,
+      streak: (charSum % 7) + 1,
+      division: friendDiv
     };
 
     const updatedFriends = [...friends, newFriendObj];
     setFriends(updatedFriends);
     saveGamificationData({ ...gamification, friends: updatedFriends });
     setNewFriendEmail('');
-    setNotice(`Added ${newFriendObj.name} to your friends leaderboard!`);
+    setNotice(`Added ${newFriendObj.name} to your Sprint League!`);
     setTimeout(() => setNotice(''), 3500);
   };
 
+  const handleSendKudos = (friendId, friendName) => {
+    setKudosSent(prev => ({ ...prev, [friendId]: true }));
+    toast.success(`Sent 👏 Kudos to ${friendName}!`);
+  };
+
   return (
-    <div className="glass-card-cosmic p-4 p-md-5 mb-4" style={{ borderRadius: '0px', borderLeft: '4px solid #EAB308' }}>
-      <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div className="neo-brutal-card p-4 p-md-5 mb-4 shadow-hard font-mono" style={{ background: 'var(--bg-main)' }}>
+      <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 border-b-brutal pb-3">
+        
+        {/* Division Header */}
         <div className="d-flex align-items-center gap-3">
-          <div 
-            className="p-2.5 d-flex align-items-center justify-content-center"
-            style={{
-              background: 'rgba(234, 179, 8, 0.15)',
-              color: '#EAB308',
-              border: '1px solid rgba(234, 179, 8, 0.3)',
-              borderRadius: '0px'
-            }}
-          >
-            <Trophy size={24} />
+          <div className="w-12 h-12 border-brutal flex items-center justify-center font-bold text-2xl" style={{ width: '48px', height: '48px', background: 'var(--brand)', color: '#FFFFFF' }}>
+            {currentDivision.icon}
           </div>
           <div>
-            <h3 className="font-extrabold text-white mb-0" style={{ fontSize: '1.2rem', letterSpacing: '-0.01em' }}>
-              Duolingo-Style Friends Leaderboard
-            </h3>
-            <p className="m-0 mt-0.5" style={{ fontSize: '0.82rem', color: '#94A3B8' }}>
-              Compete weekly with maintainers & friends. Earn XP to climb ranks!
+            <div className="d-flex align-items-center gap-2 flex-wrap">
+              <h3 className="font-headline text-3xl font-black uppercase italic m-0" style={{ color: 'var(--text-main)' }}>
+                GLOBAL STANDINGS_
+              </h3>
+              <span className="bg-brand text-white font-bold px-2 py-0.5 border-brutal text-xs uppercase">
+                {currentDivision.name}
+              </span>
+            </div>
+            <p className="m-0 font-bold text-xs uppercase mt-1" style={{ color: 'var(--text-muted)' }}>
+              TOP 3 STUDENTS GET PROMOTED TO THE NEXT TIER AT THE END OF THE SPRINT WEEK.
             </p>
           </div>
         </div>
 
-        {/* Add Friend Form */}
+        {/* Add Operative Form */}
         <form onSubmit={handleAddFriend} className="d-flex align-items-center gap-2">
           <input
             type="email"
-            placeholder="Friend's Email..."
+            placeholder="OPERATIVE EMAIL..."
             value={newFriendEmail}
             onChange={(e) => setNewFriendEmail(e.target.value)}
-            className="form-control cosmic-input px-3 py-1.5 font-semibold"
-            style={{ fontSize: '0.84rem', borderRadius: '0px', maxWidth: '200px' }}
+            className="border-brutal p-2 font-bold text-xs uppercase outline-none focus:bg-brand"
+            style={{ maxWidth: '200px', background: 'var(--bg-main)', color: 'var(--text-main)' }}
           />
           <button
             type="submit"
-            className="btn btn-cosmic-outline px-3 py-1.5 font-bold d-flex align-items-center gap-1.5"
-            style={{ borderRadius: '0px', fontSize: '0.84rem' }}
+            className="bg-black text-white border-2 border-black px-3 py-2 font-headline font-black text-xs uppercase hover:bg-brand hover:text-black transition-all"
           >
-            <UserPlus size={15} /> Add
+            + ADD
           </button>
         </form>
       </div>
 
       {notice && (
-        <div className="p-2.5 mb-3 text-center font-bold text-success" style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '0px', fontSize: '0.82rem' }}>
-          <UserCheck size={16} className="me-1" /> {notice}
+        <div className="p-2 mb-3 text-center font-bold bg-brand text-black border-2 border-black text-xs uppercase">
+          ✓ {notice}
         </div>
       )}
 
-      {/* Leaderboard Table */}
+      {/* Standings Table */}
       <div className="table-responsive">
-        <table className="table table-dark table-hover align-middle m-0" style={{ background: 'transparent' }}>
-          <thead>
-            <tr style={{ borderColor: 'rgba(255, 255, 255, 0.1)', fontSize: '0.75rem', textTransform: 'uppercase', color: '#94A3B8' }}>
-              <th scope="col" style={{ width: '60px' }}>Rank</th>
-              <th scope="col">Student</th>
-              <th scope="col" className="text-center">Streak</th>
-              <th scope="col" className="text-end">Weekly XP</th>
+        <table className="table table-bordered border-brutal align-middle m-0 font-mono" style={{ '--bs-table-bg': 'transparent' }}>
+          <thead className="border-b-brutal" style={{ background: 'var(--bg-main)' }}>
+            <tr className="font-headline text-xs font-black uppercase">
+              <th scope="col" className="p-3" style={{ color: 'var(--text-main)' }}>POS</th>
+              <th scope="col" className="p-3" style={{ color: 'var(--text-main)' }}>OPERATIVE</th>
+              <th scope="col" className="p-3 text-center" style={{ color: 'var(--text-main)' }}>STREAK</th>
+              <th scope="col" className="p-3 text-end" style={{ color: 'var(--text-main)' }}>WEEKLY XP</th>
+              <th scope="col" className="p-3 text-center" style={{ color: 'var(--text-main)' }}>KUDOS</th>
             </tr>
           </thead>
           <tbody>
@@ -122,56 +149,47 @@ export default function FriendsLeaderboard() {
               return (
                 <tr 
                   key={item.id || index}
-                  style={{
-                    background: item.isCurrentUser ? 'rgba(0, 240, 255, 0.08)' : 'transparent',
-                    borderColor: 'rgba(255, 255, 255, 0.06)'
+                  className={item.isCurrentUser ? 'font-bold' : ''}
+                  style={{ 
+                    background: item.isCurrentUser ? 'var(--brand)' : 'var(--bg-card)', 
+                    color: item.isCurrentUser ? '#FFFFFF' : 'var(--text-main)',
+                    borderBottom: '2px solid var(--border-main)' 
                   }}
                 >
-                  <td className="fw-bold">
-                    {rank === 1 ? (
-                      <span className="badge bg-warning text-dark font-black" style={{ borderRadius: '0px' }}>🥇 #1</span>
-                    ) : rank === 2 ? (
-                      <span className="badge bg-secondary text-white font-black" style={{ borderRadius: '0px' }}>🥈 #2</span>
-                    ) : rank === 3 ? (
-                      <span className="badge font-black" style={{ background: '#CD7F32', color: '#fff', borderRadius: '0px' }}>🥉 #3</span>
-                    ) : (
-                      <span className="font-mono text-muted">#{rank}</span>
-                    )}
+                  <td className="p-3 font-headline font-black text-base" style={{ color: item.isCurrentUser ? '#FFFFFF' : 'var(--text-main)' }}>
+                    #{String(rank).padStart(2, '0')}
                   </td>
 
-                  <td>
+                  <td className="p-3 font-bold text-sm" style={{ color: item.isCurrentUser ? '#FFFFFF' : 'var(--text-main)' }}>
                     <div className="d-flex align-items-center gap-2">
-                      {item.avatar ? (
-                        <img src={item.avatar} alt="Avatar" style={{ width: '28px', height: '28px', borderRadius: '0px' }} />
-                      ) : (
-                        <div 
-                          className="d-flex align-items-center justify-content-center font-bold text-white"
-                          style={{ width: '28px', height: '28px', background: 'var(--primary)', borderRadius: '0px', fontSize: '0.75rem' }}
-                        >
-                          {item.name.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-
-                      <span className={`fw-bold ${item.isCurrentUser ? 'text-cyan-400' : 'text-white'}`} style={{ fontSize: '0.88rem' }}>
-                        {item.name}
-                      </span>
-
+                      <span className="uppercase">{item.name}</span>
                       {isLead && (
-                        <span className="badge bg-primary text-white font-mono" style={{ fontSize: '0.62rem', borderRadius: '0px' }}>
+                        <span className="bg-brand text-white px-1.5 py-0.5 text-[10px] font-black border-brutal">
                           MAINTAINER
                         </span>
                       )}
                     </div>
                   </td>
 
-                  <td className="text-center font-bold" style={{ color: '#F97316', fontSize: '0.85rem' }}>
-                    <Flame size={15} className="me-1 d-inline" />
-                    {item.streak}d
+                  <td className="p-3 text-center font-bold">
+                    <span>
+                      <span style={{ color: '#F59E0B' }}>🔥</span> 
+                      <span style={{ color: item.isCurrentUser ? '#FFFFFF' : 'var(--text-main)' }}> {item.streak || 1}D</span>
+                    </span>
                   </td>
 
-                  <td className="text-end font-mono font-black" style={{ color: '#EAB308', fontSize: '0.92rem' }}>
-                    <Zap size={15} className="me-1 d-inline" />
-                    {item.xp.toLocaleString()} XP
+                  <td className="p-3 text-end font-headline font-black text-lg" style={{ color: item.isCurrentUser ? '#FFFFFF' : 'var(--text-main)' }}>
+                    {(item.xp || 0).toLocaleString()}
+                  </td>
+
+                  <td className="p-3 text-center">
+                    <button
+                      onClick={() => handleSendKudos(item.id || index, item.name)}
+                      disabled={kudosSent[item.id || index]}
+                      className="bg-black text-brand border border-black px-2.5 py-1 font-bold text-xs hover:bg-white hover:text-black transition-all"
+                    >
+                      {kudosSent[item.id || index] ? '👏 SENT' : '👏 KUDOS'}
+                    </button>
                   </td>
                 </tr>
               );

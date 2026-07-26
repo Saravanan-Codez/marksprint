@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, RefreshCw, Home, RotateCcw } from 'lucide-react';
+import { AlertCircle, RefreshCw, Home } from 'lucide-react';
 
 export class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -32,85 +32,54 @@ export class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div 
-          className="min-vh-100 w-full d-flex align-items-center justify-content-center p-4 position-relative overflow-hidden"
-          style={{ background: '#05070E', color: '#fff' }}
-        >
+        <div className="min-vh-100 w-full d-flex align-items-center justify-content-center p-4">
           <div 
-            className="p-4 p-md-5 position-relative w-100"
-            style={{
-              maxWidth: '620px',
-              background: 'rgba(15, 23, 42, 0.95)',
-              backdropFilter: 'blur(16px)',
-              border: '1px solid rgba(243, 244, 246, 0.2)',
-              borderRadius: '0px',
-              boxShadow: '0 0 30px rgba(0, 240, 255, 0.15)'
-            }}
+            className="glass-card-cosmic p-4 p-md-5 w-100 text-center"
+            style={{ maxWidth: '520px', borderRadius: '20px' }}
           >
-            <div className="d-flex align-items-center gap-3 mb-3">
-              <div 
-                className="p-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                style={{
-                  background: 'rgba(239, 68, 68, 0.15)',
-                  color: '#F87171',
-                  border: '1px solid rgba(248, 113, 113, 0.3)',
-                  borderRadius: '0px'
-                }}
-              >
-                <AlertTriangle size={28} />
-              </div>
-              <div>
-                <h2 className="font-extrabold text-white mb-0" style={{ fontSize: '1.4rem' }}>
-                  Application Error Intercepted
-                </h2>
-                <span className="font-mono text-uppercase" style={{ fontSize: '0.72rem', color: '#F87171' }}>
-                  MarkSprint Fault-Tolerant Engine
-                </span>
-              </div>
-            </div>
-
-            <p className="mb-3 font-medium" style={{ color: '#94A3B8', fontSize: '0.88rem', lineHeight: '1.5' }}>
-              MarkSprint encountered an unexpected issue while rendering this view. Your test progress and local data remain safe.
-            </p>
-
-            {/* Error Message Detail Box */}
             <div 
-              className="p-3 mb-4 font-mono text-start overflow-x-auto"
+              className="d-inline-flex align-items-center justify-content-center p-3 mb-3"
               style={{
-                background: '#090D16',
-                border: '1px solid rgba(248, 113, 113, 0.3)',
-                color: '#FCA5A5',
-                fontSize: '0.78rem',
-                borderRadius: '0px',
-                maxHeight: '120px'
+                background: 'rgba(239, 68, 68, 0.12)',
+                color: '#EF4444',
+                borderRadius: '16px'
               }}
             >
-              {this.state.error?.message || 'Unknown Application Error'}
+              <AlertCircle size={32} />
             </div>
 
-            <div className="d-flex align-items-center justify-content-center gap-3 flex-wrap">
-              <button
-                onClick={this.resetError}
-                className="btn btn-cosmic-primary px-4 py-2.5 font-bold d-flex align-items-center gap-2"
-                style={{ borderRadius: '0px', fontSize: '0.85rem' }}
-              >
-                <RotateCcw size={16} /> Try Again
-              </button>
+            <h2 className="font-bold text-slate-900 mb-2" style={{ fontSize: '1.35rem' }}>
+              Something went wrong
+            </h2>
 
+            <p className="text-slate-500 mb-4" style={{ fontSize: '0.88rem' }}>
+              An unexpected issue occurred while rendering this page.
+            </p>
+
+            {this.state.error?.message && (
+              <div 
+                className="p-3 mb-4 font-mono text-start overflow-x-auto text-danger border rounded-3"
+                style={{ background: 'rgba(239, 68, 68, 0.05)', fontSize: '0.8rem', maxHeight: '100px' }}
+              >
+                {this.state.error.message}
+              </div>
+            )}
+
+            <div className="d-flex align-items-center justify-content-center gap-2 flex-wrap">
               <button
                 onClick={() => window.location.reload()}
-                className="btn btn-cosmic-outline px-4 py-2.5 font-bold d-flex align-items-center gap-2"
-                style={{ borderRadius: '0px', fontSize: '0.85rem' }}
+                className="btn btn-primary px-4 py-2 font-semibold d-flex align-items-center gap-2"
+                style={{ fontSize: '0.86rem' }}
               >
-                <RefreshCw size={16} /> Reload Page
+                <RefreshCw size={15} /> Refresh Page
               </button>
 
               <button
                 onClick={this.handleHardReset}
-                className="btn btn-cosmic-outline px-3 py-2.5 font-semibold text-muted d-flex align-items-center gap-1.5"
-                style={{ borderRadius: '0px', fontSize: '0.82rem' }}
+                className="btn btn-outline px-4 py-2 font-semibold text-slate-700 d-flex align-items-center gap-2"
+                style={{ fontSize: '0.86rem' }}
               >
-                <Home size={15} /> Reset Session & Home
+                <Home size={15} /> Go to Home
               </button>
             </div>
           </div>

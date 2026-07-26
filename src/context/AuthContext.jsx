@@ -96,6 +96,35 @@ export function AuthProvider({ children }) {
               providers: authUser.providerData.map((p) => p.providerId),
             };
 
+            // Check local gamification data for setup state
+            try {
+              const { getLocalGamificationData } = await import('../services/gamificationService');
+              const localData = getLocalGamificationData();
+              if (localData?.setupCompleted || (localData?.board && localData?.standard)) {
+                fallbackProfile.setupCompleted = true;
+                fallbackProfile.board = localData.board;
+                fallbackProfile.standard = localData.standard;
+              }
+            } catch (e) {
+              console.warn('Local data check warning:', e);
+            }
+
+            // Check Google Drive if token available
+            const sessionToken = sessionStorage.getItem('marksprint_gdrive_token');
+            if (sessionToken) {
+              try {
+                const { loadRecordBookFromDrive } = await import('../services/driveOrganizerService');
+                const driveData = await loadRecordBookFromDrive(sessionToken);
+                if (driveData && (driveData.setupCompleted || (driveData.board && driveData.standard))) {
+                  fallbackProfile.setupCompleted = true;
+                  fallbackProfile.board = driveData.board || fallbackProfile.board;
+                  fallbackProfile.standard = driveData.standard || fallbackProfile.standard;
+                }
+              } catch (dErr) {
+                console.warn('Drive check on auth state change warning:', dErr);
+              }
+            }
+
             try {
               const dbInstance = await loadFirestore();
               if (dbInstance) {
@@ -103,7 +132,8 @@ export function AuthProvider({ children }) {
                 const userRef = doc(dbInstance, 'users', authUser.uid);
                 const userDoc = await getDoc(userRef);
                 if (userDoc.exists()) {
-                  setUserProfile(userDoc.data());
+                  const dbData = userDoc.data();
+                  setUserProfile({ ...fallbackProfile, ...dbData });
                 } else {
                   const defaultProfile = {
                     ...fallbackProfile,
@@ -232,6 +262,8 @@ export function AuthProvider({ children }) {
       }
 
       const newUser = result.user;
+      setUser(newUser);
+
       const profileData = {
         uid: newUser.uid,
         email: newUser.email,
@@ -240,23 +272,68 @@ export function AuthProvider({ children }) {
         providers: newUser.providerData.map((p) => p.providerId),
       };
 
+      // Check Drive record book if token is available
+      if (token) {
+        try {
+          const { loadRecordBookFromDrive } = await import('../services/driveOrganizerService');
+          const driveData = await loadRecordBookFromDrive(token);
+          if (driveData) {
+            const { getLocalGamificationData, saveGamificationData } = await import('../services/gamificationService');
+            const localData = getLocalGamificationData();
+            saveGamificationData({ ...localData, ...driveData });
+            if (driveData.setupCompleted || (driveData.board && driveData.standard)) {
+              profileData.setupCompleted = true;
+              profileData.board = driveData.board;
+              profileData.standard = driveData.standard;
+            }
+          }
+        } catch (dErr) {
+          console.warn('Drive check on Google login warning:', dErr);
+        }
+      }
+
+      // Check local storage fallback
+      if (!profileData.setupCompleted) {
+        try {
+          const { getLocalGamificationData } = await import('../services/gamificationService');
+          const localData = getLocalGamificationData();
+          if (localData?.setupCompleted || (localData?.board && localData?.standard)) {
+            profileData.setupCompleted = true;
+            profileData.board = localData.board;
+            profileData.standard = localData.standard;
+          }
+        } catch (e) {
+          console.warn('Local data check on sign-in warning:', e);
+        }
+      }
+
       if (db) {
         try {
           const userRef = doc(db, 'users', newUser.uid);
           const userDoc = await getDoc(userRef);
           if (!userDoc.exists()) {
             await setDoc(userRef, { ...profileData, createdAt: serverTimestamp() }).catch(() => {});
+            setUserProfile(profileData);
           } else {
-            setUserProfile(userDoc.data());
-            return result.user;
+            const existingData = userDoc.data();
+            const merged = { ...profileData, ...existingData };
+            if (profileData.setupCompleted) merged.setupCompleted = true;
+            if (profileData.board) merged.board = profileData.board;
+            if (profileData.standard) merged.standard = profileData.standard;
+            setUserProfile(merged);
           }
         } catch (fsErr) {
           console.warn('Firestore Google sign in profile warning:', fsErr);
+          setUserProfile(profileData);
         }
+      } else {
+        setUserProfile(profileData);
       }
-      setUserProfile(profileData);
+
+      setLoading(false);
       return result.user;
     } catch (err) {
+      setLoading(false);
       const formatted = formatAuthError(err);
       setError(formatted);
       throw new Error(formatted);
@@ -302,6 +379,24 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const updateProfileData = async (updates) => {
+    if (!user || user.uid === 'guest_student_demo') {
+      setUserProfile((prev) => ({ ...prev, ...updates }));
+      return;
+    }
+    try {
+      const dbInstance = await loadFirestore();
+      if (!dbInstance) throw new Error('Firestore not initialized');
+      const { doc, updateDoc } = await import('firebase/firestore');
+      const userRef = doc(dbInstance, 'users', user.uid);
+      await updateDoc(userRef, updates);
+      setUserProfile((prev) => ({ ...prev, ...updates }));
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      throw err;
+    }
+  };
+
   const value = {
     user,
     userProfile,
@@ -313,6 +408,7 @@ export function AuthProvider({ children }) {
     signInWithGoogle,
     loginAsGuest,
     logOut,
+    updateProfileData,
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

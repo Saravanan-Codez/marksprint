@@ -9,7 +9,9 @@ import {
   getLocalGamificationData, 
   saveGamificationData, 
   calculateXpForQuiz, 
-  calculateStreakUpdate 
+  calculateStreakUpdate,
+  updateQuestsOnSprintComplete,
+  syncGamificationToFirestore
 } from "../../../services/gamificationService";
 import { 
   saveRecordBookToDrive, 
@@ -18,7 +20,7 @@ import {
 
 export default function ResultsBoard({ engine }) {
   const navigate = useNavigate();
-  const { googleAccessToken, userProfile } = useAuth();
+  const { user, googleAccessToken, userProfile } = useAuth();
   const { firstAttemptQuestions, firstAttemptAnswers, firstAttemptCorrect, selectedSubject } = engine;
   const [syncedDrive, setSyncedDrive] = useState(false);
 
@@ -27,7 +29,7 @@ export default function ResultsBoard({ engine }) {
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
   const gamification = getLocalGamificationData();
   const earnedXp = calculateXpForQuiz(correct, total, firstAttemptAnswers || []);
-  const streakInfo = calculateStreakUpdate(gamification.lastStreakDate, gamification.streakDays);
+  const streakInfo = calculateStreakUpdate(gamification.lastStreakDate, gamification.streakDays, gamification.streakShieldActive);
   const currentStreak = streakInfo.streak;
 
   useEffect(() => {
@@ -44,13 +46,19 @@ export default function ResultsBoard({ engine }) {
 
       const newXp = (gamification.xp || 0) + earnedXp;
 
-      const updatedGamification = {
+      let updatedGamification = {
         ...gamification,
         xp: newXp,
         streakDays: streakInfo.streak,
-        lastStreakDate: streakInfo.lastDate
+        lastStreakDate: streakInfo.lastDate,
+        streakShieldActive: streakInfo.shieldUsed ? false : gamification.streakShieldActive
       };
+
+      // Update Daily Quests
+      updatedGamification = updateQuestsOnSprintComplete(updatedGamification, correct, total, earnedXp);
+
       saveGamificationData(updatedGamification);
+      syncGamificationToFirestore(user, updatedGamification);
 
       // 2. Format detailed telemetry
       const detailedTelemetry = (firstAttemptAnswers || []).map((ans, idx) => ({
@@ -96,123 +104,126 @@ export default function ResultsBoard({ engine }) {
         })
         .catch((err) => console.warn('Auto save test result notice:', err));
     }
-  }, [accuracy, correct, total, selectedSubject, googleAccessToken, userProfile, firstAttemptAnswers, earnedXp, gamification, streakInfo.lastDate, streakInfo.streak]);
+  }, [accuracy, correct, total, selectedSubject, googleAccessToken, userProfile, firstAttemptAnswers, earnedXp, gamification, streakInfo.lastDate, streakInfo.streak, streakInfo.shieldUsed, user]);
 
   return (
-    <div className="container py-4 position-relative" style={{ maxWidth: '900px' }}>
-      <div className="d-flex flex-column align-items-center">
-        <h1 className="text-h1 mb-4 text-center">
-          Assessment Results
+    <div className="w-100 py-4 font-mono d-flex flex-column gap-5 anim-fade-in mx-auto" style={{ maxWidth: '950px' }}>
+      
+      {/* Top Banner */}
+      <div className="bg-brand border-brutal p-4 text-black text-center shadow-hard">
+        <h1 className="font-headline text-5xl font-black uppercase italic m-0">
+          ASSESSMENT DEBRIEF_
         </h1>
-        
-        <div className="surface p-4 p-md-5 mb-5 w-100" style={{ maxWidth: '560px' }}>
-          <div className="d-flex flex-column gap-3 mb-4">
-            <div className="d-flex justify-content-between align-items-center p-3 px-4 rounded-4" style={{ background: 'var(--surface-3)' }}>
-              <span className="text-uppercase tracking-wider font-bold text-muted" style={{ fontSize: '0.75rem' }}>Total Questions</span>
-              <span className="text-h3 font-bold m-0">{total}</span>
-            </div>
-            
-            <div className="d-flex justify-content-between align-items-center p-3 px-4 rounded-4" style={{ background: 'var(--surface-3)' }}>
-              <span className="text-uppercase tracking-wider font-bold text-muted" style={{ fontSize: '0.75rem' }}>Correct Answers</span>
-              <span className="text-h3 font-bold m-0" style={{ color: 'var(--success)' }}>{correct}</span>
-            </div>
-            
-            <div className="d-flex justify-content-between align-items-center p-3 px-4 rounded-4" style={{ background: 'var(--surface-3)' }}>
-              <span className="text-uppercase tracking-wider font-bold text-muted" style={{ fontSize: '0.75rem' }}>Accuracy</span>
-              <span className="text-h2 font-black m-0" style={{ color: 'var(--primary)' }}>{accuracy}%</span>
-            </div>
-
-            <div className="d-flex align-items-center justify-content-between gap-2 p-3 px-4" style={{ background: 'rgba(234, 179, 8, 0.12)', border: '1px solid rgba(234, 179, 8, 0.3)', borderRadius: '0px' }}>
-              <div className="d-flex align-items-center gap-2" style={{ color: '#EAB308', fontWeight: '800' }}>
-                <Zap size={20} />
-                <span>+ {earnedXp} XP Earned</span>
-              </div>
-
-              <div className="d-flex align-items-center gap-1 font-bold" style={{ color: '#F97316' }}>
-                <Flame size={20} />
-                <span>{currentStreak} Day Streak!</span>
-              </div>
-            </div>
+        <p className="font-mono text-xs font-bold uppercase m-0 mt-1">
+          SPRINT TELEMETRY & PERFORMANCE BREAKDOWN
+        </p>
+      </div>
+      
+      {/* Results Summary Box */}
+      <div className="bg-white border-brutal p-4 p-md-5 text-black shadow-hard mx-auto w-100" style={{ maxWidth: '650px' }}>
+        <div className="d-flex flex-column gap-3 mb-4">
+          <div className="d-flex justify-content-between align-items-center p-3 border-2 border-black bg-slate-100">
+            <span className="font-headline text-xs font-black uppercase text-black">TOTAL QUESTIONS</span>
+            <span className="font-headline text-3xl font-black text-black">{total}</span>
           </div>
-
-          {syncedDrive && (
-            <div 
-              className="p-2.5 mb-4 d-flex align-items-center justify-content-center gap-2 font-semibold"
-              style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34D399', fontSize: '0.82rem', borderRadius: '0px' }}
-            >
-              <Cloud size={16} />
-              Results Auto-Synced to Google Drive
-            </div>
-          )}
           
-          <div className="d-flex flex-column flex-sm-row gap-3">
-            <button 
-              className="btn btn-outline flex-grow-1"
-              onClick={() => engine.setQuizMode('setup')}
-            >
-              <Repeat size={18} /> Retry Sprint
-            </button>
-            <button 
-              className="btn btn-primary flex-grow-1"
-              onClick={() => navigate("/dashboard")}
-            >
-              <LayoutDashboard size={18} /> View Dashboard
-            </button>
-            <button 
-              className="btn btn-outline flex-grow-1"
-              onClick={() => navigate("/")}
-            >
-              <Home size={18} /> Home
-            </button>
+          <div className="d-flex justify-content-between align-items-center p-3 border-2 border-black bg-emerald-100">
+            <span className="font-headline text-xs font-black uppercase text-emerald-900">CORRECT ANSWERS</span>
+            <span className="font-headline text-3xl font-black text-emerald-900">{correct}</span>
           </div>
+          
+          <div className="d-flex justify-content-between align-items-center p-3 border-2 border-black bg-brand">
+            <span className="font-headline text-xs font-black uppercase text-black">ACCURACY</span>
+            <span className="font-headline text-4xl font-black text-black">{accuracy}%</span>
+          </div>
+
+          <div className="d-flex align-items-center justify-content-between gap-2 p-3 border-2 border-black bg-black text-brand">
+            <div className="d-flex align-items-center gap-2 font-headline font-black text-lg">
+              <Zap size={22} className="text-brand" />
+              <span>+{earnedXp} XP EARNED</span>
+            </div>
+
+            <div className="d-flex align-items-center gap-1 font-headline font-black text-lg text-brand">
+              <Flame size={22} />
+              <span>{currentStreak}D STREAK</span>
+            </div>
+          </div>
+        </div>
+
+        {syncedDrive && (
+          <div className="p-3 mb-4 text-center bg-emerald-100 border-2 border-emerald-500 text-emerald-900 font-mono font-bold text-xs uppercase d-flex align-items-center justify-content-center gap-2">
+            <Cloud size={18} />
+            RESULTS AUTO-SYNCED TO GOOGLE DRIVE
+          </div>
+        )}
+        
+        <div className="d-flex flex-column flex-sm-row gap-3">
+          <button 
+            className="bg-white text-black border-2 border-black p-3 font-headline font-black uppercase hover:bg-black hover:text-white transition-all shadow-hard-sm flex-grow-1"
+            onClick={() => engine.setQuizMode('setup')}
+          >
+            RETRY SPRINT
+          </button>
+          <button 
+            className="bg-brand text-black border-2 border-black p-3 font-headline font-black uppercase hover:bg-black hover:text-brand transition-all shadow-hard-sm flex-grow-1"
+            onClick={() => navigate("/dashboard")}
+          >
+            DASHBOARD
+          </button>
+          <button 
+            className="bg-black text-white border-2 border-black p-3 font-headline font-black uppercase hover:bg-brand hover:text-black transition-all shadow-hard-sm flex-grow-1"
+            onClick={() => navigate("/")}
+          >
+            HOME
+          </button>
         </div>
       </div>
 
-      <div className="mt-5 w-100">
-        <div className="d-flex align-items-center gap-3 my-5">
-          <div className="flex-grow-1" style={{ height: '1px', background: 'var(--ink-100)' }}></div>
-          <h2 className="text-h3 text-center m-0">Review Answers</h2>
-          <div className="flex-grow-1" style={{ height: '1px', background: 'var(--ink-100)' }}></div>
+      {/* Review Answers List */}
+      <div className="w-100">
+        <div className="d-flex align-items-center gap-3 my-4">
+          <hr className="flex-grow-1 border-2 border-black m-0" />
+          <h2 className="font-headline text-3xl font-black uppercase italic m-0 text-white">REVIEW ANSWERS_</h2>
+          <hr className="flex-grow-1 border-2 border-black m-0" />
         </div>
         
         <div className="d-flex flex-column gap-4">
           {firstAttemptAnswers.map((item, idx) => (
             <div 
               key={idx} 
-              className="surface p-4 p-md-5 position-relative"
-              style={{ borderLeft: `5px solid ${item.isCorrect ? 'var(--success)' : 'var(--danger)'}` }}
+              className={`bg-white border-brutal p-4 p-md-5 text-black shadow-hard-sm position-relative ${item.isCorrect ? 'border-l-8 border-emerald-500' : 'border-l-8 border-rose-500'}`}
             >
-              <div className="d-flex align-items-start gap-3 mb-4">
-                <span className="badge-num badge-num-primary flex-shrink-0">
-                  {idx + 1}
+              <div className="d-flex align-items-start gap-3 mb-3">
+                <span className="w-8 h-8 bg-black text-brand border-2 border-black d-inline-flex align-items-center justify-content-center font-headline font-black text-sm flex-shrink-0" style={{ width: '32px', height: '32px' }}>
+                  #{idx + 1}
                 </span>
-                <h3 className="text-h5 font-medium leading-relaxed m-0 pt-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.questionObj.question) }} />
+                <h3 className="font-headline text-xl font-black leading-relaxed m-0 text-black" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.questionObj.question) }} />
               </div>
 
               {item.questionObj.question_image && (
-                <div className="mb-4 ps-md-5">
-                  <img src={item.questionObj.question_image} alt="Question" className="img-fluid rounded-lg border" style={{ maxWidth: '400px', objectFit: 'contain', borderColor: 'var(--ink-100)' }} />
+                <div className="mb-3">
+                  <img src={item.questionObj.question_image} alt="Question" className="img-fluid border-2 border-black" style={{ maxWidth: '400px', objectFit: 'contain' }} />
                 </div>
               )}
               
-              <div className="row g-3 ps-md-5">
+              <div className="row g-3">
                 <div className="col-12 col-md-6">
-                  <div className="p-3 rounded-xl d-flex align-items-center gap-3 h-100" style={{ background: item.isCorrect ? 'var(--success-100)' : 'var(--danger-100)' }}>
-                    {item.isCorrect ? <CheckCircle2 size={22} style={{ color: 'var(--success)' }} className="flex-shrink-0" /> : <XCircle size={22} style={{ color: 'var(--danger)' }} className="flex-shrink-0" />}
+                  <div className={`p-3 border-2 border-black font-bold text-xs uppercase d-flex align-items-center gap-2 ${item.isCorrect ? 'bg-emerald-100 text-emerald-900' : 'bg-rose-100 text-rose-900'}`}>
+                    {item.isCorrect ? <CheckCircle2 size={20} className="flex-shrink-0 text-emerald-700" /> : <XCircle size={20} className="flex-shrink-0 text-rose-700" />}
                     <div>
-                      <span className="d-block text-uppercase tracking-wider mb-1" style={{ fontSize: '0.65rem', fontWeight: 'bold', color: item.isCorrect ? 'var(--success)' : 'var(--danger)' }}>Your Answer</span>
-                      <span className="font-semibold" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.userAnswer || "Skipped / Timeout") }} />
+                      <span className="d-block font-mono text-[10px] opacity-75">YOUR ANSWER</span>
+                      <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.userAnswer || "SKIPPED / TIMEOUT") }} />
                     </div>
                   </div>
                 </div>
                 
                 {!item.isCorrect && (
                   <div className="col-12 col-md-6">
-                    <div className="p-3 rounded-xl d-flex align-items-center gap-3 h-100" style={{ background: 'var(--success-100)' }}>
-                      <CheckCircle2 size={22} style={{ color: 'var(--success)' }} className="flex-shrink-0" />
+                    <div className="p-3 border-2 border-black bg-emerald-100 text-emerald-900 font-bold text-xs uppercase d-flex align-items-center gap-2">
+                      <CheckCircle2 size={20} className="flex-shrink-0 text-emerald-700" />
                       <div>
-                        <span className="d-block text-uppercase tracking-wider mb-1" style={{ fontSize: '0.65rem', fontWeight: 'bold', color: 'var(--success)' }}>Correct Answer</span>
-                        <span className="font-semibold" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.questionObj.answer) }} />
+                        <span className="d-block font-mono text-[10px] opacity-75">CORRECT ANSWER</span>
+                        <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.questionObj.answer) }} />
                       </div>
                     </div>
                   </div>

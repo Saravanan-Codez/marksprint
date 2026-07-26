@@ -57,12 +57,12 @@ export default function Galaxy({ isDark = true }) {
 
     let frame;
     const draw = () => {
-      // Background: Black for dark mode, Light Blue for light mode
-      ctx.fillStyle = isDark ? "black" : "#add8e6"; 
+      // Background: Pitch cosmic dark for dark mode, crisp slate for bright mode
+      ctx.fillStyle = isDark ? "#080C19" : "#F8FAFC"; 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Stars: White for dark mode, Black for light mode
-      ctx.fillStyle = isDark ? "white" : "black";
+      // Stars: White for dark mode, soft indigo dots for bright mode
+      ctx.fillStyle = isDark ? "rgba(255, 255, 255, 0.85)" : "rgba(99, 102, 241, 0.35)";
       stars.forEach((s) => {
         ctx.fillRect(s.x, s.y, s.z, s.z);
         s.y += s.z * 0.25;

@@ -64,7 +64,7 @@ export default function Skeleton({
 export function StatCardSkeleton() {
   return (
     <div className="col-6 col-md-3">
-      <div className="glass-card-cosmic p-4 text-center h-100" style={{ borderRadius: '0px' }}>
+      <div className="glass-card-cosmic p-4 text-center h-100" style={{ borderRadius: '18px' }}>
         <Skeleton variant="circle" width="42px" height="42px" className="mx-auto mb-3" />
         <Skeleton variant="rect" width="60%" height="1.8rem" className="mx-auto mb-2" />
         <Skeleton variant="text" width="80%" height="0.75rem" className="mx-auto" />
@@ -76,7 +76,7 @@ export function StatCardSkeleton() {
 /** Pre-composed skeleton for a sprint history row */
 export function HistoryRowSkeleton() {
   return (
-    <div className="p-3 d-flex flex-column gap-2" style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0px' }}>
+    <div className="p-3 d-flex flex-column gap-2" style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px' }}>
       <div className="d-flex align-items-center justify-content-between gap-3">
         <div style={{ flex: 1 }}>
           <Skeleton variant="text" width="40%" height="0.9rem" style={{ marginBottom: '0.5rem' }} />
@@ -92,7 +92,7 @@ export function HistoryRowSkeleton() {
 export function SubjectCardSkeleton() {
   return (
     <div className="col-12 col-sm-6 col-lg-4">
-      <div className="surface p-4 h-100" style={{ borderRadius: '0px' }}>
+      <div className="glass-card-cosmic p-4 h-100" style={{ borderRadius: '20px' }}>
         <div className="d-flex align-items-center gap-3 mb-3">
           <Skeleton variant="circle" width="44px" height="44px" />
           <Skeleton variant="rect" width="50%" height="1.1rem" />

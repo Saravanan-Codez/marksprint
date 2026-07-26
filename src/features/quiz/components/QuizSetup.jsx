@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Bookmark, BarChart3, Trophy, Target, Trash2, Play, Clock } from 'lucide-react';
+import { BarChart3, Clock } from 'lucide-react';
 import { useToast } from '../../../context/ToastContext.jsx';
 
 const SUBJECT_KEYS = {
@@ -27,8 +27,7 @@ export default function QuizSetup({ engine, subject }) {
     startQuiz, startRevision,
     allQuestions, buildQuestionPool,
     savedProgress, clearSavedProgress,
-    startBookmarkedQuiz, hasBookmarkedQuestions,
-    statistics, isBookmarked
+    statistics
   } = engine;
 
   const toast = useToast();
@@ -37,17 +36,6 @@ export default function QuizSetup({ engine, subject }) {
     const key = SUBJECT_KEYS[subject] || subject;
     return statistics?.bySubject?.[key] || null;
   }, [statistics, subject]);
-
-  const hasBookmarks = useMemo(() => hasBookmarkedQuestions(), [hasBookmarkedQuestions]);
-
-  const bookmarkCount = useMemo(() => {
-    if (!allQuestions || !isBookmarked) return 0;
-    let count = 0;
-    for (let i = 0; i < allQuestions.length; i++) {
-      if (isBookmarked(allQuestions[i])) count++;
-    }
-    return count;
-  }, [allQuestions, isBookmarked]);
 
   const doStartQuiz = useCallback(() => {
     if (!allQuestions || allQuestions.length === 0) {
@@ -89,15 +77,6 @@ export default function QuizSetup({ engine, subject }) {
     toast.info('Saved progress discarded.');
   }, [clearSavedProgress, toast]);
 
-  const doStartBookmarked = useCallback(() => {
-    if (!hasBookmarks) {
-      toast.warning('No bookmarked questions in this subject yet. Tap the star icon on questions to save them for later.');
-      return;
-    }
-    startBookmarkedQuiz();
-    toast.success('Starting bookmarked questions session!');
-  }, [hasBookmarks, startBookmarkedQuiz, toast]);
-
   const formatSavedAt = (iso) => {
     try {
       const d = new Date(iso);
@@ -108,130 +87,104 @@ export default function QuizSetup({ engine, subject }) {
   };
 
   return (
-    <div className="container py-4 position-relative" style={{ maxWidth: '800px' }}>
+    <div className="w-100 py-4 font-mono d-flex flex-column gap-4 anim-fade-in mx-auto" style={{ maxWidth: '850px' }}>
 
-      <div className="text-center mb-5">
-        <h2 className="display-4 font-bold text-slate-900 uppercase tracking-tight">
-          {subject}
+      {/* Header */}
+      <div className="bg-brand border-brutal p-4 text-black text-center shadow-hard-sm">
+        <h2 className="font-headline text-5xl font-black uppercase italic m-0">
+          {subject} SPRINT_
         </h2>
-        <p className="text-slate-500 font-light mt-2" style={{ fontSize: '0.95rem' }}>Configure your assessment parameters before starting the sprint.</p>
+        <p className="font-mono text-xs font-bold uppercase m-0 mt-1">
+          CONFIGURE SECTOR PARAMETERS & TIMERS BEFORE DEPLOYMENT
+        </p>
       </div>
 
       {engine.loadError && (
-        <div className="p-4 mb-4 text-center" style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '0px' }}>
-          <div className="font-bold text-danger mb-1" style={{ fontSize: '0.95rem' }}>
-            ⚠️ {engine.loadError}
-          </div>
-          <p className="m-0 text-muted" style={{ fontSize: '0.82rem' }}>
-            Operating using custom local dataset or offline storage mode.
-          </p>
+        <div className="p-3 bg-rose-100 border-2 border-rose-500 text-rose-900 font-bold text-xs text-center">
+          ⚠️ OPERATING OFFLINE: {engine.loadError}
         </div>
       )}
 
       {/* Resume Saved Progress Banner */}
       {savedProgress && savedProgress.quizQuestions && (
-        <div
-          className="mb-4 p-4 rounded-4 border surface-3 shadow-sm animate-fade-in"
-          role="region"
-          aria-label="Saved progress available"
-        >
+        <div className="bg-white border-brutal p-4 text-black shadow-hard-sm">
           <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-            <div className="d-flex align-items-start gap-3">
-              <div className="chip-primary rounded-4 d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: '48px', height: '48px' }}>
-                <Clock size={22} className="text-white" />
+            <div className="d-flex align-items-center gap-3">
+              <div className="w-12 h-12 bg-black text-brand border-2 border-black flex items-center justify-center font-bold" style={{ width: '48px', height: '48px' }}>
+                <Clock size={24} />
               </div>
-              <div className="text-start">
-                <h4 className="h6 font-bold text-slate-900 m-0">Unfinished session detected</h4>
-                <p className="text-slate-500 m-0 mt-1" style={{ fontSize: '0.85rem' }}>
-                  Saved on {formatSavedAt(savedProgress.savedAt)} &mdash; {savedProgress.quizQuestions?.length ?? 0} questions in progress.
+              <div>
+                <h4 className="font-headline text-xl font-black uppercase m-0 text-black">UNFINISHED SPRINT DETECTED</h4>
+                <p className="font-mono text-xs font-bold text-slate-700 m-0">
+                  SAVED ON {formatSavedAt(savedProgress.savedAt).toUpperCase()} — {savedProgress.quizQuestions?.length ?? 0} QUESTIONS IN PROGRESS.
                 </p>
               </div>
             </div>
             <div className="d-flex gap-2 flex-shrink-0">
               <button
-                className="btn-outline text-slate-700 py-2 px-4 font-bold text-uppercase tracking-wider d-inline-flex align-items-center gap-2"
-                style={{ fontSize: '0.8rem' }}
+                className="bg-white text-black border-2 border-black px-3 py-2 font-headline font-black text-xs uppercase hover:bg-rose-500 hover:text-white transition-all"
                 onClick={doDiscardSaved}
-                title="Discard saved progress"
               >
-                <Trash2 size={14} /> Discard
+                DISCARD
               </button>
               <button
-                className="btn-primary text-white py-2 px-4 font-extrabold text-uppercase tracking-wider d-inline-flex align-items-center gap-2"
-                style={{ fontSize: '0.8rem' }}
+                className="bg-brand text-black border-2 border-black px-4 py-2 font-headline font-black text-xs uppercase hover:bg-black hover:text-brand transition-all shadow-hard-sm"
                 onClick={doResumeSaved}
-                title="Resume saved quiz"
               >
-                <Play size={14} /> Resume
+                RESUME SPRINT →
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Statistics Summary Cards */}
+      {/* Performance Stats Overview */}
       {(subjectStats || statistics) && (
-        <div className="mb-4 p-4 rounded-4 border surface shadow-sm animate-fade-in">
-          <div className="d-flex align-items-center gap-2 mb-3">
-            <BarChart3 size={16} className="text-primary" />
-            <h4 className="text-uppercase tracking-wider font-bold text-slate-500 m-0" style={{ fontSize: '0.7rem', letterSpacing: '0.2em' }}>
-              Performance Overview
+        <div className="bg-white border-brutal p-4 text-black shadow-hard-sm">
+          <div className="d-flex align-items-center gap-2 mb-3 border-b-2 border-black pb-2">
+            <BarChart3 size={18} className="text-black" />
+            <h4 className="font-headline text-lg font-black uppercase m-0 text-black">
+              SECTOR TELEMETRY & OVERVIEW
             </h4>
           </div>
           <div className="row g-3">
-            <div className="col-6 col-md-3">
-              <div className="surface-3 p-3 rounded-4 text-center border">
-                <div className="d-flex justify-content-center mb-1"><Target size={16} className="text-primary" /></div>
-                <div className="h3 font-black m-0 text-slate-900">{subjectStats?.attempts ?? 0}</div>
-                <div className="text-slate-500" style={{ fontSize: '0.7rem' }}>Attempts</div>
+            <div className="col-4">
+              <div className="bg-brand border-2 border-black p-3 text-center">
+                <div className="text-3xl font-headline font-black">{subjectStats?.attempts ?? 0}</div>
+                <div className="text-xs font-bold uppercase">ATTEMPTS</div>
               </div>
             </div>
-            <div className="col-6 col-md-3">
-              <div className="surface-3 p-3 rounded-4 text-center border">
-                <div className="d-flex justify-content-center mb-1"><Trophy size={16} style={{ color: '#f59e0b' }} /></div>
-                <div className="h3 font-black m-0 text-slate-900">{subjectStats?.bestScore ?? 0}<small className="text-slate-500" style={{ fontSize: '0.9rem' }}>%</small></div>
-                <div className="text-slate-500" style={{ fontSize: '0.7rem' }}>Best Score</div>
+            <div className="col-4">
+              <div className="bg-white border-2 border-black p-3 text-center">
+                <div className="text-3xl font-headline font-black">{subjectStats?.bestScore ?? 0}%</div>
+                <div className="text-xs font-bold uppercase">BEST SCORE</div>
               </div>
             </div>
-            <div className="col-6 col-md-3">
-              <div className="surface-3 p-3 rounded-4 text-center border">
-                <div className="d-flex justify-content-center mb-1"><BarChart3 size={16} className="text-teal-600" /></div>
-                <div className="h3 font-black m-0 text-slate-900">{subjectStats?.avgScore ?? 0}<small className="text-slate-500" style={{ fontSize: '0.9rem' }}>%</small></div>
-                <div className="text-slate-500" style={{ fontSize: '0.7rem' }}>Avg Score</div>
-              </div>
-            </div>
-            <div className="col-6 col-md-3">
-              <div className="surface-3 p-3 rounded-4 text-center border">
-                <div className="d-flex justify-content-center mb-1"><Bookmark size={16} className="text-primary" /></div>
-                <div className="h3 font-black m-0 text-slate-900">{bookmarkCount}</div>
-                <div className="text-slate-500" style={{ fontSize: '0.7rem' }}>Bookmarked</div>
+            <div className="col-4">
+              <div className="bg-white border-2 border-black p-3 text-center">
+                <div className="text-3xl font-headline font-black">{subjectStats?.avgScore ?? 0}%</div>
+                <div className="text-xs font-bold uppercase">AVG SCORE</div>
               </div>
             </div>
           </div>
-          {subjectStats?.lastAt && (
-            <div className="mt-3 text-center text-slate-500" style={{ fontSize: '0.75rem' }}>
-              Last attempt: {formatSavedAt(subjectStats.lastAt)} &middot; scored {subjectStats.lastScore}%
-            </div>
-          )}
         </div>
       )}
 
-      <div className="surface p-4 p-md-5 rounded-4 border shadow-sm d-flex flex-column gap-4">
+      <div className="bg-white border-brutal p-4 p-md-5 text-black shadow-hard d-flex flex-column gap-4">
 
         {/* Assessment Scope Selection */}
         <section className="text-center">
-          <h4 className="text-uppercase tracking-wider font-bold text-primary mb-3" style={{ fontSize: '0.75rem', letterSpacing: '0.25em' }}>Assessment Scope</h4>
-          <div className="d-flex flex-row rounded-4 border surface-2 p-1 gap-1">
+          <h4 className="font-headline text-sm font-black uppercase text-black mb-2">ASSESSMENT SCOPE</h4>
+          <div className="d-flex border-2 border-black bg-black p-1">
             {["lesson", "volume", "full"].map(t => (
               <button
                 key={t}
-                className={`flex-grow-1 py-2.5 rounded-3 font-bold text-sm tracking-wider transition-all border-0 ${
-                  quizType === t
-                    ? 'chip-primary active text-white shadow-sm'
-                    : 'chip-outline text-slate-600'
-                }`}
+                className="flex-grow-1 py-2.5 font-headline font-black text-sm uppercase transition-all border-0"
+                style={{
+                  background: quizType === t ? 'var(--brand)' : 'transparent',
+                  color: quizType === t ? '#000000' : '#FFFFFF'
+                }}
                 onClick={() => setQuizType(t)}
-                aria-pressed={quizType === t}
               >
                 {t.toUpperCase()}
               </button>
@@ -242,27 +195,19 @@ export default function QuizSetup({ engine, subject }) {
         {/* Scope Detail: Lesson list */}
         {quizType === "lesson" && (
           <section className="animate-fade-in">
-            <h4 className="text-uppercase tracking-wider font-bold text-slate-500 mb-3 text-center" style={{ fontSize: '0.7rem', letterSpacing: '0.15em' }}>Select Lessons</h4>
-            <div
-              className="d-flex flex-wrap gap-2 justify-content-center p-3 rounded-4 border surface-2"
-              style={{
-                maxHeight: '220px',
-                overflowY: 'auto'
-              }}
-            >
+            <h4 className="font-headline text-xs font-black uppercase text-black mb-2 text-center">SELECT LESSONS</h4>
+            <div className="d-flex flex-wrap gap-2 justify-content-center p-3 border-2 border-black bg-slate-100">
               {availableLessons.map(lesson => (
                 <button
                   key={lesson}
-                  className={`font-semibold text-sm transition-all border px-3 py-2 ${
-                    selectedLessons.includes(lesson)
-                      ? 'chip-primary active text-white'
-                      : 'chip-outline text-slate-600'
-                  }`}
-                  style={{ borderRadius: '12px', minWidth: '95px' }}
+                  className="font-mono font-bold text-xs uppercase border-2 border-black px-3 py-2 transition-all"
+                  style={{
+                    background: selectedLessons.includes(lesson) ? 'var(--brand)' : '#FFFFFF',
+                    color: '#000000'
+                  }}
                   onClick={() => setSelectedLessons(prev => prev.includes(lesson) ? prev.filter(l => l !== lesson) : [...prev, lesson])}
-                  aria-pressed={selectedLessons.includes(lesson)}
                 >
-                  Lesson {lesson}
+                  LESSON {lesson}
                 </button>
               ))}
             </div>
@@ -390,21 +335,20 @@ export default function QuizSetup({ engine, subject }) {
         </section>
 
         {/* Configurations Parameters */}
-        <div className="row g-4 mt-2">
+        <div className="row g-4 mt-1">
 
           <div className="col-12 col-md-6 col-lg-4">
-            <h4 className="text-uppercase tracking-wider font-bold text-slate-500 mb-2" style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}>Question Timer</h4>
-            <div className="d-flex flex-row rounded-4 p-1 gap-1">
+            <h4 className="font-headline text-xs font-black uppercase text-black mb-2">QUESTION TIMER</h4>
+            <div className="d-flex border-2 border-black bg-black p-1">
               {[0, 5, 10, 15].map(t => (
                 <button
                   key={t}
-                  className={`flex-grow-1 py-3 font-semibold text-xs transition-all border rounded-3 ${
-                    timerLimit === t
-                      ? 'chip-primary active text-white shadow-sm'
-                      : 'chip-outline text-slate-600'
-                  }`}
+                  className="flex-grow-1 py-2 font-headline font-black text-xs uppercase border-0"
+                  style={{
+                    background: timerLimit === t ? 'var(--brand)' : 'transparent',
+                    color: timerLimit === t ? '#000000' : '#FFFFFF'
+                  }}
                   onClick={() => setTimerLimit(t)}
-                  aria-pressed={timerLimit === t}
                 >
                   {t === 0 ? "OFF" : `${t}s`}
                 </button>
@@ -413,18 +357,17 @@ export default function QuizSetup({ engine, subject }) {
           </div>
 
           <div className="col-12 col-md-6 col-lg-4">
-            <h4 className="text-uppercase tracking-wider font-bold text-slate-500 mb-2" style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}>Global Timer</h4>
-            <div className="d-flex flex-row rounded-4 p-1 gap-1">
+            <h4 className="font-headline text-xs font-black uppercase text-black mb-2">GLOBAL TIMER</h4>
+            <div className="d-flex border-2 border-black bg-black p-1">
               {[0, 5, 10, 30].map(t => (
                 <button
                   key={t}
-                  className={`flex-grow-1 py-3 font-semibold text-xs transition-all border rounded-3 ${
-                    globalTimerLimit === t
-                      ? 'chip-primary active text-white shadow-sm'
-                      : 'chip-outline text-slate-600'
-                  }`}
+                  className="flex-grow-1 py-2 font-headline font-black text-xs uppercase border-0"
+                  style={{
+                    background: globalTimerLimit === t ? 'var(--brand)' : 'transparent',
+                    color: globalTimerLimit === t ? '#000000' : '#FFFFFF'
+                  }}
                   onClick={() => setGlobalTimerLimit(t)}
-                  aria-pressed={globalTimerLimit === t}
                 >
                   {t === 0 ? "OFF" : `${t}m`}
                 </button>
@@ -433,18 +376,17 @@ export default function QuizSetup({ engine, subject }) {
           </div>
 
           <div className="col-12 col-lg-4">
-            <h4 className="text-uppercase tracking-wider font-bold text-slate-500 mb-2" style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}>Questions Count</h4>
-            <div className="d-flex flex-row rounded-4 p-1 gap-1">
+            <h4 className="font-headline text-xs font-black uppercase text-black mb-2">QUESTION COUNT</h4>
+            <div className="d-flex border-2 border-black bg-black p-1">
               {[0, 15, 20].map(n => (
                 <button
                   key={n}
-                  className={`flex-grow-1 py-3 font-semibold text-xs transition-all border rounded-3 ${
-                    questionCount === n
-                      ? 'chip-primary active text-white shadow-sm'
-                      : 'chip-outline text-slate-600'
-                  }`}
+                  className="flex-grow-1 py-2 font-headline font-black text-xs uppercase border-0"
+                  style={{
+                    background: questionCount === n ? 'var(--brand)' : 'transparent',
+                    color: questionCount === n ? '#000000' : '#FFFFFF'
+                  }}
                   onClick={() => setQuestionCount(n)}
-                  aria-pressed={questionCount === n}
                 >
                   {n === 0 ? "ALL" : n}
                 </button>
@@ -455,42 +397,18 @@ export default function QuizSetup({ engine, subject }) {
         </div>
 
         {/* Start Sprint Actions */}
-        <div className="pt-3 d-flex flex-column gap-3">
-          {hasBookmarks && (
-            <button
-              className="btn-soft py-3 font-bold tracking-widest text-uppercase animate-fade-in d-inline-flex align-items-center justify-content-center gap-2 shadow-sm"
-              style={{
-                borderRadius: '16px',
-                fontSize: '0.9rem',
-                color: '#b45309',
-                backgroundColor: '#fff7ed',
-                border: '1px solid #fdba74'
-              }}
-              onClick={doStartBookmarked}
-            >
-              <Bookmark size={16} fill="currentColor" />
-              Start Bookmarked Quiz
-            </button>
-          )}
+        <div className="pt-3 d-flex flex-column flex-sm-row gap-3">
           <button
-            className="btn-outline text-slate-700 py-3 font-bold tracking-widest text-uppercase"
-            style={{ borderRadius: '16px', fontSize: '1rem' }}
+            className="flex-grow-1 bg-white text-black border-2 border-black p-4 font-headline text-xl font-black uppercase hover:bg-black hover:text-white transition-all shadow-hard-sm"
             onClick={doStartRevision}
           >
-            Start Revision
+            START REVISION
           </button>
           <button
-            className="btn-primary text-white py-3 font-extrabold tracking-widest text-uppercase"
-            style={{
-              borderRadius: '16px',
-              fontSize: '1rem',
-              background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #14b8a6 100%)',
-              border: 'none',
-              boxShadow: '0 4px 14px rgba(79, 70, 229, 0.25)'
-            }}
+            className="flex-grow-1 bg-brand text-black border-2 border-black p-4 font-headline text-2xl font-black uppercase hover:bg-black hover:text-brand transition-all shadow-hard"
             onClick={doStartQuiz}
           >
-            Start Assessment
+            EXECUTE SPRINT →
           </button>
         </div>
       </div>

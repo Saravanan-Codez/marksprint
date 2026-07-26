@@ -3,16 +3,18 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   Trophy, Target, Clock, Zap, Cloud, CloudOff, RefreshCw, Download,
   BookOpen, User, Flame, ArrowRight, ShieldCheck, CheckCircle2,
-  FolderCheck, Code, Settings, Award, Eye, Lock, BarChart2
+  FolderCheck, Code, Settings, Award, Eye, Lock, BarChart2, Shield, Gift, Check
 } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
+import { useToast } from '../context/ToastContext';
 import { getLocalTestHistory, syncWithCloud } from '../services/resultsStorage';
-import { getLocalGamificationData, getLevelInfo } from '../services/gamificationService';
+import { getLocalGamificationData, getLevelInfo, getDivisionInfo, saveGamificationData } from '../services/gamificationService';
 import AccountSettingsModal from '../components/AccountSettingsModal';
 import FriendsLeaderboard from '../components/FriendsLeaderboard';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const toast = useToast();
   const { user, userProfile, googleAccessToken } = useAuth();
 
   const [history, setHistory] = useState([]);
@@ -44,8 +46,28 @@ export default function DashboardPage() {
   const avgTimePerQuestion = totalQuestions > 0 ? Math.round(totalTimeSeconds / totalQuestions) : 0;
 
   const displayName = userProfile?.displayName || user?.displayName || user?.email?.split('@')[0] || 'Student';
-  const userRole = userProfile?.role || 'student';
   const isGuestUser = user?.uid === 'guest_student_demo' || user?.isAnonymous;
+
+  const currentDivision = getDivisionInfo(gamification.xp || 0);
+
+  // ── Claim quest reward ───────────────────────────────────────────────────
+  const handleClaimQuest = (questId, rewardXp) => {
+    const updatedQuests = {
+      ...gamification.dailyQuests,
+      list: gamification.dailyQuests.list.map(q => 
+        q.id === questId ? { ...q, claimed: true } : q
+      )
+    };
+    const newXp = (gamification.xp || 0) + rewardXp;
+    const updated = {
+      ...gamification,
+      xp: newXp,
+      dailyQuests: updatedQuests
+    };
+    setGamification(updated);
+    saveGamificationData(updated);
+    toast.success(`Claimed +${rewardXp} XP bonus! 🎉`);
+  };
 
   // ── Subject proficiency ────────────────────────────────────────────────────
   const subjectStats = {};
@@ -57,15 +79,16 @@ export default function DashboardPage() {
     subjectStats[sub].count += 1;
   });
 
-  // ── Export payload (defined before handleExportJSON) ───────────────────────
+  // ── Export payload ────────────────────────────────────────────────────────
   const structuredExportPayload = {
     app: 'MarkSprint by Falkon Labs',
-    version: '1.0',
-    schema: 'structured_student_record_v1',
+    version: '2.0',
+    schema: 'structured_student_record_v2',
     lastSynced: new Date().toISOString(),
     studentProfile: {
       displayName,
       email: user?.email || 'N/A',
+      leagueDivision: currentDivision.name
     },
     summary: { totalSprints, totalQuestions, totalCorrect, overallAccuracy, avgSpeedSeconds: avgTimePerQuestion },
     testHistory: history,
@@ -104,113 +127,133 @@ export default function DashboardPage() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="container py-4 py-md-5">
+    <div className="d-flex flex-column gap-5 anim-fade-in font-mono pb-5 mb-5">
 
-      {/* ── Profile / Gamification Banner ─────────────────────────────────── */}
-      <div className="glass-card-cosmic p-4 p-md-5 mb-4 position-relative overflow-hidden" style={{ borderRadius: '0px' }}>
-        <div className="position-relative z-2 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
-
-          {/* Avatar + name + streak */}
-          <div className="d-flex align-items-center gap-3">
-            <div
-              className="d-flex align-items-center justify-content-center flex-shrink-0 overflow-hidden"
-              style={{ width: '64px', height: '64px', background: 'linear-gradient(135deg, #6366F1, #4F46E5)', border: '2px solid #00F0FF', boxShadow: '0 0 16px rgba(0,240,255,0.4)', borderRadius: '0px' }}
-            >
-              {gamification.customAvatarUrl || user?.photoURL ? (
-                <img src={gamification.customAvatarUrl || user.photoURL} alt="Profile" className="w-100 h-100" style={{ objectFit: 'cover' }} />
-              ) : (
-                <User size={32} color="#fff" />
+      {/* ── Operative Profile Header ────────────────────────────────────────── */}
+      <div className="neo-brutal-card p-4 p-md-5 d-flex flex-column md:flex-row justify-content-between align-items-center gap-4 shadow-hard">
+        <div className="d-flex align-items-center gap-4">
+          <div className="w-24 h-24 text-brand border-brutal flex align-items-center justify-content-center flex-shrink-0" style={{ width: '80px', height: '80px', background: 'var(--bg-main)' }}>
+            {gamification.customAvatarUrl || user?.photoURL ? (
+              <img src={gamification.customAvatarUrl || user.photoURL} alt="Profile" className="w-100 h-100" style={{ objectFit: 'cover' }} />
+            ) : (
+              <User size={48} className="text-brand" />
+            )}
+          </div>
+          <div>
+            <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
+              <h2 className="font-headline text-4xl font-black uppercase italic m-0" style={{ color: 'var(--text-main)' }}>
+                {displayName.toUpperCase()}
+              </h2>
+              <span className="bg-brand text-black px-2 py-0.5 text-xs font-bold border-brutal uppercase">
+                {currentDivision.icon} {currentDivision.name}
+              </span>
+            </div>
+            <div className="d-flex gap-2">
+              <span className="px-2 py-0.5 text-xs font-bold font-mono border-brutal" style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }}>LVL {levelInfo.level}</span>
+              <span className="bg-brand text-black px-2 py-0.5 text-xs font-bold italic font-mono border-brutal">XP: {(gamification.xp || 0).toLocaleString()}</span>
+              {gamification.streakDays > 0 && (
+                <span className="px-2 py-0.5 text-xs font-bold font-mono border-brutal" style={{ background: 'var(--warning)', color: '#000000' }}>🔥 {gamification.streakDays}D STREAK</span>
               )}
             </div>
-
-            <div>
-              <div className="d-flex align-items-center gap-2 flex-wrap mb-1">
-                <h1 className="font-extrabold text-white mb-0" style={{ fontSize: '1.6rem', letterSpacing: '-0.02em' }}>
-                  {displayName}
-                </h1>
-                <span className="px-2 font-bold text-uppercase" style={{ fontSize: '0.65rem', background: userRole === 'teacher' ? 'rgba(168,85,247,0.2)' : 'rgba(56,189,248,0.15)', color: userRole === 'teacher' ? '#C084FC' : '#38BDF8', border: userRole === 'teacher' ? '1px solid rgba(168,85,247,0.4)' : '1px solid rgba(56,189,248,0.3)', borderRadius: '0px' }}>
-                  {userRole}
-                </span>
-                <span className="px-2 font-bold text-uppercase d-inline-flex align-items-center gap-1" style={{ fontSize: '0.65rem', background: gamification.privacyMode === 'private' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)', color: gamification.privacyMode === 'private' ? '#F87171' : '#34D399', border: gamification.privacyMode === 'private' ? '1px solid rgba(248,113,113,0.3)' : '1px solid rgba(52,211,153,0.3)', borderRadius: '0px' }}>
-                  {gamification.privacyMode === 'private' ? <Lock size={10} /> : <Eye size={10} />}
-                  {gamification.privacyMode || 'public'}
-                </span>
-              </div>
-
-              {/* Streak + level bar */}
-              <div className="d-flex align-items-center gap-3 flex-wrap">
-                <span className="font-extrabold d-inline-flex align-items-center gap-1" style={{ color: '#F97316', fontSize: '0.85rem' }}>
-                  <Flame size={17} /> {gamification.streakDays || 1} Day Streak
-                </span>
-                <div className="d-flex align-items-center gap-2" style={{ minWidth: '180px' }}>
-                  <span className="font-bold text-white" style={{ fontSize: '0.78rem' }}>Lvl {levelInfo.level}</span>
-                  <div className="flex-grow-1" style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '0px' }}>
-                    <div style={{ width: `${levelInfo.percent}%`, height: '100%', background: 'linear-gradient(90deg,#00F0FF,#3B82F6)', borderRadius: '0px', transition: 'width 0.5s ease' }} />
-                  </div>
-                  <span className="text-muted" style={{ fontSize: '0.72rem' }}>{(gamification.xp || 0).toLocaleString()} XP</span>
-                </div>
-              </div>
-            </div>
           </div>
+        </div>
 
-          {/* Action buttons */}
-          <div className="d-flex align-items-center gap-2 flex-wrap">
-            <button
-              onClick={() => setShowSettings(true)}
-              className="btn btn-cosmic-outline px-3 py-2 font-semibold d-flex align-items-center gap-2"
-              style={{ borderRadius: '0px', fontSize: '0.85rem' }}
-            >
-              <Settings size={16} /> Account Settings
-            </button>
-            <button
-              onClick={() => navigate('/')}
-              className="btn btn-cosmic-primary px-4 py-2 font-bold d-flex align-items-center gap-2"
-              style={{ borderRadius: '0px', fontSize: '0.88rem' }}
-            >
-              <Zap size={16} /> Start Sprint
-            </button>
-          </div>
+        <div className="d-flex align-items-center gap-3 flex-wrap">
+          <button
+            onClick={() => setShowSettings(true)}
+            className="btn"
+          >
+            SETTINGS_
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="btn btn-primary"
+          >
+            START SPRINT
+          </button>
         </div>
       </div>
 
-      {/* ── Stats Grid ────────────────────────────────────────────────────────── */}
-      <div className="row g-3 mb-4">
-        {[
-          { icon: <Trophy size={20} />, color: '#818CF8', bg: 'rgba(99,102,241,0.15)', value: totalSprints, label: 'Sprints Completed' },
-          { icon: <Target size={20} />, color: '#34D399', bg: 'rgba(16,185,129,0.15)', value: `${overallAccuracy}%`, label: 'Overall Accuracy' },
-          { icon: <CheckCircle2 size={20} />, color: '#38BDF8', bg: 'rgba(56,189,248,0.15)', value: `${totalCorrect}/${totalQuestions}`, label: 'Questions Solved' },
-          { icon: <Clock size={20} />, color: '#FB923C', bg: 'rgba(251,146,60,0.15)', value: `${avgTimePerQuestion}s`, label: 'Avg Speed / Q' },
-        ].map(({ icon, color, bg, value, label }, i) => (
-          <div key={i} className="col-6 col-md-3">
-            <div className="glass-card-cosmic p-4 text-center h-100" style={{ borderRadius: '0px' }}>
-              <div className="d-flex align-items-center justify-content-center mx-auto mb-2" style={{ width: '42px', height: '42px', background: bg, color, borderRadius: '0px' }}>
-                {icon}
-              </div>
-              <div className="font-extrabold text-white" style={{ fontSize: '1.8rem' }}>{value}</div>
-              <div style={{ fontSize: '0.78rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
+      {/* ── Daily Sprint Quests Section ────────────────────────────────────────── */}
+      {gamification.dailyQuests?.list && (
+        <div className="neo-brutal-card p-5 p-md-6 shadow-hard-sm">
+          <div className="d-flex align-items-center justify-content-between mb-4 border-b-brutal pb-3">
+            <div className="d-flex align-items-center gap-2">
+              <Gift size={20} style={{ color: 'var(--text-main)' }} />
+              <h3 className="font-headline text-2xl font-black uppercase italic m-0" style={{ color: 'var(--text-main)' }}>DAILY SPRINT QUESTS</h3>
             </div>
+            <span className="font-mono text-xs font-bold uppercase text-black bg-brand px-2 py-0.5 border-brutal">RESETS DAILY</span>
           </div>
-        ))}
-      </div>
 
-      {/* ── Google Drive Storage Panel ────────────────────────────────────────── */}
-      <div className="glass-card-cosmic p-4 mb-4" style={{ borderRadius: '0px', borderLeft: '4px solid #00F0FF' }}>
+          <div className="row g-3">
+            {gamification.dailyQuests.list.map(q => {
+              const percent = Math.min(100, Math.round((q.current / q.target) * 100));
+
+              return (
+                <div key={q.id} className="col-12 col-md-4">
+                  <div className="neo-brutal-card p-5 h-100 d-flex flex-column justify-content-between shadow-hard-sm position-relative">
+                    <div>
+                      <div className="d-flex align-items-start justify-content-between mb-3 gap-2">
+                        <span className="font-bold font-mono text-xs uppercase pr-5" style={{ color: 'var(--text-main)' }}>{q.icon} {q.title}</span>
+                        <span className="position-absolute font-bold font-mono text-white bg-brand px-2 py-1 text-xs border-brutal m-2" style={{ top: '8px', right: '8px' }}>+{q.reward} XP</span>
+                      </div>
+                      <p className="m-0 mb-3 font-mono text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>{q.desc}</p>
+                    </div>
+
+                    <div>
+                      <div className="d-flex align-items-center justify-content-between my-3 font-mono text-xs font-bold" style={{ color: 'var(--text-main)' }}>
+                        <span>PROGRESS</span>
+                        <span>{q.current} / {q.target}</span>
+                      </div>
+                      <div className="progress mb-4">
+                        <div className="progress-bar" style={{ width: `${percent}%`, background: q.completed ? 'var(--success)' : 'var(--warning)' }} />
+                      </div>
+
+                      {q.completed ? (
+                        q.claimed ? (
+                          <div className="text-center py-1 font-bold text-xs" style={{ color: 'var(--success)' }}>
+                            <Check size={14} className="me-1 d-inline" /> CLAIMED
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleClaimQuest(q.id, q.reward)}
+                            className="btn btn-primary btn-sm w-100"
+                          >
+                            CLAIM +{q.reward} XP
+                          </button>
+                        )
+                      ) : (
+                        <div className="text-center py-1 font-semibold text-xs" style={{ color: 'var(--text-muted)' }}>
+                          IN PROGRESS
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Google Drive Storage Panel */}
+      <div className="neo-brutal-card p-4 shadow-hard-sm">
         <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
           <div className="d-flex align-items-center gap-3">
-            <div style={{ padding: '10px', background: googleAccessToken ? 'rgba(16,185,129,0.15)' : 'rgba(100,116,139,0.15)', color: googleAccessToken ? '#34D399' : '#94A3B8', border: googleAccessToken ? '1px solid rgba(52,211,153,0.3)' : '1px solid rgba(148,163,184,0.2)', borderRadius: '0px' }}>
+            <div className="p-3 border-brutal flex-shrink-0" style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }}>
               {googleAccessToken ? <Cloud size={24} /> : <CloudOff size={24} />}
             </div>
             <div>
               <div className="d-flex align-items-center gap-2 flex-wrap mb-1">
-                <h3 className="font-bold text-white mb-0" style={{ fontSize: '1.05rem' }}>Google Drive Storage</h3>
-                <span className={`badge font-bold d-flex align-items-center gap-1 ${googleAccessToken ? 'bg-success' : 'bg-secondary'}`} style={{ fontSize: '0.68rem', borderRadius: '0px' }}>
-                  {googleAccessToken ? <><ShieldCheck size={11} /> CONNECTED</> : 'OFFLINE MODE'}
+                <h3 className="font-headline font-black text-xl mb-0" style={{ color: 'var(--text-main)' }}>GOOGLE DRIVE STORAGE</h3>
+                <span className="badge font-bold px-2 py-0.5 border-brutal text-xs" style={{ background: googleAccessToken ? 'var(--success)' : 'var(--bg-main)', color: googleAccessToken ? '#000000' : 'var(--text-muted)' }}>
+                  {googleAccessToken ? '✓ CONNECTED' : 'OFFLINE MODE'}
                 </span>
-                <span className="badge font-mono" style={{ background: 'rgba(56,189,248,0.12)', color: '#38BDF8', border: '1px solid rgba(56,189,248,0.3)', fontSize: '0.68rem', borderRadius: '0px' }}>
-                  <FolderCheck size={11} className="me-1" />/MarkSprint/
+                <span className="font-mono text-xs font-bold px-2 py-0.5 border-brutal" style={{ background: 'var(--bg-main)', color: 'var(--accent)', borderColor: 'var(--accent)' }}>
+                  /MarkSprint/
                 </span>
               </div>
-              <p className="m-0" style={{ fontSize: '0.82rem', color: '#94A3B8' }}>
+              <p className="m-0 text-xs font-bold" style={{ color: 'var(--text-muted)' }}>
                 {googleAccessToken
                   ? 'Assessment records auto-sync to your Google Drive inside /MarkSprint/.'
                   : 'Sign in with Google to enable automatic Drive cloud backup.'}
@@ -219,23 +262,23 @@ export default function DashboardPage() {
           </div>
 
           <div className="d-flex align-items-center gap-2 flex-wrap">
-            <button onClick={() => setShowInspector(v => !v)} className="btn btn-cosmic-outline px-3 py-2 font-semibold d-flex align-items-center gap-2" style={{ borderRadius: '0px', fontSize: '0.84rem' }}>
-              <Code size={15} /> {showInspector ? 'Hide JSON' : 'Inspect JSON'}
+            <button onClick={() => setShowInspector(v => !v)} className="btn btn-sm">
+              <Code size={14} className="me-1 d-inline" /> {showInspector ? 'HIDE JSON' : 'INSPECT JSON'}
             </button>
             {!isGuestUser && (
-              <button onClick={handleManualSync} disabled={syncing} className="btn btn-cosmic-outline px-3 py-2 font-semibold d-flex align-items-center gap-2" style={{ borderRadius: '0px', fontSize: '0.84rem' }}>
-                <RefreshCw size={15} className={syncing ? 'animate-spin' : ''} />
-                {syncing ? 'Syncing...' : 'Sync to Drive'}
+              <button onClick={handleManualSync} disabled={syncing} className="btn btn-sm" style={{ background: 'var(--brand)', color: '#000000' }}>
+                <RefreshCw size={14} className={`me-1 d-inline ${syncing ? 'animate-spin' : ''}`} />
+                {syncing ? 'SYNCING...' : 'SYNC DRIVE'}
               </button>
             )}
             {!isGuestUser && (
-              <button onClick={handleExportJSON} className="btn btn-cosmic-outline px-3 py-2 font-semibold d-flex align-items-center gap-2" style={{ borderRadius: '0px', fontSize: '0.84rem' }}>
-                <Download size={15} /> Export JSON
+              <button onClick={handleExportJSON} className="btn btn-sm">
+                <Download size={14} className="me-1 d-inline" /> EXPORT JSON
               </button>
             )}
             {isGuestUser && (
-              <div className="px-3 py-2 font-semibold d-flex align-items-center gap-2" style={{ fontSize: '0.78rem', color: '#94A3B8', background: 'rgba(148,163,184,0.08)', borderRadius: '0px', border: '1px solid rgba(148,163,184,0.15)' }}>
-                🔒 Sign in to enable Drive Sync
+              <div className="px-3 py-1.5 font-bold text-xs uppercase border-brutal" style={{ background: 'var(--bg-main)', color: 'var(--text-muted)' }}>
+                🔒 SIGN IN FOR DRIVE SYNC
               </div>
             )}
           </div>
@@ -243,96 +286,109 @@ export default function DashboardPage() {
 
         {/* JSON Inspector */}
         {showInspector && (
-          <div className="mt-3 p-3" style={{ background: '#090D16', border: '1px solid rgba(0,240,255,0.3)', borderRadius: '0px' }}>
+          <div className="mt-3 p-3 font-mono border-brutal" style={{ background: 'var(--bg-main)', color: 'var(--accent)', borderColor: 'var(--accent)' }}>
             <div className="d-flex align-items-center justify-content-between mb-2">
-              <span className="font-bold text-white" style={{ fontSize: '0.78rem' }}>
-                📁 /MarkSprint/marksprint_structured_data.json Preview
+              <span className="font-bold text-xs">
+                📁 /MarkSprint/marksprint_structured_data.json PREVIEW
               </span>
-              <button onClick={() => setShowInspector(false)} className="btn btn-link p-0 text-decoration-none font-bold" style={{ color: '#F43F5E', fontSize: '0.78rem' }}>
-                Close ✕
+              <button onClick={() => setShowInspector(false)} className="font-bold border-0 bg-transparent text-xs" style={{ color: 'var(--danger)' }}>
+                CLOSE ✕
               </button>
             </div>
-            <pre className="m-0 p-3 overflow-auto" style={{ background: '#05070E', fontSize: '0.75rem', maxHeight: '240px', lineHeight: '1.4', color: '#67e8f9' }}>
+            <pre className="m-0 p-3 overflow-auto text-xs border-brutal" style={{ maxHeight: '240px', lineHeight: '1.4', background: 'var(--bg-card)', color: 'var(--text-main)', borderColor: 'var(--accent)' }}>
               {JSON.stringify(structuredExportPayload, null, 2)}
             </pre>
           </div>
         )}
 
         {syncNotice && (
-          <div className="mt-3 p-2 font-semibold text-center" style={{ background: 'rgba(0,240,255,0.1)', border: '1px solid rgba(0,240,255,0.3)', color: '#00F0FF', fontSize: '0.82rem', borderRadius: '0px' }}>
+          <div className="mt-3 p-2 font-bold text-center bg-brand text-black border-brutal text-xs uppercase">
             {syncNotice}
           </div>
         )}
       </div>
 
-      {/* ── Friends Leaderboard ───────────────────────────────────────────────── */}
+      {/* Friends Leaderboard */}
       <FriendsLeaderboard />
 
-      {/* ── Main Two-Column Layout ────────────────────────────────────────────── */}
+      {/* Main Two-Column Layout */}
       <div className="row g-4 mb-4">
 
         {/* Sprint History */}
         <div className="col-12 col-lg-7">
-          <div className="glass-card-cosmic p-4 h-100" style={{ borderRadius: '0px' }}>
-            <div className="d-flex align-items-center justify-content-between mb-4">
-              <h2 className="font-bold text-white m-0" style={{ fontSize: '1.15rem' }}>
-                Recent Sprint History
+          <div className="neo-brutal-card p-4 h-100 shadow-hard-sm">
+            <div className="d-flex align-items-center justify-content-between mb-3 border-b-brutal pb-2">
+              <h2 className="font-headline text-2xl font-black uppercase italic m-0" style={{ color: 'var(--text-main)' }}>
+                RECENT SPRINT HISTORY_
               </h2>
-              <span style={{ fontSize: '0.78rem', color: '#64748B' }}>{history.length} Total Records</span>
+              <span className="bg-brand text-black px-2 py-0.5 font-mono text-xs font-bold border-brutal">{history.length} RECORDS</span>
             </div>
 
             {history.length === 0 ? (
               <div className="text-center py-5">
-                <Flame size={36} color="#475569" className="mb-2" />
-                <p className="text-white font-semibold mb-1">No Sprint History Yet</p>
-                <p style={{ fontSize: '0.84rem', color: '#94A3B8' }}>Take your first quiz sprint to track your performance!</p>
-                <button onClick={() => navigate('/')} className="btn btn-cosmic-primary mt-2 px-4 py-2 font-bold" style={{ borderRadius: '0px', fontSize: '0.84rem' }}>
-                  Start Sprint
+                <Flame size={36} className="text-brand mb-2 mx-auto" />
+                <p className="font-headline text-lg font-bold mb-1" style={{ color: 'var(--text-main)' }}>NO SPRINT HISTORY YET</p>
+                <p className="text-xs font-bold font-mono" style={{ color: 'var(--text-muted)' }}>Take your first quiz sprint to track your performance!</p>
+                <button onClick={() => navigate('/')} className="btn btn-primary mt-3">
+                  START SPRINT
                 </button>
               </div>
             ) : (
-              <div className="d-flex flex-column gap-2" style={{ maxHeight: '420px', overflowY: 'auto' }}>
+              <div className="d-flex flex-column gap-3 history-scroll" style={{ maxHeight: '440px', overflowY: 'auto', paddingRight: '4px', scrollbarWidth: 'thin', scrollbarColor: 'var(--border-muted) transparent' }}>
+                <style>{`
+                  .history-scroll::-webkit-scrollbar { width: 4px; }
+                  .history-scroll::-webkit-scrollbar-track { background: transparent; }
+                  .history-scroll::-webkit-scrollbar-thumb { background: var(--border-muted); border-radius: 4px; }
+                  .history-scroll::-webkit-scrollbar-thumb:hover { background: var(--brand); }
+                `}</style>
                 {history.map((item) => {
                   const percent = item.totalQuestions > 0 ? Math.round((item.score / item.totalQuestions) * 100) : 0;
                   const dateStr = item.timestamp
                     ? new Date(item.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
                     : 'Recent';
                   const hasTelemetry = item.telemetry && item.telemetry.length > 0;
-                  const scoreColor = percent >= 80 ? '#34D399' : percent >= 50 ? '#FBBF24' : '#F87171';
+                  
+                  let scoreBg = 'var(--danger)';
+                  if (percent >= 80) scoreBg = 'var(--success)';
+                  else if (percent >= 50) scoreBg = 'var(--brand)';
 
                   return (
                     <div
                       key={item.id || item.timestamp}
-                      className="p-3 d-flex flex-column gap-2"
-                      style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0px' }}
+                      className="p-4 d-flex flex-column gap-2"
+                      style={{ background: 'var(--bg-main)', borderBottom: '2px solid var(--border-main)' }}
                     >
                       <div className="d-flex align-items-center justify-content-between gap-3">
                         <div>
-                          <div className="font-bold text-white text-capitalize" style={{ fontSize: '0.92rem' }}>
+                          <div className="font-headline font-black text-xl uppercase" style={{ color: 'var(--text-main)' }}>
                             {item.subject || 'General Sprint'}
                           </div>
-                          <div className="d-flex align-items-center gap-2 mt-1" style={{ fontSize: '0.76rem', color: '#94A3B8' }}>
+                          <div className="d-flex align-items-center gap-2 mt-0.5 font-mono text-xs font-bold" style={{ color: 'var(--text-muted)' }}>
                             <span>{dateStr}</span>
                             <span>•</span>
-                            <span>{item.totalQuestions || 0} Questions</span>
+                            <span>{item.totalQuestions || 0} QUESTIONS</span>
                           </div>
                         </div>
-                        <div className="font-extrabold text-end" style={{ fontSize: '1.05rem', color: scoreColor }}>
+                        <div className="font-headline font-black text-lg px-3 py-1 border-brutal" style={{ background: scoreBg, color: '#000000' }}>
                           {item.score}/{item.totalQuestions} ({percent}%)
                         </div>
                       </div>
 
                       {hasTelemetry && (
-                        <div className="pt-2 border-top" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-                          <span className="font-bold text-muted d-block mb-1" style={{ fontSize: '0.72rem' }}>
-                            ⏱ Per-Question Telemetry:
+                        <div className="pt-2 border-t-brutal mt-1">
+                          <span className="font-mono text-[10px] font-bold text-brand uppercase d-block mb-1">
+                            ⏱ PER-QUESTION TELEMETRY:
                           </span>
-                          <div className="d-flex flex-wrap gap-1">
+                          <div className="d-flex flex-wrap gap-2">
                             {item.telemetry.map((t, tIdx) => (
                               <span
                                 key={tIdx}
-                                className="px-2 font-mono"
-                                style={{ fontSize: '0.68rem', background: t.isCorrect ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: t.isCorrect ? '#34D399' : '#F87171', border: t.isCorrect ? '1px solid rgba(52,211,153,0.3)' : '1px solid rgba(248,113,113,0.3)', borderRadius: '0px', lineHeight: '1.8' }}
+                                className="px-2 py-0.5 font-mono text-[11px] font-bold"
+                                style={{
+                                  background: t.isCorrect ? 'var(--success)' : 'var(--danger)',
+                                  color: '#000000',
+                                  borderRadius: '4px'
+                                }}
                                 title={`Q${t.questionIndex}: ${t.secondsSpent}s (${t.isCorrect ? 'Correct' : 'Wrong'})`}
                               >
                                 Q{t.questionIndex}: {t.secondsSpent}s {t.isCorrect ? '✓' : '✗'}
@@ -349,34 +405,32 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Subject Mastery */}
         <div className="col-12 col-lg-5">
-          <div className="glass-card-cosmic p-4 h-100" style={{ borderRadius: '0px' }}>
-            <div className="d-flex align-items-center gap-2 mb-4">
-              <BarChart2 size={20} color="#818CF8" />
-              <h2 className="font-bold text-white m-0" style={{ fontSize: '1.15rem' }}>Subject Mastery</h2>
+          <div className="neo-brutal-card p-4 h-100 shadow-hard-sm">
+            <div className="d-flex align-items-center gap-2 mb-3 border-b-brutal pb-2">
+              <BarChart2 size={22} className="text-brand" />
+              <h2 className="font-headline text-2xl font-black uppercase italic m-0" style={{ color: 'var(--text-main)' }}>SUBJECT MASTERY_</h2>
             </div>
 
             {Object.keys(subjectStats).length === 0 ? (
               <div className="text-center py-5">
-                <BookOpen size={36} color="#475569" className="mb-2" />
-                <p className="text-white font-semibold mb-1">No Subject Data Yet</p>
-                <p style={{ fontSize: '0.84rem', color: '#94A3B8' }}>Complete quizzes to see subject mastery stats.</p>
+                <BookOpen size={36} style={{ color: 'var(--text-muted)' }} className="mb-2 mx-auto" />
+                <p className="font-headline text-lg font-bold mb-1" style={{ color: 'var(--text-main)' }}>NO SUBJECT DATA YET</p>
+                <p className="text-xs font-bold font-mono" style={{ color: 'var(--text-muted)' }}>Complete quizzes to see subject mastery stats.</p>
               </div>
             ) : (
-              <div className="d-flex flex-column gap-3">
+              <div className="d-flex flex-column gap-3 font-mono">
                 {Object.entries(subjectStats).map(([sub, stat]) => {
                   const accuracy = stat.total > 0 ? Math.round((stat.correct / stat.total) * 100) : 0;
-                  const barColor = accuracy >= 75 ? 'linear-gradient(90deg,#10B981,#34D399)' : accuracy >= 50 ? 'linear-gradient(90deg,#F59E0B,#FBBF24)' : 'linear-gradient(90deg,#EF4444,#F87171)';
-                  const textColor = accuracy >= 75 ? '#34D399' : accuracy >= 50 ? '#FBBF24' : '#F87171';
+                  const barBg = accuracy >= 75 ? 'var(--success)' : accuracy >= 50 ? 'var(--brand)' : 'var(--danger)';
                   return (
-                    <div key={sub}>
-                      <div className="d-flex align-items-center justify-content-between mb-1" style={{ fontSize: '0.86rem' }}>
-                        <span className="font-bold text-white text-capitalize">{sub}</span>
-                        <span className="font-bold" style={{ color: textColor }}>{accuracy}% ({stat.correct}/{stat.total})</span>
+                    <div key={sub} className="p-3 border-brutal" style={{ background: 'var(--bg-main)' }}>
+                      <div className="d-flex align-items-center justify-content-between mb-1 text-xs">
+                        <span className="font-bold uppercase" style={{ color: 'var(--text-main)' }}>{sub}</span>
+                        <span className="font-headline font-black text-sm" style={{ color: barBg }}>{accuracy}% ({stat.correct}/{stat.total})</span>
                       </div>
-                      <div className="w-100" style={{ height: '8px', background: 'rgba(255,255,255,0.08)', borderRadius: '0px' }}>
-                        <div style={{ width: `${accuracy}%`, height: '100%', background: barColor, borderRadius: '0px', transition: 'width 0.5s ease' }} />
+                      <div className="progress">
+                        <div className="progress-bar" style={{ width: `${accuracy}%`, background: barBg }} />
                       </div>
                     </div>
                   );
@@ -384,9 +438,9 @@ export default function DashboardPage() {
               </div>
             )}
 
-            <div className="mt-4 pt-3 border-top" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-              <Link to="/" className="text-decoration-none font-bold d-flex align-items-center justify-content-between" style={{ color: '#38BDF8', fontSize: '0.86rem' }}>
-                <span>Browse Subjects</span>
+            <div className="mt-4 pt-3 border-t-brutal">
+              <Link to="/" className="btn btn-primary w-100 d-flex align-items-center justify-content-between">
+                <span>BROWSE TARGET SECTORS</span>
                 <ArrowRight size={16} />
               </Link>
             </div>

@@ -3,25 +3,6 @@ import Papa from 'papaparse';
 import CryptoJS from 'crypto-js';
 import { useToast } from '../../../context/ToastContext.jsx';
 
-import physicsCsv from '../../../data/physics.csv?url';
-import chemistryCsv from '../../../data/chemistry.csv?url';
-import mathsCsv from '../../../data/maths.csv?url';
-import csCsv from '../../../data/cs.csv?url';
-import biologyCsv from '../../../data/biology.csv?url';
-import englishCsv from '../../../data/english.csv?url';
-import tamilCsv from '../../../data/tamil.csv?url';
-
-const CSV_MAP = {
-  physics: physicsCsv,
-  chemistry: chemistryCsv,
-  maths: mathsCsv,
-  cs: csCsv,
-  computer: csCsv,
-  biology: biologyCsv,
-  english: englishCsv,
-  tamil: tamilCsv
-};
-
 const SUBJECT_MAP = {
   physics: 'Physics',
   chemistry: 'Chemistry',
@@ -77,7 +58,7 @@ function buildQuestionId(q) {
   return `${base}:${btoa(unescape(encodeURIComponent(text))).slice(0, 32)}`;
 }
 
-export function useQuizEngine(subject) {
+export const useQuizEngine = (subject, board = 'tn_state', standard = '12') => {
   const toast = useToast();
 
   // Quiz Configuration State
@@ -233,19 +214,17 @@ export function useQuizEngine(subject) {
           }
         }
 
-        const csvFile = CSV_MAP[subject?.toLowerCase()];
-        if (!csvFile) {
-          throw new Error(`Subject dataset '${subject}' is not found.`);
-        }
+        const subjectKey = subject?.toLowerCase() === 'computer' ? 'cs' : subject?.toLowerCase();
+        const targetUrl = `/datasets/${board}/${standard}/${subjectKey}.csv`;
 
         let response;
         try {
-          response = await fetch(csvFile, { cache: 'force-cache' });
+          response = await fetch(targetUrl, { cache: 'force-cache' });
         } catch {
           throw new Error(`Unable to reach the question dataset for ${subject}. Please check your connection and try again.`);
         }
 
-        if (!response.ok) throw new Error(`Failed to fetch dataset for ${subject} (HTTP ${response.status})`);
+        if (!response.ok) throw new Error(`Failed to fetch dataset for ${subject} (HTTP ${response.status}) at ${targetUrl}`);
         
         const text = await response.text();
         Papa.parse(text, {
@@ -507,35 +486,6 @@ export function useQuizEngine(subject) {
     setQuizMode("revision");
   }, [allQuestions, buildQuestionPool, toast]);
 
-  const hasBookmarkedQuestions = useCallback(() => {
-    const list = allQuestions || [];
-    for (let i = 0; i < list.length; i++) {
-      if (bookmarks.has(buildQuestionId(list[i]))) return true;
-    }
-    return false;
-  }, [allQuestions, bookmarks]);
-
-  const startBookmarkedQuiz = useCallback(() => {
-    const bookmarkedList = (allQuestions || []).filter(q => bookmarks.has(buildQuestionId(q)));
-    if (bookmarkedList.length === 0) {
-      toast.warning("No bookmarked questions in this subject. Tap the bookmark icon on questions to save them for later.");
-      return;
-    }
-    const filtered = buildQuestionPool(bookmarkedList);
-    setFirstAttemptQuestions(filtered);
-    setQuizQuestions(filtered);
-    setCurrentIdx(0);
-    setFirstAttemptCorrect(0);
-    setFirstAttemptAnswers([]);
-    setUserAnswer(null);
-    setIsLocked(false);
-    setIsInRepeatMode(false);
-    setCurrentRoundWrong([]);
-    setQuizMode("active");
-    if (timerLimit > 0) setTimeLeft(parseInt(timerLimit));
-    if (globalTimerLimit > 0) setGlobalTimeLeft(parseInt(globalTimerLimit) * 60);
-  }, [allQuestions, bookmarks, buildQuestionPool, timerLimit, globalTimerLimit, toast]);
-
   return {
     // Config state
     quizMode, setQuizMode,
@@ -563,7 +513,7 @@ export function useQuizEngine(subject) {
     startQuiz, handleAnswer, finishQuiz, startRevision, buildQuestionPool,
 
     // Feature: Bookmarks
-    bookmarks, isBookmarked, toggleBookmark, startBookmarkedQuiz, hasBookmarkedQuestions,
+    isBookmarked, toggleBookmark,
 
     // Feature: Resume Progress
     savedProgress, clearSavedProgress, saveProgressNow,

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { LogOut, UserRound, Sparkles, Menu, X, Moon, SunMedium } from 'lucide-react';
-import { useState } from 'react';
 import { useAuth } from '../context/useAuth';
 import { useTheme } from '../context/useTheme';
 import Galaxy from '../components/Galaxy';
+import OfflineIndicator from '../components/OfflineIndicator';
+import { getLocalGamificationData } from '../services/gamificationService';
+import faviconSvg from '../assets/favicon.svg';
 
 const SUBJECT_MAP = {
   biology: 'Biology',
@@ -17,11 +19,28 @@ const SUBJECT_MAP = {
 };
 
 export default function MainLayout() {
-  const { user, userProfile, googleAccessToken, logOut } = useAuth();
+  const { user, userProfile, logOut } = useAuth();
   const { theme, isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    // If user is logged in (and not guest) but missing setup, force to setup
+    const isSetupDone = userProfile?.setupCompleted || (userProfile?.board && userProfile?.standard);
+    if (
+      user && 
+      user.uid !== 'guest_student_demo' && 
+      userProfile && 
+      !isSetupDone && 
+      location.pathname !== '/setup'
+    ) {
+      navigate('/setup');
+    }
+  }, [user, userProfile, location.pathname, navigate]);
+  
+  const gamification = getLocalGamificationData();
+  const avatarUrl = gamification?.customAvatarUrl || user?.photoURL;
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
   const quizSubject = location.pathname.startsWith('/quiz/')
@@ -30,6 +49,7 @@ export default function MainLayout() {
 
   const navItems = [
     { label: 'Home', href: '/', icon: 'home' },
+    { label: 'Sprints', href: '/sprints', icon: 'sprints' },
     { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
     { label: 'About', href: '/about', icon: 'about' }
   ];
@@ -52,13 +72,6 @@ export default function MainLayout() {
     return (
       <div className="min-h-screen w-full position-relative">
         <Galaxy isDark={isDark} />
-        <div
-          className="position-fixed inset-0 z-0 pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(900px 500px at 10% 0%, color-mix(in oklab, var(--primary) 18%, transparent) 0%, transparent 60%), radial-gradient(700px 500px at 100% 100%, color-mix(in oklab, var(--accent) 18%, transparent) 0%, transparent 60%), linear-gradient(135deg, var(--bg-50), var(--bg-100))'
-          }}
-        />
         <div className="position-relative z-10">
           <Outlet />
         </div>
@@ -67,60 +80,49 @@ export default function MainLayout() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col position-relative">
+    <div className="min-h-screen w-full flex flex-col position-relative selection:bg-brand selection:text-black">
       <Galaxy isDark={isDark} />
-      <header
-        className="glass-panel sticky top-0 z-50 border-b"
-        style={{
-          background: 'color-mix(in oklab, var(--surface) 85%, transparent)',
-          backdropFilter: 'blur(14px)',
-          WebkitBackdropFilter: 'blur(14px)',
-          borderColor: 'var(--ink-100)'
-        }}
-      >
-        <div className="mx-auto px-4 px-md-5 px-lg-6" style={{ maxWidth: '1240px' }}>
-          <div className="d-flex align-items-center justify-content-between" style={{ height: '68px' }}>
-            {/* Brand */}
+      
+      {/* Industrial Neo-Brutalist Header */}
+      <header className="sticky-top z-50 transition-all border-b-brutal" style={{ background: 'var(--bg-main)' }}>
+        <div className="mx-auto px-3 px-md-4 px-lg-5" style={{ maxWidth: '1380px' }}>
+          <div className="d-flex align-items-center justify-content-between" style={{ height: '64px' }}>
+            
+            {/* Brand Logo */}
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="d-flex align-items-center gap-3 p-0 border-0 bg-transparent cursor-pointer"
-              style={{ lineHeight: 1 }}
+              className="d-flex align-items-center gap-3 p-0 border-0 bg-transparent cursor-pointer text-decoration-none group"
             >
               <div
-                className="d-flex align-items-center justify-content-center rounded-0 position-relative"
-                style={{
-                  width: '40px', height: '40px',
-                  background: 'linear-gradient(135deg, var(--primary-500), var(--accent))',
-                  color: 'white',
-                  boxShadow: '0 4px 12px -2px color-mix(in oklab, var(--primary) 40%, transparent)',
-                  borderRadius: '0px'
-                }}
+                className="d-flex align-items-center justify-content-center flex-shrink-0"
+                style={{ width: '36px', height: '36px' }}
               >
-                <Sparkles size={20} strokeWidth={2.3} />
+                <img src={faviconSvg} alt="MarkSprint Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
-              <div className="text-start d-none d-md-block">
-                <div className="font-extrabold tracking-tight" style={{ fontSize: '1.05rem', color: 'var(--ink-900)' }}>MarkSprint</div>
-                <div className="font-semibold" style={{ fontSize: '0.66rem', color: '#38BDF8', letterSpacing: '0.08em' }}>FALKON LABS OPEN SOURCE</div>
+              <div className="text-start d-none d-sm-block">
+                <h1 className="font-headline text-2xl font-black tracking-wider uppercase italic m-0" style={{ lineHeight: '1', color: 'var(--text-main)' }}>
+                  MARKSPRINT
+                </h1>
+                <div className="font-mono font-bold text-uppercase mt-0.5" style={{ fontSize: '0.62rem', letterSpacing: '0.12em', color: 'var(--text-muted)' }}>
+                  FALKON LABS // OPEN SOURCE
+                </div>
               </div>
             </button>
 
-            {/* Center Nav */}
-            <nav className="d-none d-md-flex align-items-center gap-1 rounded-0 p-1" style={{ background: 'var(--surface-3)', borderRadius: '0px' }}>
+            {/* Navigation Links */}
+            <nav className="d-none d-md-flex align-items-center gap-2 font-mono text-xs">
               {navItems.map((item) => {
                 const active = activeHref === item.href;
                 return (
                   <Link
                     key={item.href}
                     to={item.href}
-                    className="px-4 py-2 rounded-0 text-decoration-none font-semibold transition-all"
-                    style={{
-                      fontSize: '0.85rem',
-                      background: active ? 'var(--surface)' : 'transparent',
-                      color: active ? 'var(--ink-900)' : 'var(--ink-500)',
-                      boxShadow: active ? 'var(--shadow-xs)' : 'none',
-                      borderRadius: '0px'
-                    }}
+                    className={`px-3 py-1.5 text-decoration-none transition-all font-headline font-bold text-xs uppercase border-2 border-transparent ${
+                      active
+                        ? 'bg-brand text-white font-black border-black shadow-hard-sm'
+                        : 'nav-link-custom'
+                    }`}
                   >
                     {item.label}
                   </Link>
@@ -128,77 +130,74 @@ export default function MainLayout() {
               })}
             </nav>
 
-            {/* Right: User controls */}
-            <div className="d-flex align-items-center gap-2">
+            {/* Right Actions */}
+            <div className="d-flex align-items-center gap-4">
               <button
                 type="button"
                 onClick={toggleTheme}
-                className="btn btn-cosmic-outline btn-sm d-flex align-items-center justify-content-center"
-                title="Switch theme"
-                style={{ width: '38px', height: '38px', borderRadius: '0px' }}
+                className="btn p-0 font-mono font-bold uppercase d-flex align-items-center justify-content-center border-brutal transition-all shadow-hard-sm"
+                title="Switch Theme Mode"
+                aria-label="Switch Theme Mode"
+                style={{ width: '38px', height: '38px', background: 'var(--bg-card)', color: 'var(--text-main)' }}
               >
-                {theme === 'space' ? <Moon size={18} /> : <SunMedium size={18} />}
+                {theme === 'space' ? <SunMedium size={18} /> : <Moon size={18} />}
               </button>
+
               {quizSubject && (
-                <span className="chip chip-accent d-none d-md-inline-flex">{quizSubject}</span>
-              )}
-              {user ? (
-                <>
-                  {googleAccessToken && (
-                    <span 
-                      className="px-2 py-1 font-bold text-uppercase d-none d-lg-inline-flex align-items-center gap-1"
-                      style={{
-                        fontSize: '0.66rem',
-                        background: 'rgba(16, 185, 129, 0.15)',
-                        color: '#34D399',
-                        border: '1px solid rgba(52, 211, 153, 0.3)',
-                        borderRadius: '0px'
-                      }}
-                      title="Google Drive Cloud Auto-Sync Enabled"
-                    >
-                      <span>🟢</span> Drive Synced
-                    </span>
-                  )}
-                  <div
-                    className="d-flex align-items-center gap-2 rounded-0 px-2 py-1 cursor-pointer"
-                    onClick={() => navigate('/dashboard')}
-                    style={{ background: 'var(--surface-3)', borderRadius: '0px', cursor: 'pointer' }}
-                    title="View Analytics Dashboard"
-                  >
-                    <div
-                      className="d-flex align-items-center justify-content-center rounded-0"
-                      style={{
-                        width: '32px', height: '32px',
-                        background: 'var(--primary-100)',
-                        color: 'var(--primary-600)',
-                        borderRadius: '0px'
-                      }}
-                    >
-                      <UserRound size={16} />
-                    </div>
-                    <div className="text-start d-none d-md-block">
-                      <div className="font-bold" style={{ fontSize: '0.8rem', color: 'var(--ink-900)' }}>
-                        {userProfile?.displayName || user.email?.split('@')[0] || 'User'}
-                      </div>
-                      <div style={{ fontSize: '0.68rem', color: 'var(--ink-400)' }}>{userProfile?.role || 'Student'}</div>
-                    </div>
-                  </div>
-                  <button type="button" onClick={handleLogout} className="btn btn-ghost btn-sm" title="Logout">
-                    <LogOut size={16} />
-                  </button>
-                </>
-              ) : (
-                <button type="button" onClick={() => navigate('/login')} className="btn btn-primary btn-sm">
-                  Sign In
-                </button>
+                <span className="badge bg-brand text-white font-mono font-bold text-uppercase d-none d-lg-inline-flex px-3 py-1.5 border-2 border-black text-xs shadow-hard-sm">
+                  {quizSubject}
+                </span>
               )}
 
-              {/* Mobile menu button */}
+              {user ? (
+                <div className="d-flex align-items-center gap-2">
+                  <div
+                    className="d-flex align-items-center justify-content-center cursor-pointer transition-all border-brutal shadow-hard-sm"
+                    onClick={() => navigate('/dashboard')}
+                    title="View Analytics Dashboard"
+                    style={{ background: 'var(--bg-card)', width: '38px', height: '38px' }}
+                  >
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <UserRound size={18} className="text-brand" />
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="btn p-2 transition-all border-brutal shadow-hard-sm"
+                    title="Logout"
+                    style={{ background: 'var(--danger)', color: '#000000' }}
+                  >
+                    <LogOut size={15} />
+                  </button>
+                </div>
+              ) : (
+                <div className="d-flex align-items-center gap-3">
+                  <span
+                    className="font-mono font-bold text-xs uppercase px-3 py-1.5 d-none d-lg-inline border-brutal shadow-hard-sm"
+                    style={{ background: '#1E1035', color: '#E9D5FF', borderColor: 'var(--brand)' }}
+                  >
+                    GUEST MODE
+                  </span>
+                  <button 
+                    type="button" 
+                    onClick={() => navigate('/login')} 
+                    className="btn-primary btn-sm border-brutal shadow-hard-sm"
+                  >
+                    SIGN IN_
+                  </button>
+                </div>
+              )}
+
+              {/* Mobile Menu Button */}
               <button
                 type="button"
                 onClick={() => setMobileOpen(v => !v)}
-                className="btn btn-ghost btn-sm d-md-none"
+                className="btn p-2 d-md-none border-brutal shadow-hard-sm"
                 aria-label="Toggle menu"
+                style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}
               >
                 {mobileOpen ? <X size={18} /> : <Menu size={18} />}
               </button>
@@ -206,13 +205,10 @@ export default function MainLayout() {
           </div>
         </div>
 
-        {/* Mobile Nav Dropdown */}
+        {/* Mobile Navigation Dropdown */}
         {mobileOpen && (
-          <div
-            className="d-md-none border-top anim-fade-in"
-            style={{ borderColor: 'var(--ink-100)', background: 'var(--surface-2)' }}
-          >
-            <div className="mx-auto px-4 py-3 d-flex flex-column gap-1" style={{ maxWidth: '1240px' }}>
+          <div className="d-md-none border-t-brutal p-3 font-mono font-bold" style={{ background: 'var(--bg-main)' }}>
+            <div className="d-flex flex-column gap-2">
               {navItems.map((item) => {
                 const active = activeHref === item.href;
                 return (
@@ -220,12 +216,9 @@ export default function MainLayout() {
                     key={item.href}
                     to={item.href}
                     onClick={() => setMobileOpen(false)}
-                    className="px-3 py-2 rounded-3 text-decoration-none font-semibold"
-                    style={{
-                      fontSize: '0.9rem',
-                      background: active ? 'var(--primary-50)' : 'transparent',
-                      color: active ? 'var(--primary-600)' : 'var(--ink-700)'
-                    }}
+                    className={`p-3 text-decoration-none font-bold text-uppercase border-2 transition-all ${
+                      active ? 'bg-brand text-white border-black font-black shadow-hard-sm' : 'border-transparent nav-link-custom hover:border-brutal'
+                    }`}
                   >
                     {item.label}
                   </Link>
@@ -236,51 +229,39 @@ export default function MainLayout() {
         )}
       </header>
 
-      {/* Main content area */}
+      {/* Main Content Area */}
       <main className="flex-grow-1">
-        <div className="mx-auto px-3 px-md-4 px-lg-5 py-5 py-md-6" style={{ maxWidth: '1240px' }}>
+        <div className="mx-auto px-3 px-md-4 px-lg-5 py-4 py-md-5" style={{ maxWidth: '1380px' }}>
           <Outlet />
         </div>
       </main>
 
-      <footer
-        className="glass-panel border-top py-5 mt-4"
-        style={{
-          borderColor: 'var(--ink-100)',
-          background: 'color-mix(in oklab, var(--surface) 85%, transparent)',
-          backdropFilter: 'blur(14px)',
-          WebkitBackdropFilter: 'blur(14px)'
-        }}
-      >
-        <div className="mx-auto px-4 px-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3" style={{ maxWidth: '1240px' }}>
-          <div className="d-flex align-items-center gap-2">
-            <div
-              className="d-flex align-items-center justify-content-center"
-              style={{
-                width: '28px', height: '28px',
-                background: 'linear-gradient(135deg, var(--primary-500), var(--accent))',
-                color: 'white',
-                borderRadius: '0px'
-              }}
-            >
-              <Sparkles size={14} />
+      {/* Neo-Brutalism Tactical Footer */}
+      <footer className="border-t-brutal py-5 font-mono" style={{ background: 'var(--bg-main)' }}>
+        <div className="mx-auto px-4 px-md-5" style={{ maxWidth: '1380px' }}>
+          <div className="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-4">
+            <div>
+              <h4 className="font-headline text-3xl font-black uppercase italic mb-1 d-flex align-items-center gap-2" style={{ color: 'var(--text-main)' }}>
+                MARKSPRINT <span className="text-brand text-xs font-mono font-bold not-italic px-2 py-0.5 border-2 border-black bg-brand text-white">FALKON LABS</span>
+              </h4>
+              <p className="text-xs font-bold uppercase tracking-widest m-0" style={{ color: 'var(--text-muted)' }}>SPEED REVISION & KNOWLEDGE MASTERY ENGINE</p>
             </div>
-            <div className="font-bold" style={{ fontSize: '0.88rem', color: 'var(--ink-700)' }}>
-              © {new Date().getFullYear()} MarkSprint
+            <div className="d-flex gap-3 font-bold uppercase text-xs flex-wrap">
+              <Link to="/about" className="text-decoration-none border-2 transition-all shadow-hard-sm" style={{ background: 'var(--bg-card)', color: 'var(--text-main)', padding: '0.4rem 0.8rem', borderColor: 'var(--border-main)' }}>ABOUT</Link>
+              {userProfile?.role === 'teacher' && (
+                <Link to="/content-manager" className="text-decoration-none border-2 transition-all shadow-hard-sm" style={{ background: 'var(--bg-card)', color: 'var(--text-main)', padding: '0.4rem 0.8rem', borderColor: 'var(--border-main)' }}>CONTENT MANAGER</Link>
+              )}
+              <a href="https://github.com/sreehari462/marksprint" target="_blank" rel="noreferrer" className="text-decoration-none border-2 transition-all shadow-hard-sm" style={{ background: 'var(--bg-card)', color: 'var(--text-main)', padding: '0.4rem 0.8rem', borderColor: 'var(--border-main)' }}>GITHUB</a>
             </div>
-          </div>
-          <div className="d-flex align-items-center gap-4 flex-wrap justify-content-center">
-            <Link to="/about" className="text-decoration-none font-medium" style={{ fontSize: '0.82rem', color: 'var(--ink-500)' }}>About</Link>
-            {userProfile?.role === 'teacher' && (
-              <Link to="/content-manager" className="text-decoration-none font-medium" style={{ fontSize: '0.82rem', color: 'var(--ink-500)' }}>Content Manager</Link>
-            )}
-            <a href="https://github.com/sreehari462/marksprint" target="_blank" rel="noreferrer" className="text-decoration-none font-medium" style={{ fontSize: '0.82rem', color: 'var(--ink-500)' }}>GitHub</a>
-          </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--ink-400)' }}>
-            Falkon Labs Open Source · Maintained by Sree Hari Sk & S. Saravanan
+            <div className="text-md-end">
+              <p className="text-xs font-bold uppercase m-0" style={{ color: 'var(--text-muted)' }}>MAINTAINED BY SREE HARI SK & S. SARAVANAN</p>
+              <p className="text-xs font-black mt-1 m-0 text-brand">© 2026_ALL_RIGHTS_RESERVED</p>
+            </div>
           </div>
         </div>
       </footer>
+
+      <OfflineIndicator />
     </div>
   );
 }
